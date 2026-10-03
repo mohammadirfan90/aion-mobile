@@ -1,56 +1,126 @@
-# Welcome to your Expo app 👋
+# Aion LMS - Mobile Application
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+A modern, cross-platform **Learning Management System (LMS) Mobile App** built with **React Native**, **Expo SDK 57**, and **TypeScript**. Designed for students and instructors to access courses, track progress, manage assignments, and engage in interactive learning seamlessly across mobile and web platforms.
 
-1. Install dependencies
 
+## Key Features
+
+* ** Course Directory & Enrollment**: Browse available courses, view detailed syllabi, and enroll in interactive modules.
+* **Native Navigation**: File-based routing powered by **Expo Router** for smooth transitions and deep-linking support.
+* ** Responsive & Themed UI**: Built-in support for light/dark modes and custom design tokens (`ThemedView`, `ThemedText`).
+* ** Learning Progress Tracking**: Track completed lessons, upcoming deadlines, and quiz results.
+* ** Multi-Platform Support**: Works seamlessly across iOS, Android, and Web using a single shared codebase.
+* ** Micro-Animations**: Smooth UI motion powered by `react-native-reanimated` and `react-native-gesture-handler`.
+
+##  Tech Stack
+
+* **Core Framework**: [React Native 0.86](https://reactnative.dev/) & [React 19](https://react.dev/)
+* **Platform & Tooling**: [Expo SDK 57](https://expo.dev/)
+* **Router**: [Expo Router v57](https://docs.expo.dev/router/introduction/) (File-based Routing)
+* **Language**: [TypeScript 6.0](https://www.typescriptlang.org/)
+* **Styling & Animation**: React Native Reanimated, Safe Area Context, React Native Web
+
+
+## Project Structure
+
+```text
+mobile/
+├── assets/                # App icons, splash screens, and static images
+├── src/
+│   ├── app/               # Expo Router pages (screens & navigation layouts)
+│   │   ├── _layout.tsx    # Root layout & theme providers
+│   │   ├── index.tsx      # Home screen / Dashboard
+│   │   └── explore.tsx    # Course exploration & discovery
+│   ├── components/        # Reusable UI components (ThemedView, HintRow, etc.)
+│   ├── constants/         # Theme colors, layout constants, spacing
+│   ├── hooks/             # Custom React hooks (theme, device state, etc.)
+│   └── global.css         # Global styles
+├── scripts/               # Helper & setup scripts
+├── app.json               # Expo configuration & app metadata
+├── tsconfig.json          # TypeScript compiler configuration
+└── package.json           # App dependencies & npm scripts
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed on your development machine:
+
+* **Node.js** (v18.x or later recommended)
+* **npm** or **bun** / **yarn**
+* **Expo Go app** on your iOS or Android device (for physical device testing), or an **Android Emulator** / **iOS Simulator**.
+
+---
+
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-org/Aion_MobileApp.git
+   cd Aion_MobileApp/mobile
+   ```
+
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+### Running the App
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Start the Expo local development server:
 
 ```bash
-npm run reset-project
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+From the terminal menu, you can launch the app on your preferred target:
 
-### Other setup steps
+* **Android Emulator / Device**: Press `a` or run:
+  ```bash
+  npm run android
+  ```
+* **iOS Simulator**: Press `i` or run:
+  ```bash
+  npm run ios
+  ```
+* **Web Browser**: Press `w` or run:
+  ```bash
+  npm run web
+  ```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+---
 
-## Learn more
+## 📜 Available Scripts
 
-To learn more about developing your project with Expo, look at the following resources:
+| Command | Description |
+| :--- | :--- |
+| `npm start` | Starts the Expo dev server (`npx expo start`) |
+| `npm run android` | Starts Expo dev server targeting Android emulator |
+| `npm run ios` | Starts Expo dev server targeting iOS simulator |
+| `npm run web` | Launches the web preview in your default browser |
+| `npm run lint` | Runs Expo linter (`npx expo lint`) |
+| `npm run reset-project` | Resets starter template files to `app-example` |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## 📱 Building & Production Deployment
 
-Join our community of developers creating universal apps.
+This project is prepared for cloud builds using **EAS (Expo Application Services)**:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+# Install EAS CLI globally if not installed
+npm install -g eas-cli
+
+# Build for Android (APK / AAB)
+npx eas-cli build --platform android
+
+# Build for iOS (IPA)
+npx eas-cli build --platform ios
+```
+
