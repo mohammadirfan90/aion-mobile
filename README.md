@@ -6,20 +6,20 @@ A modern, cross-platform **Learning Management System (LMS) Mobile App** built w
 
 ## Key Features
 
-* ** Course Directory & Enrollment**: Browse available courses, view detailed syllabi, and enroll in interactive modules.
-* **Native Navigation**: File-based routing powered by **Expo Router** for smooth transitions and deep-linking support.
-* ** Responsive & Themed UI**: Built-in support for light/dark modes and custom design tokens (`ThemedView`, `ThemedText`).
-* ** Learning Progress Tracking**: Track completed lessons, upcoming deadlines, and quiz results.
-* ** Multi-Platform Support**: Works seamlessly across iOS, Android, and Web using a single shared codebase.
-* ** Micro-Animations**: Smooth UI motion powered by `react-native-reanimated` and `react-native-gesture-handler`.
+*** Course Directory & Enrollment**: Browse available courses, view detailed syllabi, and enroll in interactive modules.
+***Native Navigation**: File-based routing powered by **Expo Router** for smooth transitions and deep-linking support.
+*** Responsive & Themed UI**: Built-in support for light/dark modes and custom design tokens (`ThemedView`, `ThemedText`).
+*** Learning Progress Tracking**: Track completed lessons, upcoming deadlines, and quiz results.
+*** Multi-Platform Support**: Works seamlessly across iOS, Android, and Web using a single shared codebase.
+*** Micro-Animations**: Smooth UI motion powered by `react-native-reanimated` and `react-native-gesture-handler`.
 
 ##  Tech Stack
 
-* **Core Framework**: [React Native 0.86](https://reactnative.dev/) & [React 19](https://react.dev/)
-* **Platform & Tooling**: [Expo SDK 57](https://expo.dev/)
-* **Router**: [Expo Router v57](https://docs.expo.dev/router/introduction/) (File-based Routing)
-* **Language**: [TypeScript 6.0](https://www.typescriptlang.org/)
-* **Styling & Animation**: React Native Reanimated, Safe Area Context, React Native Web
+***Core Framework**: [React Native 0.86](https://reactnative.dev/) & [React 19](https://react.dev/)
+***Platform & Tooling**: [Expo SDK 57](https://expo.dev/)
+***Router**: [Expo Router v57](https://docs.expo.dev/router/introduction/) (File-based Routing)
+***Language**: [TypeScript 6.0](https://www.typescriptlang.org/)
+***Styling & Animation**: React Native Reanimated, Safe Area Context, React Native Web
 
 
 ## Project Structure
@@ -50,11 +50,9 @@ mobile/
 
 Ensure you have the following installed on your development machine:
 
-* **Node.js** (v18.x or later recommended)
-* **npm** or **bun** / **yarn**
-* **Expo Go app** on your iOS or Android device (for physical device testing), or an **Android Emulator** / **iOS Simulator**.
-
----
+***Node.js** (v18.x or later recommended)
+***npm** or **bun** / **yarn**
+***Expo Go app** on your iOS or Android device (for physical device testing), or an **Android Emulator** / **iOS Simulator**.
 
 ### Installation
 
@@ -94,9 +92,9 @@ From the terminal menu, you can launch the app on your preferred target:
   npm run web
   ```
 
----
 
-## 📜 Available Scripts
+
+## Available Scripts
 
 | Command | Description |
 | :--- | :--- |
@@ -107,20 +105,4 @@ From the terminal menu, you can launch the app on your preferred target:
 | `npm run lint` | Runs Expo linter (`npx expo lint`) |
 | `npm run reset-project` | Resets starter template files to `app-example` |
 
----
-
-## 📱 Building & Production Deployment
-
-This project is prepared for cloud builds using **EAS (Expo Application Services)**:
-
-```bash
-# Install EAS CLI globally if not installed
-npm install -g eas-cli
-
-# Build for Android (APK / AAB)
-npx eas-cli build --platform android
-
-# Build for iOS (IPA)
-npx eas-cli build --platform ios
-```
 
