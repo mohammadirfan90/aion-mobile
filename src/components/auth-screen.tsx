@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,13 +10,14 @@ import {
   ScrollView,
   Platform,
   SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-// Custom SVG Icons
+// --- Custom SVG Icons ---
 function GoogleIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={18} height={18} viewBox="0 0 24 24">
       <Path
         fill="#4285F4"
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -39,49 +40,13 @@ function GoogleIcon() {
 
 function AppleIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="#000000">
+    <Svg width={18} height={18} viewBox="0 0 24 24" fill="#000000">
       <Path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.32c.67-.82 1.12-1.95.99-3.09-.96.04-2.13.64-2.82 1.45-.62.72-1.16 1.88-1.01 3 1.07.08 2.17-.54 2.84-1.36z" />
     </Svg>
   );
 }
 
-function MailIcon({ color = "#9CA3AF" }: { color?: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-      <Path d="M22 6l-10 7L2 6" />
-    </Svg>
-  );
-}
-
-function LockIcon({ color = "#9CA3AF" }: { color?: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M19 11H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-1.1-.9-2-2-2z" />
-      <Path d="M7 11V7a5 5 0 0110 0v4" />
-    </Svg>
-  );
-}
-
-function UserIcon({ color = "#9CA3AF" }: { color?: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-      <Path d="M12 11a4 4 0 100-8 4 4 0 000 8z" />
-    </Svg>
-  );
-}
-
-function EyeIcon({ color = "#64748B" }: { color?: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <Path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-    </Svg>
-  );
-}
-
-function EyeOffIcon({ color = "#64748B" }: { color?: string }) {
+function EyeOffIcon({ color = "#94A3B8" }: { color?: string }) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
@@ -90,108 +55,73 @@ function EyeOffIcon({ color = "#64748B" }: { color?: string }) {
   );
 }
 
-function CheckCircleIcon({ color = "#10B981" }: { color?: string }) {
+function EyeIcon({ color = "#94A3B8" }: { color?: string }) {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <Path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+    </Svg>
+  );
+}
+
+function SuccessCheckIcon() {
+  return (
+    <Svg width={44} height={44} viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
       <Path d="M22 4L12 14.01l-3-3" />
     </Svg>
   );
 }
 
-function ClearIcon({ color = "#9CA3AF" }: { color?: string }) {
-  return (
-    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M18 6L6 18" />
-      <Path d="M6 6l12 12" />
-    </Svg>
-  );
-}
-
-function ChevronRightIcon({ color = "#FFFFFF" }: { color?: string }) {
-  return (
-    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M9 18l6-6-6-6" />
-    </Svg>
-  );
-}
-
-export type AuthMode = 'signin' | 'signup' | 'forgot';
+export type AuthScreenStep = 'login' | 'signup' | 'otp' | 'success';
 
 export default function AuthScreen() {
-  const [mode, setMode] = useState<AuthMode>('signin');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [step, setStep] = useState<AuthScreenStep>('login');
+
+  // Form Fields
+  const [email, setEmail] = useState('you@example.com');
+  const [password, setPassword] = useState('••••••••••••');
+  const [confirmPassword, setConfirmPassword] = useState('••••••••••••');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
+  // OTP Box Inputs
+  const [otp, setOtp] = useState(['1', '0', '0', '0', '0']);
+  const otpRefs = useRef<Array<TextInput | null>>([]);
+
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-  // Fast Validation Checkers
-  const isEmailValid = useMemo(() => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  }, [email]);
+  const handleOtpChange = (text: string, index: number) => {
+    const newOtp = [...otp];
+    newOtp[index] = text;
+    setOtp(newOtp);
 
-  const passwordStrength = useMemo(() => {
-    if (!password) return null;
-    if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) return { label: 'Strong', color: '#10B981' };
-    if (password.length >= 6) return { label: 'Medium', color: '#F59E0B' };
-    return { label: 'Weak', color: '#EF4444' };
-  }, [password]);
-
-  const handleSocialSignIn = (provider: 'google' | 'apple') => {
-    setMessage(null);
-    setSocialLoading(provider);
-    setTimeout(() => {
-      setSocialLoading(null);
-      setMessage({
-        text: `${provider === 'google' ? 'Google' : 'Apple'} Sign-In initiated successfully!`,
-        type: 'success',
-      });
-    }, 800);
+    if (text && index < 4) {
+      otpRefs.current[index + 1]?.focus();
+    }
   };
 
-  const handleSubmit = () => {
+  const handleAction = () => {
     setMessage(null);
-
-    if (!email) {
-      setMessage({ text: 'Please enter your email address.', type: 'error' });
-      return;
-    }
-
-    if (!isEmailValid) {
-      setMessage({ text: 'Please enter a valid email address (e.g., name@domain.com).', type: 'error' });
-      return;
-    }
-
-    if (mode !== 'forgot' && !password) {
-      setMessage({ text: 'Please enter your password.', type: 'error' });
-      return;
-    }
-
-    if (mode === 'signup' && !name.trim()) {
-      setMessage({ text: 'Please enter your full name.', type: 'error' });
-      return;
-    }
-
     setLoading(true);
+
     setTimeout(() => {
       setLoading(false);
-      if (mode === 'signin') {
-        setMessage({ text: `Welcome back, ${email.split('@')[0]}! Signed in successfully.`, type: 'success' });
-      } else if (mode === 'signup') {
-        setMessage({ text: 'Account created successfully! Welcome to Aion.', type: 'success' });
-      } else {
-        setMessage({ text: 'Password reset link sent to your email address.', type: 'success' });
+      if (step === 'login') {
+        setStep('success');
+      } else if (step === 'signup') {
+        setStep('otp');
+      } else if (step === 'otp') {
+        setStep('success');
       }
-    }, 800);
+    }, 700);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardAvoid}
@@ -202,42 +132,26 @@ export default function AuthScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.cardContainer}>
-            {/* Fast Mode Toggle Pills */}
-            <View style={styles.pillContainer}>
-              <TouchableOpacity
-                style={[styles.pillButton, mode === 'signin' && styles.pillActive]}
-                onPress={() => { setMode('signin'); setMessage(null); }}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.pillText, mode === 'signin' && styles.pillTextActive]}>
-                  Sign In
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.pillButton, mode === 'signup' && styles.pillActive]}
-                onPress={() => { setMode('signup'); setMessage(null); }}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.pillText, mode === 'signup' && styles.pillTextActive]}>
-                  Create Account
-                </Text>
-              </TouchableOpacity>
-            </View>
-
             {/* Header Section */}
-            <View style={styles.header}>
-              <Text style={styles.title}>
-                {mode === 'signin' && 'Welcome back'}
-                {mode === 'signup' && 'Create an account'}
-                {mode === 'forgot' && 'Reset password'}
-              </Text>
-              <Text style={styles.subtitle}>
-                {mode === 'signin' && 'Sign in to continue your learning journey.'}
-                {mode === 'signup' && 'Sign up to start your learning journey.'}
-                {mode === 'forgot' && 'Enter your email to receive a password reset link.'}
-              </Text>
-            </View>
+            {step !== 'success' && (
+              <View style={styles.header}>
+                <Text style={styles.title}>
+                  {step === 'login' && 'Get Started With Your Learning Journey'}
+                  {step === 'signup' && 'Create An Account'}
+                  {step === 'otp' && 'Enter Code Here'}
+                </Text>
+                <Text style={styles.subtitle}>
+                  {step === 'login' && 'Sign in to your Account'}
+                  {step === 'signup' && 'Sign up for your Account'}
+                  {step === 'otp' && (
+                    <Text style={styles.otpSubtitleText}>
+                      Please enter the code we just sent to email{' '}
+                      <Text style={styles.emailHighlight}>{email}</Text>
+                    </Text>
+                  )}
+                </Text>
+              </View>
+            )}
 
             {/* Notification Banner */}
             {message && (
@@ -258,150 +172,70 @@ export default function AuthScreen() {
               </View>
             )}
 
-            {/* Social OAuth Buttons */}
-            {mode !== 'forgot' && (
-              <>
-                <View style={styles.socialRow}>
-                  <TouchableOpacity
-                    style={[styles.googleButton, styles.socialFlex]}
-                    activeOpacity={0.8}
-                    onPress={() => handleSocialSignIn('google')}
-                    disabled={!!socialLoading || loading}
-                  >
-                    {socialLoading === 'google' ? (
-                      <ActivityIndicator size="small" color="#1F2937" />
-                    ) : (
-                      <>
-                        <GoogleIcon />
-                        <Text style={styles.googleButtonText}>Sign in with Google</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
+            {/* Segmented Pill Selector (Login / Sign Up) */}
+            {(step === 'login' || step === 'signup') && (
+              <View style={styles.pillContainer}>
+                <TouchableOpacity
+                  style={[styles.pillButton, step === 'login' && styles.pillActive]}
+                  onPress={() => { setStep('login'); setMessage(null); }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.pillText, step === 'login' && styles.pillTextActive]}>
+                    Login
+                  </Text>
+                </TouchableOpacity>
 
-                  {Platform.OS === 'ios' && (
-                    <TouchableOpacity
-                      style={[styles.appleButton]}
-                      activeOpacity={0.8}
-                      onPress={() => handleSocialSignIn('apple')}
-                      disabled={!!socialLoading || loading}
-                    >
-                      {socialLoading === 'apple' ? (
-                        <ActivityIndicator size="small" color="#FFFFFF" />
-                      ) : (
-                        <AppleIcon />
-                      )}
-                    </TouchableOpacity>
-                  )}
-                </View>
-
-                {/* Divider Line */}
-                <View style={styles.dividerContainer}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>OR SIGN IN WITH EMAIL</Text>
-                  <View style={styles.dividerLine} />
-                </View>
-              </>
+                <TouchableOpacity
+                  style={[styles.pillButton, step === 'signup' && styles.pillActive]}
+                  onPress={() => { setStep('signup'); setMessage(null); }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.pillText, step === 'signup' && styles.pillTextActive]}>
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
 
-            {/* Form Fields */}
-            <View style={styles.formGroup}>
-              {/* Full Name Field (Sign Up mode) */}
-              {mode === 'signup' && (
+            {/* --- STEP 1: LOGIN & STEP 2: SIGN UP FIELDS --- */}
+            {(step === 'login' || step === 'signup') && (
+              <View style={styles.formGroup}>
+                {/* Email Field */}
                 <View style={styles.fieldContainer}>
-                  <Text style={styles.fieldLabel}>Full Name</Text>
+                  <Text style={styles.fieldLabel}>Email</Text>
                   <View
                     style={[
                       styles.inputWrapper,
-                      focusedInput === 'name' && styles.inputWrapperFocused,
+                      focusedInput === 'email' && styles.inputWrapperFocused,
                     ]}
                   >
-                    <View style={styles.inputIcon}>
-                      <UserIcon color={focusedInput === 'name' ? '#0F172A' : '#9CA3AF'} />
-                    </View>
                     <TextInput
                       style={styles.textInput}
-                      placeholder="John Doe"
-                      placeholderTextColor="#9CA3AF"
-                      value={name}
-                      onChangeText={setName}
-                      onFocus={() => setFocusedInput('name')}
+                      placeholder="you@example.com"
+                      placeholderTextColor="#94A3B8"
+                      value={email}
+                      onChangeText={setEmail}
+                      onFocus={() => setFocusedInput('email')}
                       onBlur={() => setFocusedInput(null)}
-                      autoCapitalize="words"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
                     />
-                    {name.length > 0 && (
-                      <TouchableOpacity onPress={() => setName('')} style={styles.clearBtn}>
-                        <ClearIcon />
-                      </TouchableOpacity>
-                    )}
                   </View>
                 </View>
-              )}
 
-              {/* Email Field */}
-              <View style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>Email</Text>
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    focusedInput === 'email' && styles.inputWrapperFocused,
-                  ]}
-                >
-                  <View style={styles.inputIcon}>
-                    <MailIcon color={focusedInput === 'email' ? '#0F172A' : '#9CA3AF'} />
-                  </View>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="you@example.com"
-                    placeholderTextColor="#9CA3AF"
-                    value={email}
-                    onChangeText={setEmail}
-                    onFocus={() => setFocusedInput('email')}
-                    onBlur={() => setFocusedInput(null)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                  {isEmailValid ? (
-                    <View style={styles.validationIcon}>
-                      <CheckCircleIcon />
-                    </View>
-                  ) : email.length > 0 ? (
-                    <TouchableOpacity onPress={() => setEmail('')} style={styles.clearBtn}>
-                      <ClearIcon />
-                    </TouchableOpacity>
-                  ) : null}
-                </View>
-              </View>
-
-              {/* Password Field */}
-              {mode !== 'forgot' && (
+                {/* Password Field */}
                 <View style={styles.fieldContainer}>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.fieldLabel}>Password</Text>
-                    {mode === 'signin' && (
-                      <TouchableOpacity onPress={() => { setMode('forgot'); setMessage(null); }}>
-                        <Text style={styles.forgotText}>Forgot password?</Text>
-                      </TouchableOpacity>
-                    )}
-                    {mode === 'signup' && passwordStrength && (
-                      <Text style={[styles.strengthText, { color: passwordStrength.color }]}>
-                        {passwordStrength.label}
-                      </Text>
-                    )}
-                  </View>
+                  <Text style={styles.fieldLabel}>Password</Text>
                   <View
                     style={[
                       styles.inputWrapper,
                       focusedInput === 'password' && styles.inputWrapperFocused,
                     ]}
                   >
-                    <View style={styles.inputIcon}>
-                      <LockIcon color={focusedInput === 'password' ? '#0F172A' : '#9CA3AF'} />
-                    </View>
                     <TextInput
                       style={styles.textInput}
-                      placeholder="••••••••"
-                      placeholderTextColor="#9CA3AF"
+                      placeholder="••••••••••••"
+                      placeholderTextColor="#94A3B8"
                       value={password}
                       onChangeText={setPassword}
                       onFocus={() => setFocusedInput('password')}
@@ -409,87 +243,190 @@ export default function AuthScreen() {
                       secureTextEntry={!showPassword}
                     />
                     <TouchableOpacity
-                      style={styles.eyeIconButton}
                       onPress={() => setShowPassword(!showPassword)}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={styles.eyeIconButton}
                     >
-                      {showPassword ? <EyeOffIcon color="#64748B" /> : <EyeIcon color="#64748B" />}
+                      {showPassword ? <EyeIcon color="#64748B" /> : <EyeOffIcon color="#64748B" />}
                     </TouchableOpacity>
                   </View>
                 </View>
-              )}
-            </View>
 
-            {/* Primary Submit Button */}
-            <TouchableOpacity
-              style={styles.submitButton}
-              activeOpacity={0.8}
-              onPress={handleSubmit}
-              disabled={loading || !!socialLoading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <View style={styles.submitButtonContent}>
-                  <Text style={styles.submitButtonText}>
-                    {mode === 'signin' && 'Sign in'}
-                    {mode === 'signup' && 'Create account'}
-                    {mode === 'forgot' && 'Send reset link'}
-                  </Text>
-                  <ChevronRightIcon color="#FFFFFF" />
-                </View>
-              )}
-            </TouchableOpacity>
+                {/* Confirm Password Field (Sign Up Only) */}
+                {step === 'signup' && (
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.fieldLabel}>Confirm Password</Text>
+                    <View
+                      style={[
+                        styles.inputWrapper,
+                        focusedInput === 'confirmPassword' && styles.inputWrapperFocused,
+                      ]}
+                    >
+                      <TextInput
+                        style={styles.textInput}
+                        placeholder="••••••••••••"
+                        placeholderTextColor="#94A3B8"
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        onFocus={() => setFocusedInput('confirmPassword')}
+                        onBlur={() => setFocusedInput(null)}
+                        secureTextEntry={!showConfirmPassword}
+                      />
+                      <TouchableOpacity
+                        onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                        style={styles.eyeIconButton}
+                      >
+                        {showConfirmPassword ? <EyeIcon color="#64748B" /> : <EyeOffIcon color="#64748B" />}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
 
-            {/* Bottom Navigation Toggle */}
-            <View style={styles.toggleContainer}>
-              {mode === 'signin' && (
-                <Text style={styles.toggleText}>
-                  Don't have an account?{' '}
-                  <Text
-                    style={styles.toggleLinkBold}
-                    onPress={() => { setMode('signup'); setMessage(null); }}
+                {/* Forgot Passwords Link (Login Only) */}
+                {step === 'login' && (
+                  <TouchableOpacity
+                    style={styles.forgotContainer}
+                    onPress={() => setStep('otp')}
                   >
-                    Create one
-                  </Text>
+                    <Text style={styles.forgotText}>Forgot Passwords?</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+
+            {/* --- STEP 3: OTP VERIFICATION --- */}
+            {step === 'otp' && (
+              <View style={styles.otpSection}>
+                <View style={styles.otpRow}>
+                  {otp.map((digit, index) => (
+                    <View key={index} style={styles.otpBox}>
+                      <TextInput
+                        ref={(ref) => { otpRefs.current[index] = ref; }}
+                        style={styles.otpInput}
+                        value={digit}
+                        onChangeText={(text) => handleOtpChange(text, index)}
+                        keyboardType="number-pad"
+                        maxLength={1}
+                        selectTextOnFocus
+                      />
+                    </View>
+                  ))}
+                </View>
+
+                <TouchableOpacity style={styles.requestAgainContainer}>
+                  <Text style={styles.requestAgainText}>Request Again</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* --- STEP 4: SUCCESS VIEW --- */}
+            {step === 'success' && (
+              <View style={styles.successContainer}>
+                <View style={styles.successBadge}>
+                  <SuccessCheckIcon />
+                </View>
+
+                <Text style={styles.successTitle}>Success!</Text>
+                <Text style={styles.successSubtitle}>
+                  You have successfully logged in to your account.
                 </Text>
-              )}
-              {mode === 'signup' && (
-                <Text style={styles.toggleText}>
+
+                <TouchableOpacity
+                  style={styles.primaryActionButton}
+                  activeOpacity={0.85}
+                  onPress={() => setStep('login')}
+                >
+                  <Text style={styles.primaryActionButtonText}>Home</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Primary Action Button (Login / Sign Up / Confirm Code) */}
+            {step !== 'success' && (
+              <TouchableOpacity
+                style={styles.primaryActionButton}
+                activeOpacity={0.85}
+                onPress={handleAction}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.primaryActionButtonText}>
+                    {step === 'login' && 'Login'}
+                    {step === 'signup' && 'Sign Up'}
+                    {step === 'otp' && 'Confirm Code'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            )}
+
+            {/* --- SOCIAL SIGN IN SECTION (Login & Sign Up steps) --- */}
+            {(step === 'login' || step === 'signup') && (
+              <>
+                <View style={styles.orDividerContainer}>
+                  <View style={styles.orDividerLine} />
+                  <Text style={styles.orDividerText}>or continue with</Text>
+                  <View style={styles.orDividerLine} />
+                </View>
+
+                <View style={styles.socialRow}>
+                  <TouchableOpacity style={styles.socialPillButton} activeOpacity={0.8}>
+                    <AppleIcon />
+                    <Text style={styles.socialPillText}>Apple</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.socialPillButton} activeOpacity={0.8}>
+                    <GoogleIcon />
+                    <Text style={styles.socialPillText}>Google</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Footer Account Navigation Link */}
+                <View style={styles.bottomLinkContainer}>
+                  {step === 'login' ? (
+                    <Text style={styles.bottomLinkText}>
+                      Don't have an account?{' '}
+                      <Text
+                        style={styles.boldActionLink}
+                        onPress={() => setStep('signup')}
+                      >
+                        Sign Up
+                      </Text>
+                    </Text>
+                  ) : (
+                    <Text style={styles.bottomLinkText}>
+                      Already have an account?{' '}
+                      <Text
+                        style={styles.boldActionLink}
+                        onPress={() => setStep('login')}
+                      >
+                        Log in
+                      </Text>
+                    </Text>
+                  )}
+                </View>
+              </>
+            )}
+
+            {/* OTP Page Bottom Link */}
+            {step === 'otp' && (
+              <View style={styles.bottomLinkContainer}>
+                <Text style={styles.bottomLinkText}>
                   Already have an account?{' '}
                   <Text
-                    style={styles.toggleLinkBold}
-                    onPress={() => { setMode('signin'); setMessage(null); }}
+                    style={styles.boldActionLink}
+                    onPress={() => setStep('login')}
                   >
-                    Sign in
+                    Log in
                   </Text>
                 </Text>
-              )}
-              {mode === 'forgot' && (
-                <Text style={styles.toggleText}>
-                  Remembered your password?{' '}
-                  <Text
-                    style={styles.toggleLinkBold}
-                    onPress={() => { setMode('signin'); setMessage(null); }}
-                  >
-                    Back to Sign in
-                  </Text>
-                </Text>
-              )}
-            </View>
+              </View>
+            )}
 
-            {/* reCAPTCHA Disclaimer */}
-            <Text style={styles.recaptchaText}>
-              Protected by reCAPTCHA — the Google Privacy Policy and Terms of Service apply.
-            </Text>
-
-            {/* Footer Copyright */}
+            {/* Clean Copyright Footer */}
             <View style={styles.footerContainer}>
               <Text style={styles.copyrightText}>
                 © 2026 Aion. All rights reserved.
-              </Text>
-              <Text style={styles.brandingText}>
-                A product of <Text style={styles.brandingBold}>Chronostrider Technologies.</Text>
               </Text>
             </View>
           </View>
@@ -511,64 +448,47 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     paddingVertical: 32,
     backgroundColor: '#FFFFFF',
   },
   cardContainer: {
     width: '100%',
-    maxWidth: 440,
+    maxWidth: 400,
     backgroundColor: '#FFFFFF',
-  },
-  pillContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 24,
-  },
-  pillButton: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 9,
-  },
-  pillActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  pillText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748B',
-  },
-  pillTextActive: {
-    color: '#0F172A',
   },
   header: {
     marginBottom: 24,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: '700',
     color: '#0F172A',
-    letterSpacing: -0.5,
+    textAlign: 'center',
+    lineHeight: 34,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#64748B',
-    marginTop: 6,
-    lineHeight: 22,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  otpSubtitleText: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  emailHighlight: {
+    color: '#0F172A',
+    fontWeight: '600',
   },
   messageBanner: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 20,
   },
   errorMessage: {
@@ -591,177 +511,234 @@ const styles = StyleSheet.create({
   successText: {
     color: '#166534',
   },
-  socialRow: {
+
+  // Segmented Pill Selector
+  pillContainer: {
     flexDirection: 'row',
-    gap: 10,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 28,
+    padding: 4,
+    marginBottom: 26,
   },
-  socialFlex: {
+  pillButton: {
     flex: 1,
-  },
-  googleButton: {
-    height: 50,
-    borderRadius: 14,
-    borderWidth: 1.2,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
-    flexDirection: 'row',
+    paddingVertical: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    borderRadius: 24,
   },
-  googleButtonText: {
-    fontSize: 15,
+  pillActive: {
+    backgroundColor: '#0F172A',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  pillText: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#1E293B',
+    color: '#64748B',
   },
-  appleButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1.2,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
+  pillTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E2E8F0',
-  },
-  dividerText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginHorizontal: 12,
-    letterSpacing: 0.6,
-  },
+
+  // Form Fields
   formGroup: {
     gap: 18,
-    marginBottom: 24,
+    marginBottom: 22,
   },
   fieldContainer: {
     gap: 7,
   },
-  labelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   fieldLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1E293B',
-  },
-  forgotText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#475569',
   },
-  strengthText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
   inputWrapper: {
-    height: 50,
-    borderRadius: 12,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#F8FAFC',
     borderWidth: 1.2,
     borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
+    paddingHorizontal: 20,
   },
   inputWrapperFocused: {
     borderColor: '#0F172A',
     backgroundColor: '#FFFFFF',
   },
-  inputIcon: {
-    marginRight: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textInput: {
     flex: 1,
     fontSize: 15,
     color: '#0F172A',
-    paddingVertical: 0,
     height: '100%',
-  },
-  clearBtn: {
-    padding: 4,
-  },
-  validationIcon: {
-    padding: 4,
   },
   eyeIconButton: {
     padding: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  submitButton: {
+  forgotContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 2,
+  },
+  forgotText: {
+    fontSize: 13,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+
+  // Primary Action Button (Clean Slate/Dark Pill)
+  primaryActionButton: {
     height: 52,
-    borderRadius: 14,
-    backgroundColor: '#5C5E62',
+    borderRadius: 26,
+    backgroundColor: '#0F172A',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    marginTop: 6,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  submitButtonContent: {
+  primaryActionButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+
+  // Or Divider Section
+  orDividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 26,
+  },
+  orDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  orDividerText: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginHorizontal: 12,
+  },
+
+  // Social Sign In Row
+  socialRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 28,
+  },
+  socialPillButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.2,
+    borderColor: '#E2E8F0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 10,
   },
-  submitButtonText: {
-    fontSize: 16,
+  socialPillText: {
+    fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
-  toggleContainer: {
-    marginTop: 22,
+
+  // Footer Link
+  bottomLinkContainer: {
     alignItems: 'center',
+    marginTop: 4,
   },
-  toggleText: {
+  bottomLinkText: {
     fontSize: 14,
     color: '#64748B',
   },
-  toggleLinkBold: {
+  boldActionLink: {
     fontWeight: '700',
     color: '#0F172A',
   },
-  recaptchaText: {
-    fontSize: 11.5,
-    color: '#94A3B8',
+
+  // OTP Verification Flow
+  otpSection: {
+    marginBottom: 28,
+    alignItems: 'center',
+  },
+  otpRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  otpBox: {
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.2,
+    borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otpInput: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#0F172A',
     textAlign: 'center',
-    marginTop: 24,
-    lineHeight: 17,
-    paddingHorizontal: 10,
+    width: '100%',
+    height: '100%',
+  },
+  requestAgainContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+  requestAgainText: {
+    fontSize: 13,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+
+  // Success Screen State
+  successContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    width: '100%',
+  },
+  successBadge: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  successTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 10,
+  },
+  successSubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    marginBottom: 36,
   },
   footerContainer: {
     marginTop: 32,
     alignItems: 'center',
-    gap: 4,
   },
   copyrightText: {
-    fontSize: 13,
-    color: '#64748B',
-  },
-  brandingText: {
-    fontSize: 13,
-    color: '#64748B',
-  },
-  brandingBold: {
-    fontWeight: '700',
-    color: '#334155',
+    fontSize: 12,
+    color: '#94A3B8',
   },
 });
