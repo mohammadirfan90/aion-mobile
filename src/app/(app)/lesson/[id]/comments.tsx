@@ -1,10 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { LessonCommentsSheet } from '@/features/lesson/screens/LessonCommentsSheet';
 
-export default function CommentsSheet() {
-  return (
-    <Placeholder
-      screen="S18"
-      description="Lesson comments sheet — threaded comments, upvote, reply"
-    />
-  );
+export default function CommentsRoute() {
+  return <LessonCommentsSheet />;
 }

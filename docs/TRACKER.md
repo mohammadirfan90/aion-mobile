@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-14, Maria: P1-X1 done (deleted legacy src/components/auth-screen.tsx; `npm run check` green). Next up: P1-S18 (Lesson comments sheet).
+- **Last update:** 2026-10-14, Maria: P1-S18 done (Lesson comments sheet with threaded replies, optimistic posting, upvoting, delete own comment, matching S18-comments-sheet.png; `npm run check` green). Next up: P1-S19 (Community forum feed).
 - **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
 
 ## How to use this file
@@ -112,7 +112,7 @@ Done means:
 | P1-S15 | Quiz | Irfan | todo | P1-S12 | |
 | P1-S16 | Assignment | Irfan | todo | P1-S12 | |
 | P1-S17 | AI Tutor chat | Irfan | todo | P1-X0 | |
-| P1-S18 | Lesson comments sheet | Maria | todo | P1-X0 | Opened from S12; works standalone with a fixture lesson ID. |
+| P1-S18 | Lesson comments sheet | Maria | done | P1-X0 | Threaded comments with 1-level reply indent, optimistic posting & delete, upvote toggling, reply-to chip banner, standalone fallback to fixture lesson ID. Matches S18-comments-sheet.png. |
 | P1-S19 | Community (forum feed) | Maria | todo | P1-X0 | |
 | P1-S20 | Forum post detail | Maria | todo | P1-S19 | |
 | P1-S21 | New post | Maria | todo | P1-S19 | |

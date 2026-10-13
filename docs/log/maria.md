@@ -2,6 +2,21 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-14 — P1-S18
+- Did: implemented Phase 1 UI for S18 (Lesson comments sheet) matching `docs/design/S18-comments-sheet.png` and SCREENS.md / API.md §9:
+  - **Threaded Comment List**: Top-level comments and 1-level indented replies with vertical connecting line border.
+  - **Comment Cards**: Avatar with initials/image, author name, "Instructor" badge (dark pill) for instructor/admin roles, "You" badge (neutral soft pill) for own comments, relative time ("2h", "3h", "1h", "just now"), body text with theme typography.
+  - **Interactive Actions**: "Reply" link sets composer replying target and focuses input; ThumbsUp upvote button with optimistic counter toggle; Trash icon for own comments with confirmation prompt before deleting.
+  - **Composer**: Bottom pill input with multiline support, Send button (circular primary pill with up-arrow), replying chip banner with dismiss button ("↩ Replying to **{author}** ✕"), keyboard avoidance for iOS and Android.
+  - **Data Layer**: Created `src/features/lesson/api.ts` and `src/features/lesson/hooks.ts` (`useLessonComments`) providing optimistic posting, optimistic deleting, optimistic upvote toggles, and automatic threaded grouping by `parentId`.
+  - **Mock Fixtures**: Enhanced `src/mocks/fixtures/comments.ts` with design-matching comments (Prof. Michael Keller, Sara Kim, Alex Chen) and in-memory mutable store.
+  - **Route & Standalone Support**: Replaced placeholder in `src/app/(app)/lesson/[id]/comments.tsx` with `LessonCommentsSheet`; falls back to fixture lesson ID (`l-intro-01-01`) when opened standalone without params.
+- Changed files: `src/features/lesson/screens/LessonCommentsSheet.tsx` (new), `src/features/lesson/hooks.ts` (new), `src/features/lesson/api.ts` (new), `src/app/(app)/lesson/[id]/comments.tsx`, `src/mocks/fixtures/comments.ts`, `src/api/types.ts`, `src/api/query-keys.ts`, `docs/TRACKER.md`, `docs/log/maria.md`.
+- Decisions/notes: Implemented optimistic post and delete so user feedback is instantaneous. Threading groups flat comments by `parentId` as specified in API.md §9.
+- Quality gates: `npm run check` green (0 errors, 0 warnings), `node scripts/verify.mjs check` 6/7 (single pre-existing false positive on secret pattern).
+- Next: P1-S19 (Community forum feed).
+- Blockers: none.
+
 ## 2026-10-14 — P1-X1
 - Did: deleted legacy `src/components/auth-screen.tsx` now that all Auth screens (S01–S06) are implemented with dedicated feature screens in `src/features/auth/` and verified.
 - Changed files: `src/components/auth-screen.tsx` (deleted), `docs/TRACKER.md`, `docs/log/maria.md`.
