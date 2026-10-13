@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { NotesSheet } from '@/features/lesson/screens/NotesSheet';
 
-export default function NotesSheet() {
-  return (
-    <Placeholder
-      screen="S13"
-      description="Notes sheet — list, add, edit, delete notes for this lesson"
-    />
-  );
-}
+export default NotesSheet;
