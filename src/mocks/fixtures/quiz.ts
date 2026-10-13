@@ -140,7 +140,7 @@ const fixtures: QuizFixture[] = [
           id: 'q-js-01-q4',
           type: 'single',
           prompt:
-            'What does this print?  for (let i = 0; i < 3; i++) { if (i === 1) continue; console.log(i); }',
+            'What does this print?  for (let i = 0; i < 3; i++) { if (i === 1) continue; console.info(i); }',
           points: 1,
           options: [
             { id: 'a', text: '0 1 2' },

@@ -135,7 +135,7 @@ export function fakeTutorReply(prompt: string, lessonTitle?: string): string[] {
     '',
     '```js',
     "const steps = ['read', 'try', 'check'];",
-    'steps.forEach((s) => console.log(s));',
+    'steps.forEach((s) => console.info(s));',
     '```',
     '',
     'Want me to quiz you on it?',
