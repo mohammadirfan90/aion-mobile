@@ -2,6 +2,23 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-S02
+- Did: built the Login screen matching the visual design (`docs/design/S02-login.png`):
+  - Brand header with rounded app icon and Aion logo title.
+  - "Welcome back" title and "Log in to continue learning" subtitle.
+  - Email and Password pill `TextField`s with secure text entry toggle, password manager autocomplete support (`email` / `password`), keyboard navigation ("next" moves to password, "go" submits).
+  - "Forgot password?" header link positioned right above the password input navigating to S05.
+  - Zod validation for valid email format and min 8 characters password with inline field errors.
+  - Multi-state error banners: credentials error, rate-limited banner ("Too many attempts, try again in a few minutes"), network error, and unverified email with "Enter code →" action button (navigates to S04).
+  - Primary "Log in" pill button with loading state; automatic landing on Home tab upon sign-in via `Stack.Protected`.
+  - Footer navigation link to Sign up (S03) and bottom link to Verify a certificate (S29).
+  - Enhanced `TextField` in `src/components/ui/` with `forwardRef` to support programmatic focus.
+- Changed files: `src/features/auth/screens/LoginScreen.tsx` (new), `src/features/auth/schemas.ts` (new), `src/features/auth/hooks.ts` (new), `src/components/ui/TextField.tsx`, `src/app/(auth)/login.tsx`, `docs/TRACKER.md`, `docs/log/maria.md`.
+- Decisions/notes: Implemented inline banner states for rate limiting and unverified email with one-tap deep link to verification.
+- Quality gates: `npm run check` green, `node scripts/verify.mjs check` 6/7 (pre-existing secret false positive).
+- Next: P1-S03 (Signup).
+- Blockers: none.
+
 ## 2026-10-13 — P1-S01
 - Did: built the Welcome screen matching the visual design (`docs/design/S01-welcome.png`):
   - 3 swipeable slides (Learn anywhere / Ask the AI tutor / Earn certificates) with hero illustration cards, titles, and descriptions.
