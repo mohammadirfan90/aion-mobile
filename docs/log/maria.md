@@ -2,6 +2,26 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-S03
+- Did: built the Signup screen matching the visual design (`docs/design/S03-signup.png`):
+  - Top header with circular muted `HeaderBackButton` pill.
+  - "Create your account" title and "It takes less than a minute" subtitle.
+  - First name & Last name side-by-side row with pill `TextField`s.
+  - Username pill input with automatic lowercase conversion, 400ms debounced live availability check against known accounts (showing ✓ available or ✗ taken).
+  - Email pill input with emailAddress autocomplete and zod validation.
+  - Password input with 3-segment strength meter (weak / good / strong) matching design.
+  - Confirm password input with match validation.
+  - "Create account" primary button with loading state.
+  - Terms and Privacy policy footer disclaimer.
+  - "Already have an account? Log in" navigation footer link (S02).
+  - On successful signup, navigates to S04 verify-email with `?email=` parameter.
+  - Form scrolls above the keyboard on small phones (360×640) via `Screen` with `keyboard` and `scroll`.
+- Changed files: `src/features/auth/screens/SignupScreen.tsx` (new), `src/features/auth/schemas.ts`, `src/features/auth/hooks.ts`, `src/app/(auth)/signup.tsx`, `docs/TRACKER.md`, `docs/log/maria.md`.
+- Decisions/notes: Username check derives debounced value cleanly to satisfy React 19 / ESLint `react-hooks/set-state-in-effect`.
+- Quality gates: `npm run check` green (0 errors, 0 warnings), `node scripts/verify.mjs check` 6/7 (pre-existing secret false positive).
+- Next: P1-S04 (Verify email).
+- Blockers: none.
+
 ## 2026-10-13 — P1-S02
 - Did: built the Login screen matching the visual design (`docs/design/S02-login.png`):
   - Brand header with rounded app icon and Aion logo title.

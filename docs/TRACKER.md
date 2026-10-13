@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Maria: P1-S02 done (Login screen with email/password pill inputs, secure toggle, zod validation, error banners for rate limits/unverified email, navigates to S03/S05/verify, `npm run check` green). Next up: P1-S03 (Signup).
+- **Last update:** 2026-10-13, Maria: P1-S03 done (Signup screen with first/last name row, live debounced username check, email/password/confirm inputs, 3-segment strength meter, navigates to S04, `npm run check` green). Next up: P1-S04 (Verify email).
 - **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
 
 ## How to use this file
@@ -96,7 +96,7 @@ Done means:
 | P1-X0 | Align the UI kit with the designs. Compare `src/components/ui/*` and the tab bar with `docs/design/` (pill inputs and buttons, list rows, cards, badges, segmented control, sheets, tab bar) and adjust the components, not the screens. Uses tokens only; no new colours. | Irfan | done | P0-12 | Pill inputs (52pt, focus ring in foreground, eye/eye-off toggle, no Show/Hide text), SearchBar (left `Search` icon, 48pt), Chip (soft muted fill when unselected), Header back button (`ChevronLeft` in a circular muted pill). Tab bar already matched. No new tokens. |
 | P1-S01 | Welcome | Maria | done | P1-X0 | 3 swipeable slides, synchronized dots, seenWelcome flag in AsyncStorage, navigates to S02 and S03. Matches S01-welcome.png. |
 | P1-S02 | Login | Maria | done | P1-X0 | Email/password pill inputs, secure toggle, zod validation, error banners (rate limit, unverified with Enter code link), forgot password & signup links. Matches S02-login.png. |
-| P1-S03 | Signup | Maria | todo | P1-X0 | |
+| P1-S03 | Signup | Maria | done | P1-X0 | First/last name row, live debounced username check, email/password/confirm inputs, 3-segment strength meter, navigates to S04. Matches S03-signup.png. |
 | P1-S04 | Verify email (code) | Maria | todo | P1-S03 | |
 | P1-S05 | Forgot password | Maria | todo | P1-S02 | |
 | P1-S06 | Reset password | Maria | todo | P1-S05 | |
