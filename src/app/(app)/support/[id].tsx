@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { TicketThreadScreen } from '@/features/support/screens/TicketThreadScreen';
 
-export default function TicketThreadScreen() {
-  return (
-    <Placeholder
-      screen="S23"
-      description="Ticket thread — messages, reply, attachments, status"
-    />
-  );
-}
+export default TicketThreadScreen;

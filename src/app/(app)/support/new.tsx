@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { NewTicketScreen } from '@/features/support/screens/NewTicketScreen';
 
-export default function NewTicketScreen() {
-  return (
-    <Placeholder
-      screen="S24"
-      description="New ticket modal — subject, body, optional attachments"
-    />
-  );
-}
+export default NewTicketScreen;

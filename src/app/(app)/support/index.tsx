@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { SupportTicketsScreen } from '@/features/support/screens/SupportTicketsScreen';
 
-export default function SupportScreen() {
-  return (
-    <Placeholder
-      screen="S22"
-      description="Support — list of tickets with status badges, open new ticket"
-    />
-  );
-}
+export default SupportTicketsScreen;
