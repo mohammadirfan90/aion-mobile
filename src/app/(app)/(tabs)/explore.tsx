@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { ExploreScreen } from '@/features/catalog/screens/ExploreScreen';
 
-export default function ExploreScreen() {
-  return (
-    <Placeholder
-      screen="S08"
-      description="Course catalog with search and filters"
-    />
-  );
-}
+export default ExploreScreen;

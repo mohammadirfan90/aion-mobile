@@ -2,6 +2,24 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-S08
+- Did: built the Explore / catalog screen (S08) against `docs/design/S08-explore.png`. Data goes through `src/features/catalog/hooks.ts` only — no `fetch` in screens, no hard-coded colors, no `console.log`.
+  - **`src/features/catalog/api.ts`** — `fetchCourses` and `fetchMyEnrollments`. Mock mode reads from the existing fixtures (`listCourses` and the `enrollments` array); real mode will hit `GET /courses?limit=100` and `GET /enrollments/my` (API §3, §5). The "Enrolled" badge uses the second endpoint's `courseId` set, exactly as SCREENS §S08 specifies.
+  - **`src/features/catalog/hooks.ts`** — `useCourses(params)` and `useMyEnrollments()`. Keys are derived from `qk.courses.list(params)` and `qk.enrollments.list()` so the future Supabase wiring invalidates everything in one place.
+  - **`src/features/catalog/screens/ExploreScreen.tsx`** — the screen. Brand bar (Aion logo + Ask Aion pill), "Explore" title, `SearchBar` (300ms debounce, matches title + description + tags), level `ChipGroup` (All / Beginner / Intermediate / Advanced), price `ChipGroup` (All / Free / Paid), and a vertical `FlatList` of course cards. Each card: thumbnail (with optional level pill and "✓ Enrolled" badge for already-enrolled courses), title (2-line truncate), description (2-line truncate), price or "Free", and a trailing chevron. Tapping a card navigates to S10 (course detail). Handles initial loading (skeleton cards), empty state ("No courses match" + Clear filters), error state with retry, and pull-to-refresh. Cards have `accessibilityRole="button"` and an `accessibilityLabel` that includes the enrolled state.
+  - **`src/lib/course.ts`** (new) — `isFreeCourse`, `formatCoursePrice`, `levelLabel`. Per SPEC §4, the price and access logic lives in one place so screens and hooks don't drift. Home and Explore now share the same helpers; the duplicate `formatPrice`/`capitalize` in HomeScreen are gone.
+  - **`src/api/types.ts`** — extended `AccessConfig` with the optional `pricingType`, `price`, and `maxCapacity` fields that API §3 documents. The Explore screen uses them via `lib/course.ts`.
+  - **`src/app/(app)/(tabs)/explore.tsx`** — was a `Placeholder`; now `export default ExploreScreen` (3 lines).
+- Verification: `npm run check` (lint + typecheck) green; `node scripts/verify.mjs check` 6/7 — same pre-existing secret-pattern false positive as before.
+- Decisions/notes:
+  - "Enrolled" detection uses `GET /enrollments/my`'s `courseId` set, as SCREENS §S08 specifies. S07's learning-summary enrollment list is the same data sliced differently, but the dedicated `useMyEnrollments` hook matches the spec wording and lets S10/S25 reuse it.
+  - Client-side search/level/price filtering is the right call: the API has no such parameters, and fetching a 100-course list once is cheap. The filter predicates are pure functions inside the screen so they can move to a hook later if perf matters.
+  - "Free" vs "Paid" uses the same `lib/course.ts` rule as everywhere else. A course with `accessConfig.pricingType === 'paid'` and no `pricingConfig` shows as `$X` (USD-only — the catalog is single-currency).
+  - Empty state uses the existing `EmptyState` UI component with the existing "Clear filters" pattern. The action resets the search box, the level filter, and the price filter.
+  - No new tokens, no new dependencies. The `useDebouncedValue` helper is a tiny `useEffect` + `setTimeout` (12 lines) — no need for a third-party debounce library at this scale.
+- Next: P1-S09 (My Learning).
+- Blockers: none.
+
 ## 2026-10-13 — P1-S07
 - Did: built the Home screen (S07) against `docs/design/S07-home.png`. Data goes through `src/features/home/hooks.ts` only — no `fetch` in screens, no hard-coded colors, no `console.log`.
   - **`src/features/home/api.ts`** — `fetchLearningSummary` / `fetchMyCourses` / `fetchExploreMore`. Mock-mode returns the existing fixtures through `mockDelay`; real mode hits the API (§12, §3) and Phase 2 will just flip `useMocks` to wire the screens up with no further change.

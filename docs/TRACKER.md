@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P1-S07 done (Home — brand bar, greeting, continue-learning card with Resume, stats, my-courses + explore-more carousels, pull-to-refresh, empty state; against `docs/design/S07-home.png`). `npm run check` green. Next up: P1-S08 (Explore).
+- **Last update:** 2026-10-13, Irfan: P1-S08 done (Explore — SearchBar 300ms debounce, level + price chip filters, vertical course list with level/Enrolled badges, empty state with Clear filters, pull-to-refresh; against `docs/design/S08-explore.png`). `npm run check` green. Next up: P1-S09 (My Learning).
 - **Open blockers:** none.
 
 ## How to use this file
@@ -102,7 +102,7 @@ Done means:
 | P1-S06 | Reset password | Maria | todo | P1-S05 | |
 | P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | todo | P1-S02…S06 | |
 | P1-S07 | Home | Irfan | done | P1-X0 | Stats (3), continue-learning card, my-courses + explore-more carousels, brand bar (Aion + Ask Aion pill + avatar), greeting. Loading/empty/error states; pull-to-refresh. Long titles truncate to 2 lines. |
-| P1-S08 | Explore (catalog) | Irfan | todo | P1-X0 | |
+| P1-S08 | Explore (catalog) | Irfan | done | P1-X0 | SearchBar (300ms debounce) + level + price chip filters; vertical list of cards with thumbnail, level + Enrolled badges, title, description, price, chevron; empty "No courses match" + Clear filters; pull-to-refresh. |
 | P1-S09 | My Learning | Irfan | todo | P1-X0 | |
 | P1-S10 | Course detail | Irfan | todo | P1-X0 | |
 | P1-S11 | Curriculum | Irfan | todo | P1-S10 | |

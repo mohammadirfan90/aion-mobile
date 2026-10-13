@@ -20,6 +20,9 @@ system "Aion Neutral", `assets/13354212775677618750`). Only Irfan's account can 
 5. All text, names, avatars and thumbnails are **sample content**. Real data comes from the feature hooks.
 6. The designs are light mode only. Dark mode uses the dark tokens in SPEC §6.
 7. S13, S20 and S26 are a phone frame on a wide dark canvas; only the phone matters.
+8. **Logo:** wherever a design shows an "Aion" wordmark or logo (S01, S02, S07 header…), use the real logo from
+   `assets/brand/` (`logo.png` in light mode, `logo-dark.png` in dark mode; see `assets/brand/README.md`). Don't
+   recreate it from text.
 
 ## Screen → design
 

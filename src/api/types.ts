@@ -97,6 +97,12 @@ export interface PricingConfig {
 export interface AccessConfig {
   mode: AccessMode;
   inviteCode?: string;
+  // API §3: when `pricingType === 'paid'`, `price` is the USD whole-unit price
+  // the course is sold for outside of `pricingConfig` (e.g. invite-only
+  // cohorts with their own price). Optional; many courses leave both unset.
+  pricingType?: 'free' | 'paid';
+  price?: number;
+  maxCapacity?: number | null;
 }
 
 export interface CertificateConfig {
@@ -163,14 +169,7 @@ export interface EnrollBody {
 
 // ── Lessons (API §4) ──────────────────────────────────────────────────────────
 export type LessonType =
-  | 'video'
-  | 'text'
-  | 'document'
-  | 'embed'
-  | 'resource'
-  | 'quiz'
-  | 'assignment'
-  | 'live';
+  'video' | 'text' | 'document' | 'embed' | 'resource' | 'quiz' | 'assignment' | 'live';
 
 export interface LessonMetadata {
   videoUrl?: string;

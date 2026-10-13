@@ -43,22 +43,12 @@ import { Text } from '@/components/ui/Text';
 import { useTheme, type Theme } from '@/theme';
 import { mockAuth } from '@/mocks/auth-store';
 import { useExploreMore, useLearningSummary, useMyCourses } from '@/features/home/hooks';
+import { formatCoursePrice, levelLabel } from '@/lib/course';
 import type { Course, LearningSummary } from '@/api/types';
 
 const CARD_WIDTH = 220;
 const GUTTER = 12;
 const HORIZONTAL_PADDING = 16;
-
-function capitalize(s: string): string {
-  return s.length > 0 ? s[0]!.toUpperCase() + s.slice(1) : s;
-}
-
-function formatPrice(course: Course): string {
-  const p = course.pricingConfig;
-  if (!p) return 'Free';
-  if (p.type === 'free' || p.price === 0) return 'Free';
-  return `$${(p.price / 100).toFixed(0)}`;
-}
 
 function StatCard({
   icon,
@@ -565,7 +555,7 @@ export function HomeScreen() {
                   <CourseCarouselCard
                     course={item}
                     theme={theme}
-                    badge={item.level ? capitalize(item.level) : undefined}
+                    badge={item.level ? levelLabel(item.level) : undefined}
                     trailing={
                       <View
                         style={{
@@ -577,7 +567,7 @@ export function HomeScreen() {
                           Tuition
                         </Text>
                         <Text variant="caption" weight="semibold">
-                          {formatPrice(item)}
+                          {formatCoursePrice(item)}
                         </Text>
                       </View>
                     }
