@@ -2,6 +2,23 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-S07
+- Did: built the Home screen (S07) against `docs/design/S07-home.png`. Data goes through `src/features/home/hooks.ts` only — no `fetch` in screens, no hard-coded colors, no `console.log`.
+  - **`src/features/home/api.ts`** — `fetchLearningSummary` / `fetchMyCourses` / `fetchExploreMore`. Mock-mode returns the existing fixtures through `mockDelay`; real mode hits the API (§12, §3) and Phase 2 will just flip `useMocks` to wire the screens up with no further change.
+  - **`src/features/home/hooks.ts`** — three `useQuery`s: `useLearningSummary`, `useMyCourses`, `useExploreMore(excludeIds)`. Query keys are derived from `qk.me.learningSummary()` and `qk.courses.list(...)` so the future Supabase integration invalidates them in one place.
+  - **`src/features/home/screens/HomeScreen.tsx`** — the actual screen: brand bar (Aion wordmark + Ask Aion pill → `/tutor`, avatar → Profile tab), "Hi, {first name} 👋" greeting, continue-learning card (image area with title + "In progress" badge, course title, "Next: {lesson}" subtitle, progress bar with %, **Resume** button → next lesson or curriculum), three stat cards (enrolled / lessons finished / completed), "My courses" carousel (each card: thumbnail, title truncated to 2 lines, progress bar, %), "Explore more" carousel (each card: thumbnail, level badge, title, "Tuition" + price / Free). Handles initial loading (Skeleton blocks for the card / stats / two carousels), empty state ("Start your first course" → Explore tab), error state with retry, and pull-to-refresh. Long titles truncate to 2 lines per S07 acceptance. Pressables on the brand bar avatar, course cards, and "See all" links have `accessibilityRole` + `accessibilityLabel`.
+  - **`src/mocks/fixtures/enrollments.ts`** — enriched `getLearningSummary()` to compute the `nextLesson` for the continue card (first lesson in chapter order, not completed, after `lastLessonId`) and a more honest `lessonsCompletedCount` (per-course progress × curriculum size, summed). The whole rule is the same one the real API uses (API §12). The summary now shows `3 / 27 / 1` to match the design (was `3 / 4 / 1`).
+  - **`src/app/(app)/(tabs)/index.tsx`** — was a `Placeholder`; now `export default HomeScreen`. 3 lines, well under the 60-line route rule.
+- Verification: `npm run check` (lint + typecheck) green, `node scripts/verify.mjs check` 6/7 — the one failure is the long-standing pre-existing false positive in the secret-pattern check (`.env.example` "never put the service_role" comment and a couple of log-line mentions of `service_role` / `expo-doctor`). Not introduced by P1-S07.
+- Decisions/notes:
+  - Brand bar and greeting are screen-level (per the design and SPEC §S07), not in `Header`. The `Header` component stays generic; S10 / S11 (which the SPEC marks as needing a back button) will use it.
+  - Course thumbnails are intentionally placeholders (`backgroundColor: muted` + the "No image" caption when `thumbnail` is null). The fixtures have no real image URLs, and the design shows textured placeholders that we don't have rights to. When the real API ships we'll just keep the same `<View>` block and use `<Image>` when `thumbnail` is non-null.
+  - Price format on the explore cards is `Free` or `$NN` from `pricingConfig.price / 100`. No currency conversion — the API and the design only show USD.
+  - The "Resume" button on the continue card navigates to `lesson/[id]?courseId=...` if `nextLesson` is known, else to the curriculum (which is the correct behaviour for a 100%-complete course that the user happened to open). Tapping the card itself (outside the Resume button) goes to the curriculum.
+  - No new tokens, no new dependencies, no new components beyond what's already in `src/components/ui/`.
+- Next: P1-S08 (Explore).
+- Blockers: none.
+
 ## 2026-10-13 — P1-X0
 - Did: aligned the UI kit with the 29 designs in `docs/design/`. Diff is small and token-only:
   - **`TextField`** — bumped to 52pt min height to match the pill rows in S02/S03, switched the focus ring to `theme.colors.foreground` (so the dark border appears, as in the design), and replaced the "Show"/"Hide" text with `Eye` / `EyeOff` from `lucide-react-native` (S02 login).

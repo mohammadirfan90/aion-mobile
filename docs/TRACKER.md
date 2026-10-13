@@ -9,8 +9,8 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P1-X0 done (UI kit aligned with designs — pill inputs with eye toggle, search icon, soft chips, chevron back button; no new tokens; `npm run check` green). Next up: P1-S07 (Home) — first screen against the designs.
-- **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
+- **Last update:** 2026-10-13, Irfan: P1-S07 done (Home — brand bar, greeting, continue-learning card with Resume, stats, my-courses + explore-more carousels, pull-to-refresh, empty state; against `docs/design/S07-home.png`). `npm run check` green. Next up: P1-S08 (Explore).
+- **Open blockers:** none.
 
 ## How to use this file
 
@@ -101,7 +101,7 @@ Done means:
 | P1-S05 | Forgot password | Maria | todo | P1-S02 | |
 | P1-S06 | Reset password | Maria | todo | P1-S05 | |
 | P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | todo | P1-S02…S06 | |
-| P1-S07 | Home | Irfan | todo | P1-X0 | |
+| P1-S07 | Home | Irfan | done | P1-X0 | Stats (3), continue-learning card, my-courses + explore-more carousels, brand bar (Aion + Ask Aion pill + avatar), greeting. Loading/empty/error states; pull-to-refresh. Long titles truncate to 2 lines. |
 | P1-S08 | Explore (catalog) | Irfan | todo | P1-X0 | |
 | P1-S09 | My Learning | Irfan | todo | P1-X0 | |
 | P1-S10 | Course detail | Irfan | todo | P1-X0 | |
@@ -181,7 +181,7 @@ Mobile work that depends on these builds against mocks until they are `done`.
 | B-01 | The signup endpoint must be usable from the mobile app (the app can't run the web's reCAPTCHA). | done | P2-04 (signup) | 2026-10-13. The app sends `X-Aion-Client: mobile`. Production must set the server flag `ALLOW_MOBILE_SIGNUP_WITHOUT_CAPTCHA=true` (Irfan, at deploy). |
 | B-02 | Email templates for "confirm signup" and "reset password" include the 6-digit code alongside the link. | todo | P2-04 (verify, reset) | Supports D-05. Supabase dashboard change only; the steps are written in the backend repo. |
 | B-03 | Refresh `api/openapi.json` here after backend API changes, then run `npm run api:types`. | ongoing | — | |
-| B-04 | Deployed API and web app; demo student and demo instructor accounts for graders. | todo | P4-02 | |
+| B-04 | Deployed API and web app; demo student and demo instructor accounts for graders. | doing | P4-02 | 2026-10-13: API live at `https://aion-7ysp.onrender.com` (health OK, enrollment gating verified). Still to do: web app URL (`EXPO_PUBLIC_WEB_URL`) and demo accounts. |
 | B-05 | Endpoint gaps found during integration: add rows as B-05a, B-05b, … | — | — | |
 | B-06 | *Stretch:* device push-token registration plus notifications on ticket and forum replies. | todo | P3-S2 | |
 | B-07 | *Optional:* allow the Expo web dev origin in API CORS (only needed to test in a browser). | todo | — | Not needed for Android/iOS. |

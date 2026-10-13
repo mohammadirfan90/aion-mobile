@@ -1,5 +1,28 @@
 import type { Enrollment, LearningSummary } from '@/api/types';
 import { courses } from './courses';
+import { getCurriculum } from './curriculum';
+
+/**
+ * "Continue learning" rule (SCREENS §S07, API §12): the in-progress enrollment
+ * with the most recent `lastActiveAt`, and its next lesson is the first lesson
+ * in the curriculum (chapter order, then position) that is not completed.
+ */
+function findNextLesson(courseId: string, currentLessonId: string | null) {
+  const curriculum = getCurriculum(courseId);
+  if (!curriculum) return null;
+  for (const chapter of curriculum.chapters) {
+    if (chapter.locked) continue;
+    for (const lesson of chapter.lessons) {
+      if (lesson.completed) continue;
+      // If we know which lesson was last active, skip it so we land on the
+      // *next* one. If `lastLessonId` is null (never opened), the first
+      // uncompleted lesson is the answer.
+      if (currentLessonId && lesson.id === currentLessonId) continue;
+      return lesson;
+    }
+  }
+  return null;
+}
 
 export const enrollments: Enrollment[] = [
   {
@@ -48,15 +71,20 @@ export function getLearningSummary(): LearningSummary {
         new Date(a.enrollment.lastActiveAt ?? 0).getTime(),
     )[0];
 
-  const lessonsCompletedCount = enrollments
-    .filter((e) => e.progressPercent === 100)
-    .map(() => 1)
-    .concat(
-      enrollments
-        .filter((e) => e.progressPercent < 100)
-        .map((e) => Math.round(e.progressPercent / 10)),
-    )
-    .reduce((a, b) => a + b, 0);
+  // SPEC §9 honest "lessons finished" — sum the per-enrollment completed count.
+  // For the mock we don't have lesson-level progress per enrollment, so we
+  // approximate from the per-course percent against the curriculum.
+  const lessonsCompletedCount = enrolled.reduce((total, { enrollment, course }) => {
+    const curriculum = getCurriculum(course.id);
+    if (!curriculum) return total;
+    const all = curriculum.chapters.flatMap((c) => c.lessons);
+    if (all.length === 0) return total;
+    const done =
+      enrollment.progressPercent >= 100
+        ? all.length
+        : Math.round((enrollment.progressPercent / 100) * all.length);
+    return total + done;
+  }, 0);
 
   return {
     enrollmentsCount: enrollments.length,
@@ -66,7 +94,10 @@ export function getLearningSummary(): LearningSummary {
       ? {
           enrollment: continueLearning.enrollment,
           course: continueLearning.course,
-          nextLesson: null, // populated by real hooks in P1
+          nextLesson: findNextLesson(
+            continueLearning.course.id,
+            continueLearning.enrollment.lastLessonId,
+          ),
         }
       : null,
     enrolledCourses: enrolled,
