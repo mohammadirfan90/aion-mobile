@@ -2,6 +2,14 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-04
+- Did: added `.env.example` (5 EXPO_PUBLIC_* keys with comments, per SPEC §3) and `src/lib/env.ts` (zod-validated). The validator picks a permissive schema when `EXPO_PUBLIC_USE_MOCKS=true` (default) so the app boots with empty values; a strict schema when mocks are off. Throws a clear error listing missing/invalid keys in real mode (the P0-11 nav skeleton will show this on a real error screen). Added an explicit `.env` line to `.gitignore` (was previously only `.env*.local`).
+- Changed files: .env.example (new), .gitignore, src/lib/env.ts (new), docs/TRACKER.md.
+- Decisions/notes: zod 3.25 is already in node_modules as a transitive dep of eslint-config-expo, so the typecheck passes without a separate install. P0-06 will add it as a direct dep at SDK-compatible version to make this dependency explicit.
+- Quality gates: `npx expo lint` → 0 errors, `npx tsc --noEmit` → clean.
+- Next: P0-05 (tooling scripts: typecheck, check, api:types, plus Prettier).
+- Blockers: none.
+
 ## 2026-10-13 — P0-03
 - Did: rewrote README.md to only describe what exists (current phase, stack, setup, scripts, team, links to the six docs). LICENSE copyright → "Aion Mobile contributors".
 - Changed files: README.md, LICENSE, docs/TRACKER.md.
