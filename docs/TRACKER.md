@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P1-S09 done (My Learning — brand bar with avatar + Aion wordmark + search/filter, "N active courses in this term" subtitle, SegmentedControl In progress/Completed, course cards with thumbnail + tag strip + title + "x/y lessons · Enrolled/Completed {date}" + progress bar/Completed badge, Certificate button on completed cards → S28, tap → S11, empty state → Explore, pull-to-refresh; against `docs/design/S09-my-learning.png`). `npm run check` green. Next up: P1-S10 (Course detail).
+- **Last update:** 2026-10-13, Irfan: P1-S10 done (Course detail — hero with back/share, level chip + title + chapters/lessons/duration stats, description, tags, "What you'll learn" check bullets, curriculum accordion with type icons + duration + Preview badge + lock, sticky bottom action bar that swaps between Continue / Enroll for free / Enter invite code / Get on web / Enrollment closed, invite dialog with code validation, pull-to-refresh; against `docs/design/S10-course-detail.png`). `npm run check` green. Next up: P1-S11 (Curriculum).
 - **Open blockers:** none.
 
 ## How to use this file
@@ -104,7 +104,7 @@ Done means:
 | P1-S07 | Home | Irfan | done | P1-X0 | Stats (3), continue-learning card, my-courses + explore-more carousels, brand bar (Aion + Ask Aion pill + avatar), greeting. Loading/empty/error states; pull-to-refresh. Long titles truncate to 2 lines. |
 | P1-S08 | Explore (catalog) | Irfan | done | P1-X0 | SearchBar (300ms debounce) + level + price chip filters; vertical list of cards with thumbnail, level + Enrolled badges, title, description, price, chevron; empty "No courses match" + Clear filters; pull-to-refresh. |
 | P1-S09 | My Learning | Irfan | done | P1-X0 | Brand bar (avatar → Profile, Aion wordmark, search + filter), "N active courses in this term" subtitle, `SegmentedControl` In progress / Completed, course rows with thumbnail + tag strip + title + "x/y lessons · Enrolled/Completed {date}" + progress bar with % (or "100% Completed" + `Certificate` button → S28), tap → S11, empty state → Explore, pull-to-refresh. |
-| P1-S10 | Course detail | Irfan | todo | P1-X0 | |
+| P1-S10 | Course detail | Irfan | done | P1-X0 | Hero (back / share) + level chip + title + chapters/lessons/duration stats + description + tags + "What you'll learn" card + curriculum accordion (type icons, duration, Preview badge for `metadata.isPreview`, lock for locked chapters/lessons) + sticky bottom action bar (Continue / Enroll for free / Enter invite code / Get on web → opens `EXPO_PUBLIC_WEB_URL/courses/{slug}` / disabled Enrollment closed). Invite dialog with code validation. Pull-to-refresh rechecks enrollment. Data via `GET /courses/{id}/curriculum`, `GET /enrollments/my`, `POST /enrollments` (ALREADY_ENROLLED treated as success). |
 | P1-S11 | Curriculum | Irfan | todo | P1-S10 | |
 | P1-S12 | Lesson | Irfan | todo | P1-S11 | |
 | P1-S13 | Notes sheet | Irfan | todo | P1-S12 | |

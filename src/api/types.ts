@@ -82,7 +82,7 @@ export interface ChangePasswordBody {
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type PricingType = 'free' | 'one_time' | 'subscription' | 'custom';
 export type BillingPeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-export type AccessMode = 'free' | 'paid' | 'invite_only' | 'subscription';
+export type AccessMode = 'free' | 'paid' | 'invite_only' | 'subscription' | 'closed';
 export type CourseStatus = 'draft' | 'published' | 'archived';
 
 export interface PricingConfig {
@@ -164,6 +164,7 @@ export interface Curriculum {
 }
 
 export interface EnrollBody {
+  courseId: UUID;
   inviteCode?: string;
 }
 
@@ -178,6 +179,11 @@ export interface LessonMetadata {
   documentUrl?: string;
   embedHtml?: string;
   resourceUrl?: string;
+  // API §4: per-lesson flags. `isPreview: true` means a non-enrolled
+  // viewer can open the full lesson (S10 / S12). `isLocked: true` hides it
+  // until the chapter is unlocked.
+  isPreview?: boolean;
+  isLocked?: boolean;
   // dynamic_page blocks (parsed by lib/lesson.ts)
   blocks?: DynamicBlock[];
   [key: string]: unknown;

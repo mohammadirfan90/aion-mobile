@@ -26,6 +26,8 @@ export interface ThemePalette {
   warning: string;
   onWarning: string;
   ring: string;
+  /** Semi-transparent backdrop for modals and sheets. */
+  scrim: string;
 }
 
 const light: ThemePalette = {
@@ -44,6 +46,7 @@ const light: ThemePalette = {
   warning: '#D97706',
   onWarning: '#FFFFFF',
   ring: '#A1A1A1',
+  scrim: 'rgba(0,0,0,0.5)',
 };
 
 const dark: ThemePalette = {
@@ -62,6 +65,7 @@ const dark: ThemePalette = {
   warning: '#FBBF24',
   onWarning: '#0A0A0A',
   ring: '#737373',
+  scrim: 'rgba(0,0,0,0.7)',
 };
 
 export const palettes: Record<ThemeMode, ThemePalette> = { light, dark };

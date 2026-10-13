@@ -18,7 +18,15 @@ const introChapters: Chapter[] = [
         title: 'What is Aion?',
         type: 'video',
         position: 1,
-        metadata: { videoUrl: 'https://example.com/intro.mp4', videoProvider: 'mp4', durationSeconds: 180 },
+        metadata: {
+          videoUrl: 'https://example.com/intro.mp4',
+          videoProvider: 'mp4',
+          durationSeconds: 180,
+          // First lesson of the first chapter is open for everyone — it doubles
+          // as the S10 Preview badge and lets S12 be exercised before
+          // enrollment.
+          isPreview: true,
+        },
         completed: true,
         durationSeconds: 180,
       },
@@ -89,7 +97,11 @@ const jsChapters: Chapter[] = [
         title: 'Hello, JavaScript',
         type: 'video',
         position: 1,
-        metadata: { videoUrl: 'https://example.com/js-1.mp4', videoProvider: 'mp4', durationSeconds: 360 },
+        metadata: {
+          videoUrl: 'https://example.com/js-1.mp4',
+          videoProvider: 'mp4',
+          durationSeconds: 360,
+        },
         completed: true,
         durationSeconds: 360,
       },
