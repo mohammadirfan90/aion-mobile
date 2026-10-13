@@ -56,9 +56,7 @@ export function useCourseProgress(
   courseId: UUID | null | undefined,
 ): UseQueryResult<CourseProgress> {
   return useQuery({
-    queryKey: courseId
-      ? [...qk.courses.detail(courseId), 'progress']
-      : ['courses', 'progress', 'pending'],
+    queryKey: qk.progress.summary(courseId ?? 'pending'),
     queryFn: () => fetchCourseProgress(courseId as UUID),
     enabled: !!courseId,
     staleTime: 15_000,
@@ -69,9 +67,7 @@ export function useCourseLessonProgress(
   courseId: UUID | null | undefined,
 ): UseQueryResult<LessonProgress[]> {
   return useQuery({
-    queryKey: courseId
-      ? [...qk.courses.detail(courseId), 'lessonProgress']
-      : ['courses', 'lessonProgress', 'pending'],
+    queryKey: qk.progress.course(courseId ?? 'pending'),
     queryFn: () => fetchCourseLessonProgress(courseId as UUID),
     enabled: !!courseId,
     staleTime: 15_000,

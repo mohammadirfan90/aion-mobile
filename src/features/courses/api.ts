@@ -14,6 +14,7 @@
  */
 import { getCurriculum } from '@/mocks/fixtures/curriculum';
 import { enrollMock, enrollments } from '@/mocks/fixtures/enrollments';
+import { getCourseProgressRows } from '@/mocks/fixtures/progress';
 import { mockDelay } from '@/mocks/delay';
 import { env } from '@/lib/env';
 import { unwrap } from '@/api/client';
@@ -88,28 +89,16 @@ export interface LessonProgress {
 
 /**
  * `GET /enrollments/progress/{courseId}` (API §5). The endpoint returns the
- * aggregate. In mock mode the values are derived from the enrollment row's
- * `progressPercent` so they stay consistent with the home / my-learning
- * screens.
+ * aggregate. In mock mode it's counted from the shared in-memory progress
+ * store (`mocks/fixtures/progress.ts`), which S12's Mark complete writes to.
  */
 export async function fetchCourseProgress(courseId: UUID): Promise<CourseProgress> {
   if (env.useMocks) {
-    const enrollment = enrollments.find((e) => e.courseId === courseId);
-    if (!enrollment) {
-      return mockDelay({ total: 0, completed: 0, percent: 0, isCompleted: false });
-    }
     const curriculum = getCurriculum(courseId);
     const total = curriculum?.chapters.reduce((s, c) => s + c.lessons.length, 0) ?? 0;
-    const completed =
-      enrollment.progressPercent >= 100
-        ? total
-        : Math.round((enrollment.progressPercent / 100) * total);
-    return mockDelay({
-      total,
-      completed,
-      percent: enrollment.progressPercent,
-      isCompleted: enrollment.progressPercent >= 100,
-    });
+    const completed = getCourseProgressRows(courseId).filter((r) => r.isCompleted).length;
+    const percent = total ? Math.round((completed / total) * 100) : 0;
+    return mockDelay({ total, completed, percent, isCompleted: total > 0 && completed >= total });
   }
   const res = await fetch(`${env.apiUrl}/api/v1/enrollments/progress/${courseId}`, {
     headers: { Accept: 'application/json' },
@@ -119,30 +108,13 @@ export async function fetchCourseProgress(courseId: UUID): Promise<CourseProgres
 
 /**
  * `GET /progress/course/{courseId}` (API §5). Returns one row per lesson
- * the student has opened. In mock mode we derive the per-lesson completion
- * set from the enrollment's `progressPercent` so the curriculum shows the
- * first N lessons as completed and the rest as pending. The first non-
- * completed lesson becomes the resume target.
+ * the student has opened. In mock mode the rows come from the shared
+ * in-memory progress store, seeded from the enrollment's `progressPercent`
+ * (first N lessons completed) and updated by S12. The first non-completed
+ * lesson becomes the resume target.
  */
 export async function fetchCourseLessonProgress(courseId: UUID): Promise<LessonProgress[]> {
-  if (env.useMocks) {
-    const curriculum = getCurriculum(courseId);
-    const enrollment = enrollments.find((e) => e.courseId === courseId);
-    if (!curriculum || !enrollment) return mockDelay([]);
-    const all = curriculum.chapters.flatMap((c) => c.lessons);
-    const completedCount =
-      enrollment.progressPercent >= 100
-        ? all.length
-        : Math.round((enrollment.progressPercent / 100) * all.length);
-    return mockDelay(
-      all.map<LessonProgress>((l, i) => ({
-        lessonId: l.id,
-        isCompleted: i < completedCount,
-        lastPositionSeconds: 0,
-        maxWatchedSeconds: 0,
-      })),
-    );
-  }
+  if (env.useMocks) return mockDelay(getCourseProgressRows(courseId), 150);
   const res = await fetch(`${env.apiUrl}/api/v1/progress/course/${courseId}`, {
     headers: { Accept: 'application/json' },
   });
