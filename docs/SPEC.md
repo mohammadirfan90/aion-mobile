@@ -238,7 +238,8 @@ A task is only `done` in [TRACKER.md](TRACKER.md) when:
    Phase 0), the tests, the public-repo hygiene scan, and the code rules below where they can be automated.
    A finished phase must also pass `node scripts/verify.mjs phase <n>`.
 2. The screen or feature works in mock mode on Android (emulator or device). Check iOS too if someone has access.
-3. It looks right in **light and dark** mode and on a **small phone (360×640)**.
+3. It looks right in **light and dark** mode and on a **small phone (360×640)**. Screens must match their design
+   image in `docs/design/` ([DESIGN.md](DESIGN.md)); SCREENS.md still wins on behaviour and data.
 4. Loading, empty and error states exist where data is involved.
 5. No hard-coded colors, no `any` without a comment explaining why, and no `console.log` left behind.
 6. The tracker row is updated and a log entry is written.

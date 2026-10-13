@@ -226,9 +226,9 @@ function status() {
   // Screen implementation snapshot: route files still holding the P0-11 placeholder marker.
   const routes = ROUTES.filter((r) => exists(r.file));
   if (routes.length) {
-    const placeholders = routes.filter((r) => /TODO S\d\d/.test(read(r.file)));
+    const placeholders = routes.filter((r) => PLACEHOLDER.test(read(r.file)));
     heading("Screens");
-    console.log(`  ${routes.length - placeholders.length}/${ROUTES.length} routes implemented (no "TODO Sxx" marker), ${ROUTES.length - routes.length} missing`);
+    console.log(`  ${routes.length - placeholders.length}/${ROUTES.length} routes implemented (no placeholder), ${ROUTES.length - routes.length} missing`);
   }
 
   const log = (name) => read(`docs/log/${name}.md`).match(/^## .+$/m)?.[0]?.replace("## ", "") ?? "no entries";
@@ -239,6 +239,9 @@ function status() {
 }
 
 // ── shared checks ─────────────────────────────────────────────────────────────
+/** A route still showing its P0-11 placeholder: the literal marker or the shared <Placeholder> component. */
+const PLACEHOLDER = /TODO S\d\d|<Placeholder\b/;
+
 const ROUTES = [
   ["src/app/_layout.tsx", "root"],
   ["src/app/(auth)/_layout.tsx", "auth"],
@@ -396,9 +399,14 @@ const PHASES = {
     heading("Phase 1: screens");
     const missing = ROUTES.filter((r) => !exists(r.file));
     check(missing.length === 0, "all route files exist", missing.map((r) => r.file));
-    const placeholders = ROUTES.filter((r) => exists(r.file) && /TODO S\d\d/.test(read(r.file)));
-    check(placeholders.length === 0, "no placeholder screens left (no \"TODO Sxx\" marker)", placeholders.map((r) => `${r.screen}  ${r.file}`));
+    const placeholders = ROUTES.filter((r) => exists(r.file) && PLACEHOLDER.test(read(r.file)));
+    check(placeholders.length === 0, "no placeholder screens left (no TODO Sxx marker or <Placeholder>)", placeholders.map((r) => `${r.screen}  ${r.file}`));
     check(!exists("src/components/auth-screen.tsx"), "legacy auth-screen.tsx deleted (P1-X1)");
+    const designs = walk("docs/design").map((f) => posix(f).split("/").pop());
+    const screenIds = [...new Set(ROUTES.map((r) => r.screen).filter((s) => /^S\d\d$/.test(s)))];
+    const undesigned = screenIds.filter((id) => !designs.some((f) => f.startsWith(`${id}-`)));
+    if (undesigned.length) warn("screens without a design image in docs/design (build from SCREENS.md)", undesigned);
+    else pass(`design images present for all ${screenIds.length} screens`);
     const features = ["auth", "home", "catalog", "learning", "lesson", "quiz", "assignment", "tutor", "community", "support", "profile", "certificate"];
     const noHooks = features.filter((f) => !exists(`src/features/${f}/hooks.ts`));
     check(noHooks.length === 0, "every feature has hooks.ts (data only through hooks, D-07)", noHooks.map((f) => `missing src/features/${f}/hooks.ts`));

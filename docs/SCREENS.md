@@ -1,6 +1,7 @@
 # Screens
 
-There are 29 screens. Owners are in [TEAM.md](TEAM.md) and status is in [TRACKER.md](TRACKER.md). Routes follow
+There are 29 screens. Owners are in [TEAM.md](TEAM.md) and status is in [TRACKER.md](TRACKER.md). Visual designs
+for each screen (Google Stitch) are listed in [DESIGN.md](DESIGN.md); this file still wins on behaviour and data. Routes follow
 [SPEC.md §2](SPEC.md#2-folder-structure). Endpoint shapes are in [API.md](API.md); the `API §n` references below
 point to its sections.
 

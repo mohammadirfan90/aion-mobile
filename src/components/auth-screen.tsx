@@ -89,7 +89,7 @@ export default function AuthScreen() {
 
   // OTP Box Inputs
   const [otp, setOtp] = useState(['1', '0', '0', '0', '0']);
-  const otpRefs = useRef<Array<TextInput | null>>([]);
+  const otpRefs = useRef<(TextInput | null)[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
