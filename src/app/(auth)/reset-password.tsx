@@ -1,10 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { ResetPasswordScreen } from '@/features/auth/screens/ResetPasswordScreen';
 
-export default function ResetPasswordScreen() {
-  return (
-    <Placeholder
-      screen="S06"
-      description="Set a new password with the code from email"
-    />
-  );
+export default function ResetPasswordRoute() {
+  return <ResetPasswordScreen />;
 }

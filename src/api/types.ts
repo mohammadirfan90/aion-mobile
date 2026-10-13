@@ -368,16 +368,37 @@ export interface Note {
   updatedAt: Timestamp;
 }
 
+export interface CommentAuthor {
+  id: UUID;
+  name: string;
+  avatarUrl: string | null;
+  role: 'student' | 'admin' | 'instructor' | string;
+}
+
 export interface Comment {
   id: UUID;
   lessonId: UUID;
+  courseId?: UUID;
+  chapterId?: UUID | null;
   userId: UUID;
   parentId: UUID | null;
   content: string;
+  timestampSeconds?: number | null;
   upvotes: number;
+  upvotesCount?: number;
   upvoted: boolean;
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  author?: CommentAuthor;
   replies?: Comment[];
+}
+
+export interface CreateCommentBody {
+  courseId: UUID;
+  chapterId?: UUID | null;
+  content: string;
+  parentId?: UUID | null;
+  timestampSeconds?: number | null;
 }
 
 // ── Quiz (API §7) ─────────────────────────────────────────────────────────────

@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P1-S11 done (Curriculum — back + title + overflow menu header; progress card with ring + "X of Y lessons complete" + Next subtitle + Resume; chapter list with status pills (Completed / In progress / Locked); lesson rows with type icon + title + "duration · type label" + completion check; "UP NEXT" badge on the resume target; overflow menu with Notes / Certificate (when eligible) / Get help; pull-to-refresh; against `docs/design/S11-curriculum.png`). `npm run check` green. Next up: P1-S12 (Lesson).
+- **Last update:** 2026-10-14, Irfan + Maria: all open Phase 1 branches merged into `main` (S01–S06, X1, S18 from Maria; S07–S17 from Irfan). Root layout now wraps the app in `ThemeProvider` / `QueryClientProvider` / `ToastHost` (nothing rendered before). Next up: Maria P1-S19, Irfan Phase 2 prep (P0-12 smoke check is still open).
 - **Open blockers:** none.
 
 ## How to use this file
@@ -94,13 +94,13 @@ Done means:
 | ID | Screen | Owner | Status | Depends | Notes |
 |---|---|---|---|---|---|
 | P1-X0 | Align the UI kit with the designs. Compare `src/components/ui/*` and the tab bar with `docs/design/` (pill inputs and buttons, list rows, cards, badges, segmented control, sheets, tab bar) and adjust the components, not the screens. Uses tokens only; no new colours. | Irfan | done | P0-12 | Pill inputs (52pt, focus ring in foreground, eye/eye-off toggle, no Show/Hide text), SearchBar (left `Search` icon, 48pt), Chip (soft muted fill when unselected), Header back button (`ChevronLeft` in a circular muted pill). Tab bar already matched. No new tokens. |
-| P1-S01 | Welcome | Maria | todo | P1-X0 | |
-| P1-S02 | Login | Maria | todo | P1-X0 | |
-| P1-S03 | Signup | Maria | todo | P1-X0 | |
-| P1-S04 | Verify email (code) | Maria | todo | P1-S03 | Build the full UI on mocks, including the "check your email, then log in" fallback state. The real code flow is P2-16. |
-| P1-S05 | Forgot password | Maria | todo | P1-S02 | UI on mocks. The real flow is P2-16 (the web has no set-new-password page, so a link-based reset can't be completed). |
-| P1-S06 | Reset password | Maria | todo | P1-S05 | UI on mocks. The real flow is P2-16. |
-| P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | todo | P1-S02…S06 | |
+| P1-S01 | Welcome | Maria | done | P1-X0 | 3 swipeable slides, synchronized dots, seenWelcome flag in AsyncStorage, navigates to S02 and S03. Matches S01-welcome.png. |
+| P1-S02 | Login | Maria | done | P1-X0 | Email/password pill inputs, secure toggle, zod validation, error banners (rate limit, unverified with Enter code link), forgot password & signup links. Matches S02-login.png. |
+| P1-S03 | Signup | Maria | done | P1-X0 | First/last name row, live debounced username check, email/password/confirm inputs, 3-segment strength meter, navigates to S04. Matches S03-signup.png. |
+| P1-S04 | Verify email (code) | Maria | done | P1-S03 | 6-box OtpInput, 60s resend cooldown, invalid code error handling, toast on success. Matches S04-verify-email.png. |
+| P1-S05 | Forgot password | Maria | done | P1-S02 | Email input, RATE_LIMITED handling, success confirmation card, navigates to S06 with ?email=. Matches S05-forgot-password.png. |
+| P1-S06 | Reset password | Maria | done | P1-S05 | 6-box OtpInput, new/confirm password with strength bars, mismatch handling, toast on success, signs in user. Matches S06-reset-password.png. |
+| P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | done | P1-S02…S06 | Deleted legacy reference component. All auth screens now use dedicated feature screens under `src/features/auth/`. |
 | P1-S07 | Home | Irfan | done | P1-X0 | Stats (3), continue-learning card, my-courses + explore-more carousels, brand bar (Aion + Ask Aion pill + avatar), greeting. Loading/empty/error states; pull-to-refresh. Long titles truncate to 2 lines. |
 | P1-S08 | Explore (catalog) | Irfan | done | P1-X0 | SearchBar (300ms debounce) + level + price chip filters; vertical list of cards with thumbnail, level + Enrolled badges, title, description, price, chevron; empty "No courses match" + Clear filters; pull-to-refresh. |
 | P1-S09 | My Learning | Irfan | done | P1-X0 | Brand bar (avatar → Profile, Aion wordmark, search + filter), "N active courses in this term" subtitle, `SegmentedControl` In progress / Completed, course rows with thumbnail + tag strip + title + "x/y lessons · Enrolled/Completed {date}" + progress bar with % (or "100% Completed" + `Certificate` button → S28), tap → S11, empty state → Explore, pull-to-refresh. |
@@ -112,7 +112,7 @@ Done means:
 | P1-S15 | Quiz | Irfan | todo | P1-S12 | |
 | P1-S16 | Assignment | Irfan | todo | P1-S12 | |
 | P1-S17 | AI Tutor chat | Irfan | todo | P1-X0 | |
-| P1-S18 | Lesson comments sheet | Maria | todo | P1-X0 | Opened from S12; works standalone with a fixture lesson ID. |
+| P1-S18 | Lesson comments sheet | Maria | done | P1-X0 | Threaded comments with 1-level reply indent, optimistic posting & delete, upvote toggling, reply-to chip banner, standalone fallback to fixture lesson ID. Matches S18-comments-sheet.png. |
 | P1-S19 | Community (forum feed) | Maria | todo | P1-X0 | |
 | P1-S20 | Forum post detail | Maria | todo | P1-S19 | |
 | P1-S21 | New post | Maria | todo | P1-S19 | |

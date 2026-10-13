@@ -1,7 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { VerifyEmailScreen } from '@/features/auth/screens/VerifyEmailScreen';
 
-export default function VerifyEmailScreen() {
-  return (
-    <Placeholder screen="S04" description="6-digit email verification code" />
-  );
+export default function VerifyEmailRoute() {
+  return <VerifyEmailScreen />;
 }

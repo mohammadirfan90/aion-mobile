@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import {
   Pressable,
   TextInput,
@@ -22,17 +22,20 @@ export interface UITextFieldProps
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export function TextField({
-  label,
-  error,
-  hint,
-  secureToggle,
-  value,
-  onChangeText,
-  containerStyle,
-  secureTextEntry,
-  ...rest
-}: UITextFieldProps) {
+export const TextField = forwardRef<TextInput, UITextFieldProps>(function TextField(
+  {
+    label,
+    error,
+    hint,
+    secureToggle,
+    value,
+    onChangeText,
+    containerStyle,
+    secureTextEntry,
+    ...rest
+  },
+  ref
+) {
   const theme = useTheme();
   const [focused, setFocused] = useState(false);
   const [shown, setShown] = useState(false);
@@ -66,6 +69,7 @@ export function TextField({
         }}
       >
         <TextInput
+          ref={ref}
           {...rest}
           value={value}
           onChangeText={onChangeText}
@@ -115,4 +119,4 @@ export function TextField({
       ) : null}
     </View>
   );
-}
+});

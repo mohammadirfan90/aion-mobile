@@ -1,5 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { SignupScreen } from '@/features/auth/screens/SignupScreen';
 
-export default function SignupScreen() {
-  return <Placeholder screen="S03" description="Create a new account" />;
+export default function SignupRoute() {
+  return <SignupScreen />;
 }

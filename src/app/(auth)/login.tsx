@@ -1,5 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { LoginScreen } from '@/features/auth/screens/LoginScreen';
 
-export default function LoginScreen() {
-  return <Placeholder screen="S02" description="Sign in with email + password" />;
+export default function LoginRoute() {
+  return <LoginScreen />;
 }

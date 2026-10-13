@@ -1,5 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { WelcomeScreen } from '@/features/auth/screens/WelcomeScreen';
 
-export default function WelcomeScreen() {
-  return <Placeholder screen="S01" description="Welcome / marketing splash" />;
+export default function WelcomeRoute() {
+  return <WelcomeScreen />;
 }
