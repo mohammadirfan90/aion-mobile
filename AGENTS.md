@@ -1,4 +1,41 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+# Aion Mobile — agent instructions
+
+This is the **Aion** mobile app, the student app for the Aion learning platform. It is an Expo/React Native
+app built by **Irfan** and **Maria** for a university course. The API it talks to lives in a separate private
+repository. Prioritize mobile-first patterns, performance and cross-platform compatibility.
+
+## Start here (every session)
+
+0. Run `node scripts/verify.mjs status` to see where the project stands and what's next.
+1. Read, in order: [docs/CONTEXT.md](docs/CONTEXT.md) → [docs/SPEC.md](docs/SPEC.md) →
+   [docs/TRACKER.md](docs/TRACKER.md). Then read the sections of [docs/SCREENS.md](docs/SCREENS.md) and
+   [docs/API.md](docs/API.md) that your task needs. For screen work, also open that screen's visual design
+   ([docs/DESIGN.md](docs/DESIGN.md)). Ownership is in [docs/TEAM.md](docs/TEAM.md).
+2. Work out who you are working for (**Irfan** or **Maria**): check `git config user.name`, and ask if it's unclear.
+3. Follow the "How to use this file" protocol in TRACKER.md: pick the next task, mark it `doing`, do it, run
+   `node scripts/verify.mjs check` until it passes, mark it `done`, write a log entry in `docs/log/<name>.md`,
+   and update "Current state". **When a phase's last task is done, `node scripts/verify.mjs phase <n>` must pass**
+   before you move on. If it can't pass, report why instead of skipping it.
+4. When the user just says **"implement it"** or **"continue"**, that means: take the next task for the person
+   you're working for, following that protocol. Keep going task by task. Stop and report when a task is blocked,
+   a decision isn't covered by the docs, or the phase is finished.
+
+## Hard rules for this repo
+
+- **Public repo:** never commit secrets, `.env`, backend code, or real user data (CONTEXT §5).
+- **Order:** Phase 0 (cleanup & scaffold) → Phase 1 (screens on mock data) → Phase 2 (real API) → Phase 3
+  (native & polish) → Phase 4 (release). Don't start a later phase's work for an area until its earlier rows are
+  done.
+- **Screens get data only through `src/features/*/hooks.ts`** (D-07). No `fetch` in screens.
+- **No hard-coded colors**: use `useTheme()` tokens (SPEC §6).
+- **Don't add a library or change an architecture decision without recording it** in CONTEXT.md's decision log.
+- **Commits:** one line, `<task-id>: <summary>`, on a branch named `<name>/<task-id>-<slug>`.
+- If the docs and the code disagree, the docs win, unless the docs are clearly out of date. In that case fix the
+  docs and log it.
+
+---
+
+# Expo guidance
 
 ## Expo has changed — do not trust your training data
 

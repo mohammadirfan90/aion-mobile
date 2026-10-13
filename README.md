@@ -1,108 +1,131 @@
-# Aion LMS - Mobile Application
+# Aion — Mobile App
 
+The student app for the **Aion** learning platform (LMS). Browse courses, enroll,
+take lessons, track progress, keep notes, ask the AI tutor, discuss in the
+forum, and earn certificates — all from iOS, Android, and the web.
 
-A modern, cross-platform **Learning Management System (LMS) Mobile App** built with **React Native**, **Expo SDK 57**, and **TypeScript**. Designed for students and instructors to access courses, track progress, manage assignments, and engage in interactive learning seamlessly across mobile and web platforms.
-
-
-## Key Features
-
-*** Course Directory & Enrollment**: Browse available courses, view detailed syllabi, and enroll in interactive modules.
-***Native Navigation**: File-based routing powered by **Expo Router** for smooth transitions and deep-linking support.
-*** Responsive & Themed UI**: Built-in support for light/dark modes and custom design tokens (`ThemedView`, `ThemedText`).
-*** Learning Progress Tracking**: Track completed lessons, upcoming deadlines, and quiz results.
-*** Multi-Platform Support**: Works seamlessly across iOS, Android, and Web using a single shared codebase.
-*** Micro-Animations**: Smooth UI motion powered by `react-native-reanimated` and `react-native-gesture-handler`.
-
-##  Tech Stack
-
-***Core Framework**: [React Native 0.86](https://reactnative.dev/) & [React 19](https://react.dev/)
-***Platform & Tooling**: [Expo SDK 57](https://expo.dev/)
-***Router**: [Expo Router v57](https://docs.expo.dev/router/introduction/) (File-based Routing)
-***Language**: [TypeScript 6.0](https://www.typescriptlang.org/)
-***Styling & Animation**: React Native Reanimated, Safe Area Context, React Native Web
-
-
-## Project Structure
-
-```text
-mobile/
-├── assets/                # App icons, splash screens, and static images
-├── src/
-│   ├── app/               # Expo Router pages (screens & navigation layouts)
-│   │   ├── _layout.tsx    # Root layout & theme providers
-│   │   ├── index.tsx      # Home screen / Dashboard
-│   │   └── explore.tsx    # Course exploration & discovery
-│   ├── components/        # Reusable UI components (ThemedView, HintRow, etc.)
-│   ├── constants/         # Theme colors, layout constants, spacing
-│   ├── hooks/             # Custom React hooks (theme, device state, etc.)
-│   └── global.css         # Global styles
-├── scripts/               # Helper & setup scripts
-├── app.json               # Expo configuration & app metadata
-├── tsconfig.json          # TypeScript compiler configuration
-└── package.json           # App dependencies & npm scripts
-```
+> **Status: Phase 0 — Cleanup & scaffold.** The app is being built by Irfan and
+> Maria for a university Mobile App Development course. The current phase only
+> removes the starter template, sets the project identity, and wires up the
+> build tooling. Real screens come in Phase 1.
+>
+> See [`docs/TRACKER.md`](docs/TRACKER.md) for the full plan, status of every
+> task, and the phase we're in.
 
 ---
 
-## Getting Started
+## Stack
+
+- **Expo SDK 57** (managed workflow) + **React Native 0.86** + **React 19.2**
+- **TypeScript 6** (strict)
+- **Expo Router** (file-based navigation, typed routes)
+- **expo-image**, **expo-font**, **expo-splash-screen**, **expo-video**,
+  **expo-symbols**, **expo-glass-effect**
+- **react-native-reanimated**, **react-native-gesture-handler**,
+  **react-native-svg**, **react-native-safe-area-context**
+
+Phase 0 also installs (but doesn't use yet): **react-query**, **zustand**,
+**react-hook-form**, **zod**, **@hookform/resolvers**, **lucide-react-native**,
+**openapi-fetch**, **@supabase/supabase-js**, **@react-native-async-storage/async-storage**.
+
+---
+
+## Getting started
 
 ### Prerequisites
 
-Ensure you have the following installed on your development machine:
+- Node.js 18+ (LTS recommended)
+- npm 9+ (or `bun` / `yarn` — Expo supports either)
+- Expo Go on a physical device, or an Android Emulator / iOS Simulator
 
-***Node.js** (v18.x or later recommended)
-***npm** or **bun** / **yarn**
-***Expo Go app** on your iOS or Android device (for physical device testing), or an **Android Emulator** / **iOS Simulator**.
+### Setup
 
-### Installation
+```bash
+git clone <repo-url>
+cd aion-mobile
+npm install
+cp .env.example .env          # fill in values; defaults work for mock mode
+```
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-org/Aion_MobileApp.git
-   cd Aion_MobileApp/mobile
-   ```
+`.env` is **never** committed. The five `EXPO_PUBLIC_*` keys are listed and
+documented in [`.env.example`](.env.example); they are validated at startup by
+[`src/lib/env.ts`](src/lib/env.ts).
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+### Run the dev server
+
+```bash
+npm start              # interactive: press a, i, or w
+npm run android        # Android emulator / device
+npm run ios            # iOS simulator
+npm run web            # web preview
+```
 
 ---
 
-### Running the App
+## Scripts
 
-Start the Expo local development server:
+| Command | What it does |
+| :--- | :--- |
+| `npm start` | Start the Expo dev server |
+| `npm run android` | Start Expo and open the Android target |
+| `npm run ios` | Start Expo and open the iOS target |
+| `npm run web` | Launch the web preview |
+| `npm run lint` | Run `expo lint` (ESLint with `eslint-config-expo`) |
+| `npm run typecheck` | Run `tsc --noEmit` |
+| `npm run check` | Run `lint` then `typecheck` (SPEC §9 quality gate) |
+| `npm run api:types` | Regenerate `src/api/schema.d.ts` from `api/openapi.json` |
 
-```bash
-npx expo start
+---
+
+## Project layout
+
+```
+api/             OpenAPI 3.1 snapshot of the backend (typed by api:types)
+assets/          App icon, splash, adaptive icon (replaced in P4-01)
+docs/            CONTEXT, SPEC, SCREENS, API, TEAM, TRACKER + per-person logs
+scripts/         verify.mjs — phase / status / quality-gate checks
+src/
+  app/           Expo Router routes (one file per screen + _layout files)
+  components/    Shared React components
+  components/ui/ Shared UI kit (built in P0-09)
+  features/      One folder per area: hooks.ts, api.ts, schemas.ts, screens/
+  api/           openapi-fetch client, generated schema, hand-written types
+  lib/           env, supabase, auth-store, format, course, lesson, sse
+  mocks/         Fixtures + in-memory mutations (built in P0-10)
+  theme/         Design tokens + useTheme() (built in P0-08)
+app.json         Expo config (name, slug, scheme, bundle IDs, plugins)
+package.json     Deps and scripts
+tsconfig.json    TypeScript (extends expo/tsconfig.base)
 ```
 
-From the terminal menu, you can launch the app on your preferred target:
+---
 
-* **Android Emulator / Device**: Press `a` or run:
-  ```bash
-  npm run android
-  ```
-* **iOS Simulator**: Press `i` or run:
-  ```bash
-  npm run ios
-  ```
-* **Web Browser**: Press `w` or run:
-  ```bash
-  npm run web
-  ```
+## Team
 
-
-
-## Available Scripts
-
-| Command | Description |
+| Person | Owns |
 | :--- | :--- |
-| `npm start` | Starts the Expo dev server (`npx expo start`) |
-| `npm run android` | Starts Expo dev server targeting Android emulator |
-| `npm run ios` | Starts Expo dev server targeting iOS simulator |
-| `npm run web` | Launches the web preview in your default browser |
-| `npm run lint` | Runs Expo linter (`npx expo lint`) |
-| `npm run reset-project` | Resets starter template files to `app-example` |
+| **Irfan** | Discover & Learn screens (S07–S17), backend dependencies (B-xx), API client + Supabase setup, EAS builds & release |
+| **Maria** | Auth, Community, Support, Account, Certificate screens (S01–S06, S18–S29), media upload helper, README & demo video |
 
+---
 
+## Docs
+
+- [`docs/CONTEXT.md`](docs/CONTEXT.md) — what the project is, the decision log
+  (D-01 … D-12), constraints, glossary
+- [`docs/SPEC.md`](docs/SPEC.md) — technical spec: stack, folder layout, env,
+  data layer, auth, design tokens, UI kit, quality gates
+- [`docs/SCREENS.md`](docs/SCREENS.md) — all 29 screens with acceptance lists
+- [`docs/API.md`](docs/API.md) — REST endpoints the mobile app uses
+- [`docs/TEAM.md`](docs/TEAM.md) — ownership and screen split
+- [`docs/TRACKER.md`](docs/TRACKER.md) — current state, all task rows, how to
+  start/end a session
+- [`docs/log/irfan.md`](docs/log/irfan.md), [`docs/log/maria.md`](docs/log/maria.md) —
+  per-person work logs
+- [`api/openapi.json`](api/openapi.json) — backend OpenAPI 3.1 snapshot
+
+---
+
+## License
+
+[MIT](LICENSE) — Aion Mobile contributors, 2026.
