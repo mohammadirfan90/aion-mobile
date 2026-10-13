@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { PostDetailScreen } from '@/features/community/screens/PostDetailScreen';
 
-export default function ForumPostScreen() {
-  return (
-    <Placeholder
-      screen="S20"
-      description="Forum post detail — body, replies, upvote, mark as solution"
-    />
-  );
-}
+export default PostDetailScreen;

@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { NewPostScreen } from '@/features/community/screens/NewPostScreen';
 
-export default function NewPostScreen() {
-  return (
-    <Placeholder
-      screen="S21"
-      description="New post modal — category, title, body, optional image"
-    />
-  );
-}
+export default NewPostScreen;

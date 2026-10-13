@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { CommunityScreen } from '@/features/community/screens/CommunityScreen';
 
-export default function CommunityScreen() {
-  return (
-    <Placeholder
-      screen="S19"
-      description="Community — forum feed with categories and filters"
-    />
-  );
-}
+export default CommunityScreen;
