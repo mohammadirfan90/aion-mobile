@@ -79,6 +79,7 @@ supersedes it.
 | D-10 | **Bottom sheets are Expo Router routes** with `presentation: 'formSheet'` (notes, comments, AI summary). | Native feel without an extra bottom-sheet library; the back gesture works. |
 | D-11 | **Icons: `lucide-react-native`.** | Same icon set as the web app, so the products look related. |
 | D-12 | **The visual style follows the web app**: a neutral grey palette, near-black primary, 10px radius, Geist font, light and dark mode. Tokens are in [SPEC.md §6](SPEC.md#6-design-system). | Consistent brand. |
+| D-13 | **Markdown: `react-native-marked`**, through its `useMarkdown` hook, wrapped in `src/components/Markdown.tsx` on theme tokens. | Maintained, built on `marked`, renders with `react-native-svg` (already installed). The hook returns plain elements, so markdown can sit inside a ScrollView (the library's `<Markdown>` is a FlatList and can't be nested). Used by S12 readings, S16 briefs and S17 replies. |
 
 ## 7. Glossary
 
