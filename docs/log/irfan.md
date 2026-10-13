@@ -2,6 +2,14 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-03
+- Did: rewrote README.md to only describe what exists (current phase, stack, setup, scripts, team, links to the six docs). LICENSE copyright → "Aion Mobile contributors".
+- Changed files: README.md, LICENSE, docs/TRACKER.md.
+- Decisions/notes: README makes the Phase 0 status very explicit and contains no "Key Features" list of screens that aren't built yet. The Phase 0 stack list mentions packages that will be installed in P0-06 because they are already committed to `package.json` research and the README is forward-looking on tooling.
+- Quality gates: `npx expo lint` → 0 errors, `npx tsc --noEmit` → clean.
+- Next: P0-04 (.env.example + src/lib/env.ts).
+- Blockers: none.
+
 ## 2026-10-13 — P0-02
 - Did: set the Aion app identity. `app.json`: name "Aion", slug "aion-mobile", scheme "aion", ios.bundleIdentifier "com.aion.mobile", android.package "com.aion.mobile", splash backgroundColor #0A0A0A (neutral dark, per SPEC §6). `package.json`: name "aion-mobile"; removed the "reset-project" script and deleted `scripts/reset-project.js`.
 - Changed files: app.json, package.json, scripts/reset-project.js (deleted), docs/TRACKER.md.
