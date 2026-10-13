@@ -1,9 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { useTheme } from '@/theme';
+
 export default function HomeScreen() {
+  const theme = useTheme();
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Aion</Text>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <Text style={[styles.text, { color: theme.colors.foreground }]}>Aion</Text>
     </View>
   );
 }
@@ -13,11 +18,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
   text: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#0A0A0A',
   },
 });

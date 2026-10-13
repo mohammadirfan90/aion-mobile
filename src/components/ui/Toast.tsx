@@ -50,9 +50,9 @@ export function ToastHost() {
   const palette = (() => {
     switch (current.tone) {
       case 'success':
-        return { bg: theme.colors.success, fg: '#FFFFFF' };
+        return { bg: theme.colors.success, fg: theme.colors.onSuccess };
       case 'error':
-        return { bg: theme.colors.destructive, fg: '#FFFFFF' };
+        return { bg: theme.colors.destructive, fg: theme.colors.onDestructive };
       default:
         return { bg: theme.colors.foreground, fg: theme.colors.background };
     }

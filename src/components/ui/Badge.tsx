@@ -16,11 +16,11 @@ export function Badge({ label, tone = 'neutral' }: UIBadgeProps) {
       case 'primary':
         return { bg: theme.colors.primary, fg: theme.colors.primaryForeground };
       case 'success':
-        return { bg: theme.colors.success, fg: '#FFFFFF' };
+        return { bg: theme.colors.success, fg: theme.colors.onSuccess };
       case 'warning':
-        return { bg: theme.colors.warning, fg: '#FFFFFF' };
+        return { bg: theme.colors.warning, fg: theme.colors.onWarning };
       case 'destructive':
-        return { bg: theme.colors.destructive, fg: '#FFFFFF' };
+        return { bg: theme.colors.destructive, fg: theme.colors.onDestructive };
       default:
         return { bg: theme.colors.muted, fg: theme.colors.foreground };
     }

@@ -379,7 +379,7 @@ const PHASES = {
 
     heading("Phase 0: scaffold");
     requireFiles(["src/api/client.ts", "src/api/schema.d.ts", "src/api/types.ts", "src/api/query-keys.ts", "src/lib/errors.ts"], "API layer files exist (P0-07)");
-    requireFiles(["src/theme/tokens.ts", "src/theme/index.ts"], "theme files exist (P0-08)");
+    requireFiles(["src/theme/tokens.ts", "src/theme/index.tsx"], "theme files exist (P0-08)");
     const kit = ["Screen", "Text", "Button", "IconButton", "TextField", "OtpInput", "Card", "ListItem", "Avatar", "Badge", "Chip", "SegmentedControl", "ProgressBar", "ProgressRing", "Skeleton", "EmptyState", "ErrorState", "Divider", "SearchBar", "Toast", "Header"];
     const kitFiles = walk("src/components/ui", isTs).map((f) => posix(f).split("/").pop().replace(/\.tsx?$/, "").replace(/-/g, "").toLowerCase());
     const missingKit = kit.filter((c) => !kitFiles.includes(c.toLowerCase()));

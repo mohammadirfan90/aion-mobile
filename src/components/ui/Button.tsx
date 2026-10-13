@@ -56,7 +56,7 @@ export function Button({
       case 'destructive':
         return {
           bg: theme.colors.destructive,
-          fg: '#FFFFFF',
+          fg: theme.colors.onDestructive,
           border: 'transparent',
         };
     }

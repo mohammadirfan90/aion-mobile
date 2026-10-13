@@ -20,8 +20,11 @@ export interface ThemePalette {
   primary: string;
   primaryForeground: string;
   destructive: string;
+  onDestructive: string;
   success: string;
+  onSuccess: string;
   warning: string;
+  onWarning: string;
   ring: string;
 }
 
@@ -35,8 +38,11 @@ const light: ThemePalette = {
   primary: '#171717',
   primaryForeground: '#FAFAFA',
   destructive: '#E7000B',
+  onDestructive: '#FFFFFF',
   success: '#16A34A',
+  onSuccess: '#FFFFFF',
   warning: '#D97706',
+  onWarning: '#FFFFFF',
   ring: '#A1A1A1',
 };
 
@@ -50,8 +56,11 @@ const dark: ThemePalette = {
   primary: '#E5E5E5',
   primaryForeground: '#171717',
   destructive: '#FF6467',
+  onDestructive: '#0A0A0A',
   success: '#4ADE80',
+  onSuccess: '#0A0A0A',
   warning: '#FBBF24',
+  onWarning: '#0A0A0A',
   ring: '#737373',
 };
 

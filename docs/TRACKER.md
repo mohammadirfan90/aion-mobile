@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 0, Cleanup & scaffold (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P0-09 done (21 UI kit components). Next up: P0-10 (mock layer + fixtures).
+- **Last update:** 2026-10-13, Irfan: P0-10 done (mock layer + fixtures + auth store). Next up: P0-11 (navigation skeleton, 34 routes).
 - **Open blockers:** none
 
 ## How to use this file
@@ -77,7 +77,7 @@ Add `--skip-commands` for a quick run without lint, typecheck or tests, and `--d
 | P0-07 | API layer: generate `src/api/schema.d.ts`; write `src/api/types.ts` from API.md; write `src/api/client.ts` (unwrap, ApiError, auth-header middleware stub) and `query-keys.ts`; write `lib/errors.ts`. | Irfan | done | P0-06 | |
 | P0-08 | Theme: `src/theme` tokens (SPEC §6), `useTheme()`, font loading, and a light/dark/system override held in a zustand settings store. | Irfan | done | P0-06 | |
 | P0-09 | UI kit: every component in SPEC §7, in `src/components/ui`. | Irfan | done | P0-08 | |
-| P0-10 | Mock layer: fixtures for every area (see [§ Phase 0 details](#phase-0-details)), `mockDelay`, in-memory mutations, and a mock auth store (any credentials sign in). | Any | todo | P0-07 | |
+| P0-10 | Mock layer: fixtures for every area (see [§ Phase 0 details](#phase-0-details)), `mockDelay`, in-memory mutations, and a mock auth store (any credentials sign in). | Irfan | done | P0-07 | |
 | P0-11 | Navigation skeleton: every route from SPEC §2 exists as a placeholder screen whose text contains the exact marker `TODO Sxx` (e.g. `TODO S07`; the verify script counts these to track screen progress, so Phase 1 removes each marker when the screen is built); `Stack.Protected` gating; tabs with lucide icons; sheets use `formSheet`; new post and new ticket open as modals. | Any | todo | P0-09, P0-10 | |
 | P0-12 | Smoke check: in mock mode on Android the app boots, you can "log in", reach every placeholder, and log out. Light and dark both work. | Any | todo | P0-11 | |
 
