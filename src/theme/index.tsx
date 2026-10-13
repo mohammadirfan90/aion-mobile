@@ -11,7 +11,7 @@
  * with `expo-font`'s `useFonts` and fall back to the system font if it
  * never resolves (the splash overlay stays visible until the fonts return).
  */
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useSyncExternalStore, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 import {
   Geist_400Regular,
@@ -21,7 +21,9 @@ import {
   useFonts,
 } from '@expo-google-fonts/geist';
 import * as SplashScreen from 'expo-splash-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 
 import {
   palettes,
@@ -46,10 +48,42 @@ interface SettingsState {
   setThemeOverride: (m: ThemeOverride) => void;
 }
 
-export const useSettings = create<SettingsState>((set) => ({
-  themeOverride: 'system',
-  setThemeOverride: (themeOverride) => set({ themeOverride }),
-}));
+/**
+ * AsyncStorage that never rejects: a failed read just means "no saved
+ * settings", so hydration always finishes and the splash always hides.
+ */
+const safeStorage: StateStorage = {
+  getItem: (name) => AsyncStorage.getItem(name).catch(() => null),
+  setItem: (name, value) => AsyncStorage.setItem(name, value).catch(() => {}),
+  removeItem: (name) => AsyncStorage.removeItem(name).catch(() => {}),
+};
+
+/**
+ * App settings. The theme override is persisted to AsyncStorage (S27: "the
+ * theme changes instantly and is remembered"). Hydration is async, so the
+ * provider keeps the splash up until it finishes to avoid a light/dark flash.
+ */
+export const useSettings = create<SettingsState>()(
+  persist(
+    (set) => ({
+      themeOverride: 'system',
+      setThemeOverride: (themeOverride) => set({ themeOverride }),
+    }),
+    {
+      name: 'aion:settings',
+      version: 1,
+      storage: createJSONStorage(() => safeStorage),
+      partialize: (s) => ({ themeOverride: s.themeOverride }),
+    },
+  ),
+);
+
+const subscribeHydration = (cb: () => void) => useSettings.persist.onFinishHydration(cb);
+const getHydrated = () => useSettings.persist.hasHydrated();
+
+function useSettingsHydrated(): boolean {
+  return useSyncExternalStore(subscribeHydration, getHydrated, getHydrated);
+}
 
 function resolveMode(override: ThemeOverride, scheme: 'light' | 'dark' | 'unspecified' | null | undefined): ThemeMode {
   if (override === 'light' || override === 'dark') return override;
@@ -93,6 +127,7 @@ const ThemeContext = createContext<Theme | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme();
   const override = useSettings((s) => s.themeOverride);
+  const settingsHydrated = useSettingsHydrated();
   const [fontsLoaded, fontError] = useFonts({
     Geist_400Regular,
     Geist_500Medium,
@@ -104,10 +139,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const theme = useMemo(() => buildTheme(mode), [mode]);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && settingsHydrated) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, settingsHydrated]);
 
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }

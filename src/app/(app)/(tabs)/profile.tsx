@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { ProfileScreen } from '@/features/profile/screens/ProfileScreen';
 
-export default function ProfileScreen() {
-  return (
-    <Placeholder
-      screen="S25"
-      description="My profile, certificates, and account shortcuts"
-    />
-  );
-}
+export default ProfileScreen;

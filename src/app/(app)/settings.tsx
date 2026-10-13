@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { SettingsScreen } from '@/features/profile/screens/SettingsScreen';
 
-export default function SettingsScreen() {
-  return (
-    <Placeholder
-      screen="S27"
-      description="Settings — theme override, biometric lock, dev mode, sign out"
-    />
-  );
-}
+export default SettingsScreen;
