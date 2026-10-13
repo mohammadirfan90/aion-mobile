@@ -39,6 +39,7 @@ export function Markdown({ value, compact = false, color, style }: MarkdownProps
       h4: { color: text, fontFamily: theme.fonts.semibold, ...size, fontWeight: undefined },
       codespan: {
         fontFamily: MONO_FONT,
+        fontStyle: 'normal',
         fontSize: size.fontSize - 1,
         backgroundColor: theme.colors.muted,
         color: text,

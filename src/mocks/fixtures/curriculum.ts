@@ -294,7 +294,7 @@ const jsChapters: Chapter[] = [
             allowDownload: true,
           },
         },
-        completed: false,
+        completed: true,
       },
     ],
   },
@@ -328,7 +328,7 @@ const jsChapters: Chapter[] = [
           'Use `switch` when you compare one value against many cases.',
         ].join('\n'),
         metadata: { markdownSettings: { sourceType: 'direct' } },
-        completed: false,
+        completed: true,
         durationSeconds: 420,
       },
       {
@@ -342,7 +342,7 @@ const jsChapters: Chapter[] = [
         metadata: {
           embedSettings: { embedUrl: 'https://en.m.wikipedia.org/wiki/For_loop', height: 450 },
         },
-        completed: false,
+        completed: true,
       },
       {
         id: 'l-js-02-03',

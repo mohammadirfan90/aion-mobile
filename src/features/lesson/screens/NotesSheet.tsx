@@ -18,6 +18,7 @@ import {
   Pressable,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,10 +38,13 @@ import { playback } from '../playback';
 import { useAddNote, useDeleteNote, useLesson, useLessonNotes } from '../player-hooks';
 
 const MAX_NOTE = 2000;
+/** The sheet sizes to its content (`fitToContents`), so it sets its own height. */
+const SHEET_HEIGHT = 0.85;
 
 export function NotesSheet() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
   const lessonId = typeof id === 'string' ? id : null;
 
@@ -104,7 +108,7 @@ export function NotesSheet() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      style={{ height: Math.round(height * SHEET_HEIGHT), backgroundColor: theme.colors.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View

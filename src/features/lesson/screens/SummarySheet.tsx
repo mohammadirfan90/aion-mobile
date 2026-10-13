@@ -62,6 +62,7 @@ const AI_OFF_CODES = new Set(['AI_DISABLED', 'AI_CONSENT_REQUIRED', 'FORBIDDEN']
 export function SummarySheet() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
   const lessonId = typeof id === 'string' ? id : null;
   const lessonQ = useLesson(lessonId);
@@ -113,7 +114,8 @@ export function SummarySheet() {
   return (
     <View
       style={{
-        flex: 1,
+        // The sheet sizes to its content (`fitToContents`), so it sets its own height.
+        height: Math.round(height * 0.85),
         backgroundColor: theme.colors.background,
         paddingBottom: insets.bottom,
       }}

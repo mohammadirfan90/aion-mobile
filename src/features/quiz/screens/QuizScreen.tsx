@@ -543,7 +543,9 @@ function Result({
               </Text>
             </View>
           </View>
-          <Badge label={result.passed ? 'Passed' : 'Not passed'} tone={result.passed ? 'success' : 'destructive'} />
+          <View>
+            <Badge label={result.passed ? 'Passed' : 'Not passed'} tone={result.passed ? 'success' : 'destructive'} />
+          </View>
           <Text tone="muted">
             {result.correctCount} of {result.totalQuestions} correct · Passing score{' '}
             {quiz.passingScorePercent}%
