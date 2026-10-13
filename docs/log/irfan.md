@@ -2,6 +2,26 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-09
+- Did: built every component in SPEC §7 inside `src/components/ui/`:
+  - **Layout:** `Screen` (safe area, scroll/pull-to-refresh/keyboard-avoid), `Header` (+ `HeaderBackButton`).
+  - **Type:** `Text` (8 typography variants, 5 tones, weight override).
+  - **Buttons:** `Button` (4 variants × 3 sizes, loading, icon slots), `IconButton` (label required for a11y).
+  - **Inputs:** `TextField` (label, error, hint, secure toggle, autoComplete pass-through), `OtpInput` (6 boxes, paste fills all, backspace moves back, auto-submits on complete).
+  - **Surfaces:** `Card` (padded/outlined), `ListItem` (leading/title/subtitle/trailing), `Divider` (vertical/horizontal), `Avatar` (image or initials), `Badge` (5 tones), `Chip` + `ChipGroup` (single/multi).
+  - **Inputs (choice):** `SegmentedControl` (generic, typed).
+  - **Progress:** `ProgressBar`, `ProgressRing` (SVG; ring is labelled + a11y progressbar), `Skeleton` + `SkeletonGroup` (Reanimated opacity pulse with cleanup).
+  - **Feedback:** `EmptyState` (icon/title/desc/action), `ErrorState` (retry), `Toast` + `ToastHost` (zustand store, success/error/info, auto-dismiss).
+- All accessibilities: `accessibilityRole`, `accessibilityState`, `accessibilityLabel` on icon-only buttons, `accessibilityValue` on progress bars.
+- Changed files: 21 new files in `src/components/ui/`, docs/TRACKER.md.
+- Decisions/notes:
+  - No hard-coded colors: every component reads from `useTheme()`. The only `#FFFFFF` literal left is the `Badge` foreground in `success/warning/destructive` tones — that matches SPEC §6 token semantics (a token's color is the bg; a fixed foreground on a colored pill keeps contrast consistent across light/dark).
+  - Components are exported as `UI<Name>` (e.g. `UIButtonProps`); the runtime is `<Button />`. This avoids naming collisions with React Native's `Text`/`View` types in screens.
+  - `Toast` uses its own zustand store (`useToastStore`) plus a `showToast(text, tone?)` helper. `ToastHost` is rendered once by the `(app)` layout in P0-11.
+- Quality gates: `npm run check` → 0 errors, 0 warnings.
+- Next: P0-10 (mock layer + fixtures for every area).
+- Blockers: none.
+
 ## 2026-10-13 — P0-08
 - Did: built the design system.
   - `src/theme/tokens.ts` — `palettes.light` and `palettes.dark` per SPEC §6 (neutral grey, near-black primary, exact hex values for every token), plus `Spacing` (4-point scale), `Radius` (sm/md/lg/xl/full), `Typography` (8 variants with the SPEC font sizes and weights).
