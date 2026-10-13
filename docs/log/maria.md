@@ -2,6 +2,14 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-14 — P1-X1
+- Did: deleted legacy `src/components/auth-screen.tsx` now that all Auth screens (S01–S06) are implemented with dedicated feature screens in `src/features/auth/` and verified.
+- Changed files: `src/components/auth-screen.tsx` (deleted), `docs/TRACKER.md`, `docs/log/maria.md`.
+- Decisions/notes: `auth-screen.tsx` was retained temporarily as a visual reference through P1-S06. No active application code imports it.
+- Quality gates: `npm run check` green (0 errors, 0 warnings), `node scripts/verify.mjs check` 6/7 (single pre-existing false positive on secret pattern).
+- Next: P1-S18 (Lesson comments sheet).
+- Blockers: none.
+
 ## 2026-10-13 — P1-S04, P1-S05, P1-S06
 - Did: implemented Phase 1 mock UI for S04 (Verify email), S05 (Forgot password), and S06 (Reset password) per SCREENS.md and matching visual designs in `docs/design/`:
   - **S04 (Verify email)**: mail badge, "Check your email", 6-box `OtpInput` with autoFocus/auto-submit, resend with 60-second cooldown timer, error state on invalid code, toast notification on success.
