@@ -2,6 +2,14 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-02
+- Did: set the Aion app identity. `app.json`: name "Aion", slug "aion-mobile", scheme "aion", ios.bundleIdentifier "com.aion.mobile", android.package "com.aion.mobile", splash backgroundColor #0A0A0A (neutral dark, per SPEC §6). `package.json`: name "aion-mobile"; removed the "reset-project" script and deleted `scripts/reset-project.js`.
+- Changed files: app.json, package.json, scripts/reset-project.js (deleted), docs/TRACKER.md.
+- Decisions/notes: none. Splash backgroundColor set to a single dark value for both modes — the native splash can't follow the system theme, and SPEC §6 says `background` is #0A0A0A in dark and #FFFFFF in light; a single dark splash looks neutral against the in-app white in light mode and matches dark mode. P4-01 replaces the splash image and may revisit this.
+- Quality gates: `npx expo lint` → 0 errors, `npx tsc --noEmit` → clean.
+- Next: P0-03 (rewrite README + LICENSE).
+- Blockers: none.
+
 ## 2026-10-13 — P0-01
 - Did: removed Expo starter template leftovers listed in TRACKER.md "Phase 0 details" (src/app/explore.tsx, the animated-icon / app-tabs / external-link / hint-row / web-badge / themed-* / ui/collapsible components, src/hooks/*, src/constants/theme.ts, src/global.css, template images, tabIcons/). Replaced src/app/_layout.tsx with a minimal Stack and src/app/index.tsx with a tiny placeholder so the app still boots. Kept src/components/auth-screen.tsx (visual reference for P1-X1) and the icon/splash assets. Added an `eslint-disable react/no-unescaped-entities` header to auth-screen.tsx so SPEC §9 lint is clean until P1-X1 cleans up the apostrophes.
 - Changed files: see above + docs/TRACKER.md (P0-01 row → done, "Current state" updated).

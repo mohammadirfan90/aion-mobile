@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 0, Cleanup & scaffold (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P0-01 done (template leftovers removed). Next up: P0-02.
+- **Last update:** 2026-10-13, Irfan: P0-02 done (app identity Aion, scheme `aion`). Next up: P0-03.
 - **Open blockers:** none
 
 ## How to use this file
@@ -69,7 +69,7 @@ Add `--skip-commands` for a quick run without lint, typecheck or tests, and `--d
 | ID | Task | Owner | Status | Depends | Notes |
 |---|---|---|---|---|---|
 | P0-01 | Remove template leftovers (list in [§ Phase 0 details](#phase-0-details)). Keep `src/components/auth-screen.tsx` as a visual reference until P1-X1. | Irfan | done | | |
-| P0-02 | App config: `app.json` name `Aion`, slug `aion-mobile`, scheme `aion`, `ios.bundleIdentifier` and `android.package` set to `com.aion.mobile` (change it if the ID is taken), neutral splash colour; `package.json` name `aion-mobile`; remove the `reset-project` script. | Any | todo | P0-01 | |
+| P0-02 | App config: `app.json` name `Aion`, slug `aion-mobile`, scheme `aion`, `ios.bundleIdentifier` and `android.package` set to `com.aion.mobile` (change it if the ID is taken), neutral splash colour; `package.json` name `aion-mobile`; remove the `reset-project` script. | Irfan | done | P0-01 | |
 | P0-03 | Rewrite the README so it only claims what exists: purpose, status, setup, env, scripts, team, links to docs. LICENSE copyright line → "Aion Mobile contributors". | Any | todo | P0-02 | |
 | P0-04 | Env: `.env.example` (SPEC §3), `src/lib/env.ts` validated with zod, add `.env` to `.gitignore`. | Any | todo | P0-02 | |
 | P0-05 | Tooling: ESLint via `npx expo lint`, Prettier config, and the npm scripts `typecheck`, `check` (lint + typecheck), `api:types`, `status` (`node scripts/verify.mjs status`) and `verify` (`node scripts/verify.mjs`). `npx expo-doctor` must be clean. | Any | todo | P0-02 | |
