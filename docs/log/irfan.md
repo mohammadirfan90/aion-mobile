@@ -2,6 +2,19 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-08
+- Did: built the design system.
+  - `src/theme/tokens.ts` — `palettes.light` and `palettes.dark` per SPEC §6 (neutral grey, near-black primary, exact hex values for every token), plus `Spacing` (4-point scale), `Radius` (sm/md/lg/xl/full), `Typography` (8 variants with the SPEC font sizes and weights).
+  - `src/theme/index.tsx` — `useTheme()` (palette + spacing + radius + typography + Geist font names), `useThemeMode()`, `<ThemeProvider>` that reads `useColorScheme()` + a zustand settings store (`useSettings` with `themeOverride: 'system' | 'light' | 'dark'`), and `useFonts` to load Geist 400/500/600/700 with the system-font fallback per SPEC §1. The splash screen stays up until fonts resolve.
+- Changed files: src/theme/tokens.ts (new), src/theme/index.tsx (new), docs/TRACKER.md.
+- Decisions/notes:
+  - The theme re-exports `Spacing`, `Radius`, `Typography`, `palettes` from `tokens.ts` so screens do `import { useTheme, Spacing } from '@/theme'`.
+  - `useSettings` is intentionally tiny (just the override for now). SPEC §5 reserves zustand for "session/auth state and settings (theme override, biometric lock)"; biometric lock lands in P3-04 and will join this same store.
+  - `ThemeProvider` is the natural place to wrap the app in P0-11's root layout.
+- Quality gates: `npm run check` → green.
+- Next: P0-09 (shared UI kit).
+- Blockers: none.
+
 ## 2026-10-13 — P0-07
 - Did: built the API layer.
   - `src/api/types.ts` — hand-written TypeScript types for every endpoint area (Auth, Courses, Lessons, Notes, Comments, Quiz, Assignment, Forum, Tickets, Tutor, User, Certificate). `UUID`, `Timestamp`, envelope types, and the auth-lockout extension.
