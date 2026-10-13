@@ -19,6 +19,7 @@ import { create } from 'zustand';
 import { mockDelay } from './delay';
 import { currentUser as fallbackUser, users } from './fixtures/users';
 import type { SupabaseSession, SupabaseUser, UserProfile } from '@/api/types';
+import { setHasSeenWelcome } from '@/lib/auth-storage';
 import { env } from '@/lib/env';
 
 let nextUserSeq = users.length + 1;
@@ -113,6 +114,7 @@ export const useMockAuth = create<MockAuthState>((set, get) => ({
     const supaUser = profileToSupabaseUser(profile);
     const session = makeSession(supaUser);
     await mockDelay(null, 350);
+    void setHasSeenWelcome();
     set({ user: supaUser, session, profile, isLoading: false });
     return { user: supaUser, session };
   },
@@ -138,6 +140,7 @@ export const useMockAuth = create<MockAuthState>((set, get) => ({
     // mock does not actually validate it.
     void password;
     await mockDelay(null, 500);
+    void setHasSeenWelcome();
     set({ user: supaUser, session, profile, isLoading: false });
     return { user: supaUser, session };
   },

@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P1-X0 done (UI kit aligned with designs — pill inputs with eye toggle, search icon, soft chips, chevron back button; no new tokens; `npm run check` green). Next up: P1-S07 (Home) — first screen against the designs.
+- **Last update:** 2026-10-13, Maria: P1-S01 done (Welcome screen with 3 swipeable slides, synchronized dots, navigation to login/signup, seenWelcome flag in AsyncStorage, responsive for 360×640, `npm run check` green). Next up: P1-S02 (Login).
 - **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
 
 ## How to use this file
@@ -94,7 +94,7 @@ Done means:
 | ID | Screen | Owner | Status | Depends | Notes |
 |---|---|---|---|---|---|
 | P1-X0 | Align the UI kit with the designs. Compare `src/components/ui/*` and the tab bar with `docs/design/` (pill inputs and buttons, list rows, cards, badges, segmented control, sheets, tab bar) and adjust the components, not the screens. Uses tokens only; no new colours. | Irfan | done | P0-12 | Pill inputs (52pt, focus ring in foreground, eye/eye-off toggle, no Show/Hide text), SearchBar (left `Search` icon, 48pt), Chip (soft muted fill when unselected), Header back button (`ChevronLeft` in a circular muted pill). Tab bar already matched. No new tokens. |
-| P1-S01 | Welcome | Maria | todo | P1-X0 | |
+| P1-S01 | Welcome | Maria | done | P1-X0 | 3 swipeable slides, synchronized dots, seenWelcome flag in AsyncStorage, navigates to S02 and S03. Matches S01-welcome.png. |
 | P1-S02 | Login | Maria | todo | P1-X0 | |
 | P1-S03 | Signup | Maria | todo | P1-X0 | |
 | P1-S04 | Verify email (code) | Maria | todo | P1-S03 | |
