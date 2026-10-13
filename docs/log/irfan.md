@@ -2,6 +2,21 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-07
+- Did: built the API layer.
+  - `src/api/types.ts` — hand-written TypeScript types for every endpoint area (Auth, Courses, Lessons, Notes, Comments, Quiz, Assignment, Forum, Tickets, Tutor, User, Certificate). `UUID`, `Timestamp`, envelope types, and the auth-lockout extension.
+  - `src/lib/errors.ts` — `friendlyError(code)` returns the SPEC §9 user-facing message for every `ApiError.code`. `isFieldError` flag for `VALIDATION_ERROR`.
+  - `src/api/client.ts` — `openapi-fetch` client with typed `paths`, `authMiddleware` (stub: gets the access token from a setter), `retryMiddleware` (one refresh-then-retry on 401), `unwrap<T>(response)` that handles the `{ success, data | error }` envelope and throws `ApiErrorImpl` on errors, plain-text rate-limited responses, malformed JSON, and any non-2xx. `configureAuth()` lets the future Supabase client install the token getter and refresh callback.
+  - `src/api/query-keys.ts` — `qk.*` namespaces every cache key (me, courses, enrollments, lessons, quiz, assignment, tutor, summary, forum, tickets, certificate). Plus re-exports of the entity types for single-import convenience.
+- Changed files: src/api/types.ts (new), src/api/client.ts (new), src/api/query-keys.ts (new), src/lib/errors.ts (new), src/api/types.ts + src/components/auth-screen.tsx (lint --fix removed `Array<T>` style), docs/TRACKER.md.
+- Decisions/notes:
+  - `ApiError` is exported as `class ApiErrorImpl {…}` aliased to `ApiError` at the bottom — feature code can `import { ApiError } from '@/api/client'`. The class carries `code`, `status`, optional `attemptsRemaining` / `lockedForSeconds` (API §1).
+  - The 401 retry only fires if a token getter is installed, so unit tests and the in-progress auth wiring can call the client safely.
+  - `useMocks = true` short-circuits the base URL to `''` (the real client is never imported in mock mode; feature `api.ts` returns fixtures). The real Supabase integration in P2-02 calls `configureAuth({ getAccessToken, onUnauthorized })` exactly once.
+- Quality gates: `npm run check` → green (lint 0 errors / 0 warnings, typecheck clean).
+- Next: P0-08 (theme tokens + useTheme + Geist font).
+- Blockers: none.
+
 ## 2026-10-13 — P0-06
 - Did: installed SPEC §1 packages.
   - `npx expo install` (SDK-compatible resolver): `@tanstack/react-query@5.104.2`, `zustand@5.0.15`, `react-hook-form@7.90.0`, `@hookform/resolvers@5.9.1`, `lucide-react-native@1.56.0`, `openapi-fetch@0.17.0`, `@supabase/supabase-js@2.117.3`, `@react-native-async-storage/async-storage@2.2.0`.
