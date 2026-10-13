@@ -3,7 +3,7 @@
  *   1. Home      → S07 (Lucide `house`)
  *   2. Explore   → S08 (Lucide `compass`)
  *   3. Learning  → S09 (Lucide `book-open`)
- *   4. Community → S19 (Lucide `message-circle`)
+ *   4. Community → S19 (Lucide `messages-square`)
  *   5. Profile   → S25 (Lucide `user`)
  *
  * Icons are tinted by the active theme via `useTheme()`. The label is shown
@@ -11,7 +11,7 @@
  * script's accessibility rule prefers them; they stay on for both platforms).
  */
 import { Tabs } from 'expo-router';
-import { BookOpen, Compass, House, MessageCircle, User } from 'lucide-react-native';
+import { BookOpen, Compass, House, MessagesSquare, User } from 'lucide-react-native';
 
 import { useTheme } from '@/theme';
 
@@ -56,7 +56,7 @@ export default function TabsLayout() {
         options={{
           title: 'Community',
           tabBarIcon: ({ color, size }) => (
-            <MessageCircle color={color} size={size} />
+            <MessagesSquare color={color} size={size} />
           ),
         }}
       />

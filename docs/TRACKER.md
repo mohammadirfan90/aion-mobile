@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-14, Irfan: P1-S12–S17 done (lesson, notes, AI summary, quiz, assignment, AI tutor; checked on the Android emulator in mock mode). All open Phase 1 branches merged into `main`; the root layout now has its providers. Irfan's Phase 1 rows are all done. Next up: Maria P1-S19…S29; Irfan Phase 2 prep. P0-12 (smoke check) is still open.
+- **Last update:** 2026-10-14, Maria: P1-S19–S29 done (community, support, profile, edit profile, settings, certificate, verify; checked on the Android emulator in mock mode, light and dark). Every Phase 1 screen is built. Next up: the P0-12 smoke check (logout still to check), then Phase 2 (P2-01 → P2-03, Maria P2-04 / P2-05).
 - **Open blockers:** none.
 
 ## How to use this file
@@ -113,17 +113,17 @@ Done means:
 | P1-S16 | Assignment | Irfan | done | P1-S12 | Collapsible brief, due date, status card (Not submitted / Submitted on / Graded with feedback), answer (≤ 20,000, zod + RHF), one attachment via document or photo picker with upload progress, error + retry and remove. Submit → Update submission; read-only once graded. Mock upload; P2-05 swaps in the shared helper. |
 | P1-S17 | AI Tutor chat | Irfan | done | P1-X0 | "Ask Aion" + lesson context chip + Clear history. Saves the user message, streams the reply (mock chunks; real `expo/fetch` parser until P2-10's `lib/sse.ts`), saves the reply at EOF. Stop aborts and keeps the partial reply; failures show an inline bubble with Retry (or Edit profile when AI is off). Suggestion chips. No thumbs, copy or mic (DESIGN.md / no module). |
 | P1-S18 | Lesson comments sheet | Maria | done | P1-X0 | Threaded comments with 1-level reply indent, optimistic posting & delete, upvote toggling, reply-to chip banner, standalone fallback to fixture lesson ID. Matches S18-comments-sheet.png. |
-| P1-S19 | Community (forum feed) | Maria | todo | P1-X0 | |
-| P1-S20 | Forum post detail | Maria | todo | P1-S19 | |
-| P1-S21 | New post | Maria | todo | P1-S19 | |
-| P1-S22 | Support tickets | Maria | todo | P1-X0 | |
-| P1-S23 | Ticket thread | Maria | todo | P1-S22 | |
-| P1-S24 | New ticket | Maria | todo | P1-S22 | |
-| P1-S25 | Profile | Maria | todo | P1-X0 | |
-| P1-S26 | Edit profile | Maria | todo | P1-S25 | |
-| P1-S27 | Settings | Maria | todo | P1-S25 | |
-| P1-S28 | Certificate | Maria | todo | P1-X0 | |
-| P1-S29 | Verify certificate | Maria | todo | P1-X0 | Manual code entry now; QR in P3-01. |
+| P1-S19 | Community (forum feed) | Maria | done | P1-X0 | Stats strip, debounced search + category chips + sort sheet (one query key, so they combine), infinite scroll (`page` × `limit` vs `total`), pinned first, Solved/Pinned badges, optimistic card upvotes, pull-to-refresh, floating New post. |
+| P1-S20 | Forum post detail | Maria | done | P1-S19 | Post (markdown content, image with fallback, optimistic upvote), replies threaded one level, solution pinned first with a badge, owner-only Mark as solution (optimistic) and Edit/Delete menu (inline edit, delete → back to S19 + refresh), reply composer with "Replying to". The detail isn't refetched after writes (each GET counts a view). |
+| P1-S21 | New post | Maria | done | P1-S19 | zod + RHF (title 3–250, content ≥ 5), category sheet (default General), image picked and uploaded through `lib/upload.ts` (`folder=forum`) with progress/retry/remove, course/lesson link chip from params, discard prompt, success → S20. |
+| P1-S22 | Support tickets | Maria | done | P1-X0 | Status chips (API filter), debounced search, cards with #number, status badge, priority pill, course, "Staff replied" / "Waiting on staff" line, empty state with Create a ticket, pinned New ticket button. |
+| P1-S23 | Ticket thread | Maria | done | P1-S22 | Summary card (status, priority, course · lesson), chat thread with day separators, optimistic send, scroll to newest, keyboard-safe composer, "This ticket is closed" when closed, Mark as resolved menu while open / in progress. |
+| P1-S24 | New ticket | Maria | done | P1-S22 | zod + RHF (subject 3–250, description ≥ 5), priority (default Normal), inline course picker prefilled from `courseId` (keeps `lessonId`), discard prompt, success → S23. |
+| P1-S25 | Profile | Maria | done | P1-X0 | Avatar (initials fallback), name, @username, headline, Edit profile; stats card from the learning summary; My certificates (expands to completed courses → S28), Support tickets, Settings, About, Log out (confirm, signs out, clears the query cache). |
+| P1-S26 | Edit profile | Maria | done | P1-S25 | Avatar from camera or library with upload progress (`folder=avatars`), name, username (USERNAME_TAKEN on the field), headline, bio, learning goals, AI features switch; Save disabled until something changes; only changed fields sent; discard prompt. |
+| P1-S27 | Settings | Maria | done | P1-S25 | Appearance System/Light/Dark (instant, persisted with AsyncStorage), Change password dialog (min 8 + confirm → `POST /auth/password`), Biometric lock placeholder (P3-04), Terms / Privacy / licenses / version, dev-only mock indicator and student/admin role switch. |
+| P1-S28 | Certificate | Maria | done | P1-X0 | Certificate card (title, course, student, issue date, issuer, ID) with a QR of the ID (`react-native-qrcode-svg`, D-14), View full certificate (HTML in a WebView modal), Verify online, Verify in the app, Share disabled until P3-05; not-earned state with progress + Continue course. |
+| P1-S29 | Verify certificate | Maria | done | P1-X0 | Code entry (trims, uppercases, pulls `CERT-…` out of a pasted URL) → result: valid card (student, course, issued, issuer, completed, score, ID) or "No certificate found for this code". Scan QR disabled until P3-01. Works signed out. |
 
 ## Phase 2: Integration (real API)
 

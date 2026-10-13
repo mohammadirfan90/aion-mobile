@@ -2,6 +2,23 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-14 — P1-S19, P1-S20, P1-S21, P1-S22, P1-S23, P1-S24, P1-S25, P1-S26, P1-S27, P1-S28, P1-S29
+- Did: built the rest of my Phase 1 screens on mock data, one feature folder per area.
+  - **Community** (`src/features/community`): S19 feed with stats, search, category, sort and infinite scroll; S20 post detail with optimistic upvotes, threaded replies, Mark as solution and an owner Edit/Delete menu; S21 new post with image upload. Fixture `mocks/fixtures/forum.ts` (14 posts, in-memory writes).
+  - **Support** (`src/features/support`): S22 ticket list with status filters and search; S23 chat-style thread with optimistic send and Mark as resolved; S24 new ticket with a course picker. Fixture `mocks/fixtures/tickets.ts`.
+  - **Account** (`src/features/profile`): S25 profile with stats, certificates, support, settings, about and logout; S26 edit profile with avatar upload and USERNAME_TAKEN; S27 settings with a persisted theme (zustand `persist` + AsyncStorage in `src/theme/index.tsx`), change password and a dev role switch. Fixture `mocks/fixtures/me.ts`.
+  - **Certificates** (`src/features/certificate`): S28 certificate card with a QR code and the full HTML certificate; S29 public verify flow. Fixture `mocks/fixtures/certificate.ts`. Added `src/app/verify/_layout.tsx`.
+  - Shared: API-aligned types appended to `src/api/types.ts` (forum, tickets, `Me`, certificates), `qk.forum.stats()`, and `src/lib/upload.ts` (the media upload helper with progress; S16, S21 and S26 use it). New library `react-native-qrcode-svg` (D-14). Community tab icon is now `MessagesSquare` (SPEC §8).
+- Verification: `node scripts/verify.mjs check` green; `node scripts/verify.mjs phase 1` passes once these rows are done. On the Android emulator (mock mode): community feed, post detail, profile, settings (switched to dark), support list and thread, certificate with QR, verify result.
+- Decisions/notes:
+  - Built only what the API supports. Left out: ticket attachments and read receipts, forum bookmarks/share, the avatar online dot, the S28 signature and ledger line, and the extra S29 tags (DESIGN.md).
+  - Android `Alert` allows only three buttons, so the sort menu and the course picker are small in-app sheets / lists.
+  - In mock mode an uploaded image gets a fake URL, so a new forum post shows the "Image unavailable" fallback; the avatar keeps the local file so it still shows.
+  - The profile learning summary uses the key `[...qk.me.learningSummary(), 'profile']` because Home still uses the older summary shape under the same key; align them in P2-06.
+  - The older `ForumPost`, `ForumReply`, `Ticket`, `TicketMessage`, `UserProfile`, `Certificate` and `CertificateVerification` types are unused now and can be removed.
+- Next: P2-04 (login / signup), P2-05 (upload helper: auth header, HEIC → JPEG, resize).
+- Blockers: none.
+
 ## 2026-10-14 — P1-S18
 - Did: implemented Phase 1 UI for S18 (Lesson comments sheet) matching `docs/design/S18-comments-sheet.png` and SCREENS.md / API.md §9:
   - **Threaded Comment List**: Top-level comments and 1-level indented replies with vertical connecting line border.
