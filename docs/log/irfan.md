@@ -2,6 +2,21 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-06
+- Did: installed SPEC §1 packages.
+  - `npx expo install` (SDK-compatible resolver): `@tanstack/react-query@5.104.2`, `zustand@5.0.15`, `react-hook-form@7.90.0`, `@hookform/resolvers@5.9.1`, `lucide-react-native@1.56.0`, `openapi-fetch@0.17.0`, `@supabase/supabase-js@2.117.3`, `@react-native-async-storage/async-storage@2.2.0`.
+  - `npm i zod@4.6.7` (not Expo-managed, plain npm; previously only a transitive dep of eslint-config-expo).
+  - `npm i @expo-google-fonts/geist@0.4.2` (available on the registry, no D-13 fallback needed).
+  - `npm i -D openapi-typescript@7.13.0` (dev-only CLI; needs `--legacy-peer-deps` because its `typescript@^5` peer collides with the project's TS 6.0.3 — but the runtime is just generated types and the CLI uses TS at build time, so it's safe).
+  - `npm run api:types` succeeded: `api/openapi.json` (13813 lines) → `src/api/schema.d.ts` (10069 lines).
+- Changed files: package.json, package-lock.json, src/api/schema.d.ts (generated, tracked), docs/TRACKER.md.
+- Decisions/notes:
+  - **D-13 — unused**: `@expo-google-fonts/geist` is on npm so the SPEC §1 fallback (bundle the .ttf) is not needed. P0-08 will wire `useFonts()` in the theme layer.
+  - **`openapi-typescript` peer-dep**: TS 6.0.3 is too new for its declared `^5.x` peer; `--legacy-peer-deps` is the right call because the dep is dev-only and used for type generation, not at app runtime. Worth revisiting if/when openapi-typescript publishes a TS 6 build.
+- Quality gates: `npm run check` → green, `node scripts/verify.mjs phase 0` → P0-01/02/03/04/05/06 ✔.
+- Next: P0-07 (API layer: client, errors, query-keys).
+- Blockers: none. **Stopping here** as agreed: P0-07 → P0-12 will be a separate run.
+
 ## 2026-10-13 — P0-05
 - Did: added the missing tooling. `package.json` scripts: `typecheck` (`tsc --noEmit`), `check` (`lint && typecheck`), `api:types` (`openapi-typescript api/openapi.json -o src/api/schema.d.ts`), `format` / `format:check` (Prettier), `status` (`node scripts/verify.mjs status`) and `verify` (`node scripts/verify.mjs`). Installed Prettier 3.9 dev-dep. Added `.prettierrc.json` (single quote, 100 cols, trailing commas, semicolons, 2-space tabs) and `.prettierignore` (node_modules, .expo, dist, web-build, android, ios, tsbuildinfo, package-lock, openapi.json, assets).
 - Changed files: package.json, .prettierrc.json (new), .prettierignore (new), docs/TRACKER.md.

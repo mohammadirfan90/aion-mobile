@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 0, Cleanup & scaffold (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P0-05 done (tooling: typecheck/check/api:types/status/verify, Prettier). Next up: P0-06.
+- **Last update:** 2026-10-13, Irfan: P0-06 done (SPEC §1 packages installed). Next up: P0-07 (API layer).
 - **Open blockers:** none
 
 ## How to use this file
@@ -73,7 +73,7 @@ Add `--skip-commands` for a quick run without lint, typecheck or tests, and `--d
 | P0-03 | Rewrite the README so it only claims what exists: purpose, status, setup, env, scripts, team, links to docs. LICENSE copyright line → "Aion Mobile contributors". | Irfan | done | P0-02 | |
 | P0-04 | Env: `.env.example` (SPEC §3), `src/lib/env.ts` validated with zod, add `.env` to `.gitignore`. | Irfan | done | P0-02 | |
 | P0-05 | Tooling: ESLint via `npx expo lint`, Prettier config, and the npm scripts `typecheck`, `check` (lint + typecheck), `api:types`, `status` (`node scripts/verify.mjs status`) and `verify` (`node scripts/verify.mjs`). `npx expo-doctor` must be clean. | Irfan | done | P0-02 | |
-| P0-06 | Install core packages (SPEC §1): react-query, zustand, react-hook-form, zod, @hookform/resolvers, lucide-react-native, Geist font, openapi-fetch, openapi-typescript (dev), @supabase/supabase-js, AsyncStorage. Use `npx expo install` throughout. | Any | todo | P0-05 | |
+| P0-06 | Install core packages (SPEC §1): react-query, zustand, react-hook-form, zod, @hookform/resolvers, lucide-react-native, Geist font, openapi-fetch, openapi-typescript (dev), @supabase/supabase-js, AsyncStorage. Use `npx expo install` throughout. | Irfan | done | P0-05 | |
 | P0-07 | API layer: generate `src/api/schema.d.ts`; write `src/api/types.ts` from API.md; write `src/api/client.ts` (unwrap, ApiError, auth-header middleware stub) and `query-keys.ts`; write `lib/errors.ts`. | Any | todo | P0-06 | |
 | P0-08 | Theme: `src/theme` tokens (SPEC §6), `useTheme()`, font loading, and a light/dark/system override held in a zustand settings store. | Any | todo | P0-06 | |
 | P0-09 | UI kit: every component in SPEC §7, in `src/components/ui`. | Any | todo | P0-08 | |
