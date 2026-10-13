@@ -25,11 +25,13 @@ export function Chip({ label, selected, onPress, disabled }: UIChipProps) {
         borderRadius: theme.radius.full,
         borderWidth: 1,
         borderColor: selected ? theme.colors.primary : theme.colors.border,
+        // Unselected chips render as soft pills (S08, S19) — a subtle muted
+        // fill, not a bare outline. Selected chips are the dark primary pill.
         backgroundColor: selected
           ? theme.colors.primary
           : pressed
-            ? theme.colors.muted
-            : 'transparent',
+            ? theme.colors.border
+            : theme.colors.muted,
         opacity: disabled ? 0.5 : 1,
       })}
     >

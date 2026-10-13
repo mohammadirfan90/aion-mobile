@@ -2,6 +2,30 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-X0
+- Did: aligned the UI kit with the 29 designs in `docs/design/`. Diff is small and token-only:
+  - **`TextField`** — bumped to 52pt min height to match the pill rows in S02/S03, switched the focus ring to `theme.colors.foreground` (so the dark border appears, as in the design), and replaced the "Show"/"Hide" text with `Eye` / `EyeOff` from `lucide-react-native` (S02 login).
+  - **`SearchBar`** — added a left `Search` icon (S08, S19) and raised the height to 48pt.
+  - **`Header` / `HeaderBackButton`** — swapped the `‹` glyph for `ChevronLeft` in a 40pt circular `muted` pill (S10, S11, S20).
+  - **`Chip`** — unselected chips now render with a soft `muted` fill, not a bare outline (S08 level filter, S19 category chips, S22 status filter). Selected chip is unchanged (dark primary pill).
+  - **`Button`, `Card`, `SegmentedControl`, `ProgressBar`, `ProgressRing`, `Avatar`, `ListItem`, `Badge`, `IconButton`, `Tabs`** — left as-is; the existing token-driven style already matches the designs.
+  - No new tokens, no new colours, no new dependencies.
+- Verification: `npm run check` (lint + typecheck) green, `node scripts/verify.mjs check` 6/7 — the one failure is a pre-existing false positive (`service_role` mentioned in `.env.example` as a *don't*, and an old `irfan.md` log line). Not introduced by P1-X0.
+- Decisions/notes: the tab bar already had labels under each icon (S07), so I left `tabBarShowLabel` at its default. The Home screen's "Hi, {first name} 👋" greeting is screen-level (P1-S07) — the `Header` component stays generic.
+- Next: P1-S07 (Home). Then S08, S09, S10, S11, S12, S13, S14, S15, S16, S17 in the order the tracker suggests.
+- Blockers: S27 still needs to be exported from Stitch — UI kit changes for it aren't blocked, but the design reference is. Logged in the tracker "Open blockers" line.
+
+## 2026-10-13 — designs (Stitch) exported; P1-X0 added
+- Did:
+  - Designed all screens in Google Stitch.
+  - Exported 29 design images to `docs/design/`; `docs/DESIGN.md` maps each screen to its image.
+  - Phase 1 now requires matching the design (TRACKER Phase 1 intro, SPEC §9).
+  - Added P1-X0 "align UI kit with designs". All Phase 1 rows that depended on P0-12 now depend on P1-X0.
+  - verify.mjs: phase 1 warns about screens without a design. Placeholder detection now also recognises the
+    `<Placeholder>` component, because the literal `TODO Sxx` lives in `placeholder.tsx`, not in the route files.
+- Next: export S27 Settings from Stitch (the API wouldn't return it); P0-12 smoke check.
+- Blockers: none
+
 ## 2026-10-13 — P0-11
 - Did: built the full navigation skeleton. 34 route files now exist per SPEC §2. Each placeholder renders a `Placeholder` component (new in `src/components/placeholder.tsx`) that shows `TODO Sxx` plus a one-line description — the verify script greps for `TODO Sxx` to count remaining work. Structure:
   - `src/app/_layout.tsx` — root Stack with two `Stack.Protected` guards: `!isSignedIn → (auth)`, `isSignedIn → (app)`, plus a top-level `verify` group reachable without an account (modal).

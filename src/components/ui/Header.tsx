@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
 
 import { useTheme } from '@/theme';
 
@@ -43,18 +44,17 @@ export function Header({ title, subtitle, back, trailing, align = 'left' }: UIHe
   );
 }
 
-// Re-export the icon-only back button as a convenience.
+// Re-export the icon-only back button as a convenience. Uses a circular dark
+// pill in the S10 / S11 designs.
 export function HeaderBackButton({ onPress }: { onPress: () => void }) {
+  const theme = useTheme();
   return (
     <IconButton
       onPress={onPress}
       label="Back"
       size={40}
-      icon={
-        <Text variant="title" tone="muted">
-          ‹
-        </Text>
-      }
+      variant="muted"
+      icon={<ChevronLeft size={22} color={theme.colors.foreground} />}
     />
   );
 }

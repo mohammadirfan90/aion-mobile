@@ -7,10 +7,10 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 <!-- Update this block at the end of every work session. Keep it short. -->
 
-- **Phase:** 0, Cleanup & scaffold (in progress)
+- **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P0-11 done (all 34 navigation routes scaffolded with TODO Sxx markers, Stack.Protected auth gating, tabs with lucide icons, sheets as formSheet, new post/ticket as modals). Next up: P0-12 (Android smoke check — needs a device).
-- **Open blockers:** P0-12 needs an Android device/emulator (not available in this Windows shell)
+- **Last update:** 2026-10-13, Irfan: P1-X0 done (UI kit aligned with designs — pill inputs with eye toggle, search icon, soft chips, chevron back button; no new tokens; `npm run check` green). Next up: P1-S07 (Home) — first screen against the designs.
+- **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
 
 ## How to use this file
 
@@ -83,41 +83,47 @@ Add `--skip-commands` for a quick run without lint, typecheck or tests, and `--d
 
 ## Phase 1: Screens (UI against mock data)
 
-Build each screen exactly as specified in [SCREENS.md](SCREENS.md). Data comes **only** from feature hooks
-(mock mode). Done means the SPEC §9 gates pass and every acceptance item for that screen is ticked.
+Build each screen exactly as specified in [SCREENS.md](SCREENS.md), and make it **look like its design image in
+`docs/design/`** ([DESIGN.md](DESIGN.md) maps screen to image). Data comes **only** from feature hooks (mock mode).
+Done means:
+- the SPEC §9 gates pass;
+- every acceptance item for that screen is ticked;
+- the screen matches its design. Any deliberate difference is written in your log with the reason, for example
+  "SCREENS.md doesn't include X".
 
 | ID | Screen | Owner | Status | Depends | Notes |
 |---|---|---|---|---|---|
-| P1-S01 | Welcome | Maria | todo | P0-12 | |
-| P1-S02 | Login | Maria | todo | P0-12 | |
-| P1-S03 | Signup | Maria | todo | P0-12 | |
+| P1-X0 | Align the UI kit with the designs. Compare `src/components/ui/*` and the tab bar with `docs/design/` (pill inputs and buttons, list rows, cards, badges, segmented control, sheets, tab bar) and adjust the components, not the screens. Uses tokens only; no new colours. | Irfan | done | P0-12 | Pill inputs (52pt, focus ring in foreground, eye/eye-off toggle, no Show/Hide text), SearchBar (left `Search` icon, 48pt), Chip (soft muted fill when unselected), Header back button (`ChevronLeft` in a circular muted pill). Tab bar already matched. No new tokens. |
+| P1-S01 | Welcome | Maria | todo | P1-X0 | |
+| P1-S02 | Login | Maria | todo | P1-X0 | |
+| P1-S03 | Signup | Maria | todo | P1-X0 | |
 | P1-S04 | Verify email (code) | Maria | todo | P1-S03 | |
 | P1-S05 | Forgot password | Maria | todo | P1-S02 | |
 | P1-S06 | Reset password | Maria | todo | P1-S05 | |
 | P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | todo | P1-S02…S06 | |
-| P1-S07 | Home | Irfan | todo | P0-12 | |
-| P1-S08 | Explore (catalog) | Irfan | todo | P0-12 | |
-| P1-S09 | My Learning | Irfan | todo | P0-12 | |
-| P1-S10 | Course detail | Irfan | todo | P0-12 | |
+| P1-S07 | Home | Irfan | todo | P1-X0 | |
+| P1-S08 | Explore (catalog) | Irfan | todo | P1-X0 | |
+| P1-S09 | My Learning | Irfan | todo | P1-X0 | |
+| P1-S10 | Course detail | Irfan | todo | P1-X0 | |
 | P1-S11 | Curriculum | Irfan | todo | P1-S10 | |
 | P1-S12 | Lesson | Irfan | todo | P1-S11 | |
 | P1-S13 | Notes sheet | Irfan | todo | P1-S12 | |
 | P1-S14 | AI summary sheet | Irfan | todo | P1-S12 | |
 | P1-S15 | Quiz | Irfan | todo | P1-S12 | |
 | P1-S16 | Assignment | Irfan | todo | P1-S12 | |
-| P1-S17 | AI Tutor chat | Irfan | todo | P0-12 | |
-| P1-S18 | Lesson comments sheet | Maria | todo | P0-12 | Opened from S12; works standalone with a fixture lesson ID. |
-| P1-S19 | Community (forum feed) | Maria | todo | P0-12 | |
+| P1-S17 | AI Tutor chat | Irfan | todo | P1-X0 | |
+| P1-S18 | Lesson comments sheet | Maria | todo | P1-X0 | Opened from S12; works standalone with a fixture lesson ID. |
+| P1-S19 | Community (forum feed) | Maria | todo | P1-X0 | |
 | P1-S20 | Forum post detail | Maria | todo | P1-S19 | |
 | P1-S21 | New post | Maria | todo | P1-S19 | |
-| P1-S22 | Support tickets | Maria | todo | P0-12 | |
+| P1-S22 | Support tickets | Maria | todo | P1-X0 | |
 | P1-S23 | Ticket thread | Maria | todo | P1-S22 | |
 | P1-S24 | New ticket | Maria | todo | P1-S22 | |
-| P1-S25 | Profile | Maria | todo | P0-12 | |
+| P1-S25 | Profile | Maria | todo | P1-X0 | |
 | P1-S26 | Edit profile | Maria | todo | P1-S25 | |
 | P1-S27 | Settings | Maria | todo | P1-S25 | |
-| P1-S28 | Certificate | Maria | todo | P0-12 | |
-| P1-S29 | Verify certificate | Maria | todo | P0-12 | Manual code entry now; QR in P3-01. |
+| P1-S28 | Certificate | Maria | todo | P1-X0 | |
+| P1-S29 | Verify certificate | Maria | todo | P1-X0 | Manual code entry now; QR in P3-01. |
 
 ## Phase 2: Integration (real API)
 

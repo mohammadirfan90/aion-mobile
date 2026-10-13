@@ -1,4 +1,5 @@
 import { TextInput, View } from 'react-native';
+import { Search } from 'lucide-react-native';
 
 import { useTheme } from '@/theme';
 
@@ -9,15 +10,20 @@ export interface UISearchBarProps {
   onSubmit?: () => void;
 }
 
-export function SearchBar({ value, onChangeText, placeholder = 'Search', onSubmit }: UISearchBarProps) {
+export function SearchBar({
+  value,
+  onChangeText,
+  placeholder = 'Search',
+  onSubmit,
+}: UISearchBarProps) {
   const theme = useTheme();
   return (
     <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        height: 44,
-        paddingHorizontal: theme.spacing.three,
+        height: 48,
+        paddingHorizontal: theme.spacing.four,
         borderRadius: theme.radius.full,
         backgroundColor: theme.colors.muted,
         borderWidth: 1,
@@ -25,6 +31,7 @@ export function SearchBar({ value, onChangeText, placeholder = 'Search', onSubmi
         gap: theme.spacing.two,
       }}
     >
+      <Search size={18} color={theme.colors.mutedForeground} />
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -39,6 +46,7 @@ export function SearchBar({ value, onChangeText, placeholder = 'Search', onSubmi
           color: theme.colors.foreground,
           fontSize: theme.typography.body.fontSize,
           fontFamily: theme.fonts.regular,
+          paddingVertical: 0,
         }}
       />
     </View>

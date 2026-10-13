@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import {
+  Pressable,
   TextInput,
   View,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 import { useTheme } from '@/theme';
 
@@ -36,10 +38,12 @@ export function TextField({
   const [shown, setShown] = useState(false);
   const isSecure = secureToggle ? !shown : secureTextEntry;
 
+  // Subtle ring on focus, red ring on error. Inactive border matches the
+  // design's very soft outline (S02 / S03).
   const borderColor = error
     ? theme.colors.destructive
     : focused
-      ? theme.colors.ring
+      ? theme.colors.foreground
       : theme.colors.border;
 
   return (
@@ -51,8 +55,8 @@ export function TextField({
       ) : null}
       <View
         style={{
-          minHeight: 48,
-          borderRadius: theme.radius.lg,
+          minHeight: 52,
+          borderRadius: theme.radius.full,
           borderWidth: 1,
           borderColor,
           backgroundColor: theme.colors.muted,
@@ -85,15 +89,19 @@ export function TextField({
           }}
         />
         {secureToggle ? (
-          <Text
+          <Pressable
             onPress={() => setShown((s) => !s)}
-            variant="caption"
-            tone="muted"
-            style={{ paddingHorizontal: theme.spacing.two }}
             accessibilityRole="button"
+            accessibilityLabel={shown ? 'Hide password' : 'Show password'}
+            hitSlop={8}
+            style={{ padding: theme.spacing.one }}
           >
-            {shown ? 'Hide' : 'Show'}
-          </Text>
+            {shown ? (
+              <EyeOff size={20} color={theme.colors.mutedForeground} />
+            ) : (
+              <Eye size={20} color={theme.colors.mutedForeground} />
+            )}
+          </Pressable>
         ) : null}
       </View>
       {error ? (
