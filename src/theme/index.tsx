@@ -138,13 +138,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const mode = resolveMode(override, systemScheme);
   const theme = useMemo(() => buildTheme(mode), [mode]);
 
-  useEffect(() => {
-    if ((fontsLoaded || fontError) && settingsHydrated) {
-      SplashScreen.hideAsync().catch(() => {});
-    }
-  }, [fontsLoaded, fontError, settingsHydrated]);
+  const ready = (fontsLoaded || !!fontError) && settingsHydrated;
 
-  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  // Hold the tree until Geist is loaded (the splash covers it). Text laid out
+  // with the fallback font keeps its old width on Android and gets clipped
+  // when Geist swaps in.
+  return <ThemeContext.Provider value={theme}>{ready ? children : null}</ThemeContext.Provider>;
 }
 
 export function useTheme(): Theme {
