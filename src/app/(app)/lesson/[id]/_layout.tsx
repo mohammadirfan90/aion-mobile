@@ -1,8 +1,8 @@
 /**
  * Lesson route group (SPEC §2). The lesson itself (`index.tsx`, S12) is a
- * full screen. The five sheets that come out of it (notes, AI summary,
- * comments, quiz, assignment) are presented as iOS-style `formSheet`s so
- * they slide up from the bottom and don't fully cover the lesson.
+ * full screen. Notes, AI summary and comments are `formSheet`s that slide
+ * up over the lesson (D-10). Quiz (S15) and assignment (S16) are full
+ * screens in their designs, so they're pushed as cards.
  */
 import { Stack } from 'expo-router';
 
@@ -17,6 +17,8 @@ export default function LessonLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ presentation: 'card' }} />
+      <Stack.Screen name="quiz" options={{ presentation: 'card', gestureEnabled: false }} />
+      <Stack.Screen name="assignment" options={{ presentation: 'card' }} />
     </Stack>
   );
 }

@@ -422,7 +422,7 @@ const PHASES = {
     check(Boolean(pkg().scripts?.test), 'npm script "test" exists');
     check(/X-Aion-Client/.test(walk("src", isTs).map(read).join("\n")), "signup sends X-Aion-Client: mobile (API §2)");
     check(/EXPO_PUBLIC_USE_MOCKS=false/.test(read(".env.example")), "mocks off by default in .env.example (P2-15)");
-    const realLess = walk("src/features", (f) => posix(f).endsWith("/api.ts")).filter((f) => !/\bapi\.(GET|POST|PUT|PATCH|DELETE)\b|unwrap\(|supabase\./.test(read(f)));
+    const realLess = walk("src/features", (f) => posix(f).endsWith("/api.ts")).filter((f) => !/\bapi\.(GET|POST|PUT|PATCH|DELETE)\b|unwrap\(|\brequest[<(]|supabase\./.test(read(f)));
     check(realLess.length === 0, "every feature api.ts has a real (non-mock) implementation", realLess.map(posix));
     requireDeps(["expo-image-picker", "expo-document-picker", "expo-image-manipulator"]);
   },

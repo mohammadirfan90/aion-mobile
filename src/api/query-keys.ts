@@ -97,6 +97,24 @@ export const qk = {
     byCourse: (courseId: UUID) => ['certificate', 'course', courseId] as const,
     verify: (code: string) => ['certificate', 'verify', code] as const,
   },
+
+  // S11–S17: lesson progress, notes and AI history. Mark-complete and the quiz
+  // invalidate `progress.course`, which S11's checks and S12's button read.
+  progress: {
+    all: all('progress'),
+    course: (courseId: UUID) => ['progress', 'course', courseId] as const,
+    summary: (courseId: UUID) => ['progress', 'summary', courseId] as const,
+  },
+
+  notes: {
+    all: all('notes'),
+    lesson: (lessonId: UUID) => ['notes', 'lesson', lessonId] as const,
+  },
+
+  ai: {
+    history: () => ['ai', 'history'] as const,
+    summary: (lessonId: UUID) => ['ai', 'summary', lessonId] as const,
+  },
 } as const;
 
 /** A few re-exports for the keys object as a whole (used in tests). */

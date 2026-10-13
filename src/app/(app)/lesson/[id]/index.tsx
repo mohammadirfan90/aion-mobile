@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { LessonScreen } from '@/features/lesson/screens/LessonScreen';
 
-export default function LessonScreen() {
-  return (
-    <Placeholder
-      screen="S12"
-      description="Lesson content — video, text, document, embed, resource, live"
-    />
-  );
-}
+export default LessonScreen;

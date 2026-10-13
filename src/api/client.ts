@@ -77,6 +77,36 @@ export function configureAuth(opts: {
   onUnauthorized = opts.onUnauthorized;
 }
 
+export interface RequestOptions {
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  body?: unknown;
+  query?: Record<string, string | number | boolean | null | undefined>;
+  signal?: AbortSignal;
+}
+
+/**
+ * A JSON request to `/api/v1{path}` with the auth header, unwrapped like the
+ * typed client. For endpoints the generated schema leaves untyped (the
+ * shapes in API.md / `./types.ts`).
+ */
+export async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+  const qs = Object.entries(opts.query ?? {})
+    .filter(([, v]) => v !== undefined && v !== null)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join('&');
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+  const token = getAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${baseUrl}/api/v1${path}${qs ? `?${qs}` : ''}`, {
+    method: opts.method ?? 'GET',
+    headers,
+    body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
+    signal: opts.signal,
+  });
+  return unwrap<T>(res);
+}
+
 /**
  * Unwrap a `{ success, data | error }` envelope response. Throws `ApiError`
  * on any non-2xx, non-JSON, or `{ success: false }` response.

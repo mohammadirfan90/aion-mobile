@@ -82,7 +82,7 @@ export interface ChangePasswordBody {
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type PricingType = 'free' | 'one_time' | 'subscription' | 'custom';
 export type BillingPeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-export type AccessMode = 'free' | 'paid' | 'invite_only' | 'subscription';
+export type AccessMode = 'free' | 'paid' | 'invite_only' | 'subscription' | 'closed';
 export type CourseStatus = 'draft' | 'published' | 'archived';
 
 export interface PricingConfig {
@@ -164,22 +164,93 @@ export interface Curriculum {
 }
 
 export interface EnrollBody {
+  courseId: UUID;
   inviteCode?: string;
 }
 
 // ── Lessons (API §4) ──────────────────────────────────────────────────────────
 export type LessonType =
-  'video' | 'text' | 'document' | 'embed' | 'resource' | 'quiz' | 'assignment' | 'live';
+  | 'video'
+  | 'markdown'
+  | 'dynamic_page'
+  | 'document'
+  | 'embed'
+  | 'resource'
+  | 'quiz'
+  | 'assignment'
+  | 'live_session';
+
+// The web editor saves every `*Settings` block on every lesson; read only the
+// one that matches the lesson's `type` (API §4). All keys can be missing.
+export interface VideoSettings {
+  sourceType?: 'link' | 'upload' | 'embed';
+  posterImageUrl?: string;
+  startTime?: string; // 'mm:ss'
+  endTime?: string;
+  autoplay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  controls?: boolean;
+  requireFullWatch?: boolean;
+}
+
+export interface MarkdownSettings {
+  sourceType?: 'direct' | 'link';
+  markdownUrl?: string;
+}
+
+export interface DocumentSettings {
+  sourceType?: 'link' | 'upload';
+  fileUrl?: string;
+  allowDownload?: boolean;
+}
+
+export interface EmbedSettings {
+  embedUrl?: string;
+  height?: number;
+}
+
+export interface ResourceSettings {
+  sourceType?: 'link' | 'upload';
+  fileUrl?: string;
+  buttonLabel?: string;
+}
+
+export interface AssignmentSettings {
+  dueDate?: string | null; // may come without a timezone: treat as local time
+  gradingType?: 'alphabetic' | 'numeric' | 'percentage' | 'pass_fail' | 'gpa';
+  passingScore?: number;
+  allowRetries?: boolean;
+  maxAttempts?: number;
+}
+
+export interface LiveSettings {
+  startsAt?: string | null;
+  durationMinutes?: number;
+  joinUrl?: string | null;
+  recordingUrl?: string | null;
+}
 
 export interface LessonMetadata {
-  videoUrl?: string;
-  videoProvider?: 'youtube' | 'vimeo' | 'mp4' | 'hls';
-  durationSeconds?: number;
-  documentUrl?: string;
-  embedHtml?: string;
-  resourceUrl?: string;
-  // dynamic_page blocks (parsed by lib/lesson.ts)
+  // Common keys. `isPreview: true` means a non-enrolled viewer can open the
+  // full lesson (S10 / S12). `isLocked: true` hides it until unlocked.
+  status?: 'published' | 'draft';
+  isLocked?: boolean;
+  isPreview?: boolean;
+  description?: string;
+  videoSettings?: VideoSettings;
+  markdownSettings?: MarkdownSettings;
+  documentSettings?: DocumentSettings;
+  embedSettings?: EmbedSettings;
+  resourceSettings?: ResourceSettings;
+  assignmentSettings?: AssignmentSettings;
+  liveSettings?: LiveSettings;
+  // Older fallbacks for document / resource / embed URLs.
+  fileUrl?: string;
+  embedUrl?: string;
+  // dynamic_page only (parsed by lib/lesson.ts)
   blocks?: DynamicBlock[];
+  lastConfiguredAt?: string;
   [key: string]: unknown;
 }
 
@@ -188,27 +259,58 @@ export interface Lesson {
   chapterId: UUID;
   courseId: UUID;
   title: string;
-  type: LessonType;
+  // Unknown types must render an "Open on the web" fallback, not crash.
+  type: LessonType | (string & {});
   position: number;
+  // `content` and `videoUrl` are null in outlines (not enrolled).
+  content?: string | null;
+  videoUrl?: string | null;
   metadata: LessonMetadata | null;
+  // Mock seed only: real completion comes from `GET /progress/course/{id}`.
   completed: boolean;
-  videoPositionSeconds?: number;
-  durationSeconds?: number;
+  durationSeconds?: number | null;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }
 
-export type DynamicBlock =
-  | { type: 'heading'; level: 1 | 2 | 3; text: string }
-  | { type: 'paragraph'; text: string }
-  | { type: 'image'; url: string; alt?: string; caption?: string }
-  | { type: 'code'; language: string; code: string }
-  | { type: 'list'; ordered: boolean; items: string[] }
-  | { type: 'quote'; text: string; cite?: string }
-  | { type: 'callout'; tone: 'info' | 'warning' | 'success' | 'danger'; text: string };
-
-export interface LessonProgressBody {
-  positionSeconds?: number;
-  completed?: boolean;
-}
+export type DynamicBlock = { id: string } & (
+  | {
+      type: 'hero';
+      data: {
+        badge?: string;
+        heading?: string;
+        subtitle?: string;
+        readingTime?: string;
+        learningGoals?: string[];
+      };
+    }
+  | { type: 'typography'; data: { content: string } }
+  | { type: 'code'; data: { language: string; title?: string; code: string; output?: string } }
+  | {
+      type: 'callout';
+      data: {
+        style: 'tip' | 'info' | 'warning' | 'danger' | 'success';
+        title?: string;
+        message: string;
+      };
+    }
+  | { type: 'video'; data: { title?: string; videoUrl: string; caption?: string } }
+  | {
+      type: 'quiz';
+      data: { question: string; options: string[]; correctIndex: number; explanation?: string };
+    }
+  | { type: 'tabs'; data: { tabs: { title: string; content: string }[] } }
+  | { type: 'accordion'; data: { items: { title: string; content: string }[] } }
+  | { type: 'stepper'; data: { steps: { title: string; description: string }[] } }
+  | {
+      type: 'resource';
+      data: { title: string; description?: string; fileUrl: string; buttonLabel?: string };
+    }
+  | { type: 'embed'; data: { title?: string; embedUrl: string; height: string | number } }
+  | { type: 'glossary'; data: { terms: { term: string; definition: string }[] } }
+  | { type: 'image'; data: { imageUrl: string; caption?: string } }
+  | { type: 'checklist'; data: { items: string[] } }
+);
 
 // ── Learning summary row (API §12) ────────────────────────────────────────────
 /**
@@ -472,4 +574,197 @@ export interface CertificateVerification {
   valid: boolean;
   certificate?: Certificate;
   reason?: 'NOT_FOUND' | 'REVOKED';
+}
+
+// ── Learn: progress, notes, quizzes, assignments, AI (S12–S17) ────────────────
+// These follow API.md §4, §6–§8, §13 and §16 exactly. The older `Note`, `Quiz`,
+// `QuizSubmission`, `Assignment`, `AssignmentSubmission`, `Summary` and
+// `TutorChat` shapes above predate API.md; the lesson screens don't use them.
+
+/** One row of `GET /progress/course/{courseId}`. No row means not started. */
+export interface LessonProgressRow {
+  id: UUID;
+  userId: UUID;
+  lessonId: UUID;
+  lastPositionSeconds: number;
+  maxWatchedSeconds: number;
+  isCompleted: boolean;
+  completedAt: Timestamp | null;
+  updatedAt: Timestamp;
+}
+
+export interface ProgressPatchBody {
+  lessonId: UUID;
+  courseId: UUID;
+  completed?: boolean; // default true
+}
+
+export interface HeartbeatBody {
+  lessonId: UUID;
+  courseId: UUID;
+  positionSeconds: number; // int ≥ 0
+  durationSeconds?: number; // int ≥ 0
+}
+
+export interface HeartbeatResult {
+  isCompleted: boolean;
+  lastPositionSeconds: number;
+}
+
+export interface LessonNote {
+  id: UUID;
+  userId: UUID;
+  lessonId: UUID;
+  courseId: UUID;
+  timestampSeconds: number | null;
+  content: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface CreateNoteBody {
+  lessonId: UUID;
+  courseId: UUID;
+  timestampSeconds?: number | null;
+  content: string;
+}
+
+export type QuizQuestionKind = 'single' | 'multiple' | 'boolean';
+
+export interface QuizQuestionItem {
+  id: string;
+  prompt: string;
+  type: QuizQuestionKind;
+  points: number;
+  options: { id: string; text: string }[];
+}
+
+export interface QuizInfo {
+  id: UUID;
+  lessonId: UUID;
+  title: string;
+  description: string | null;
+  passingScorePercent: number;
+  maxAttempts: number; // 0 = unlimited
+  shuffleQuestions: boolean;
+  questions: QuizQuestionItem[];
+}
+
+export interface QuizAttempt {
+  id: UUID;
+  quizId: UUID;
+  lessonId: UUID;
+  scorePercent: number;
+  passed: boolean;
+  userAnswers: Record<string, string[]>;
+  submittedAt: Timestamp;
+}
+
+/** `GET /quizzes/lesson/{lessonId}?courseId=` */
+export interface LessonQuiz {
+  quiz: QuizInfo | null;
+  submissions: QuizAttempt[]; // newest first
+  latestSubmission: QuizAttempt | null;
+}
+
+export interface QuizSubmitBody {
+  courseId: UUID;
+  userAnswers: Record<string, string[]>; // single / boolean: one-element array
+}
+
+export interface QuizFeedbackItem {
+  questionId: string;
+  prompt: string;
+  isCorrect: boolean;
+  explanation?: string;
+  correctOptionIds: string[];
+}
+
+export interface QuizSubmitResult {
+  submission: QuizAttempt;
+  passed: boolean;
+  scorePercent: number;
+  totalQuestions: number;
+  correctCount: number;
+  feedback: QuizFeedbackItem[];
+}
+
+export interface LessonAssignmentSubmission {
+  id: UUID;
+  lessonId: UUID;
+  courseId: UUID;
+  studentId: UUID;
+  contentText: string;
+  attachmentUrl: string | null;
+  attachmentPublicId: string | null;
+  attachmentName: string | null;
+  status: 'submitted' | 'graded';
+  scorePercent: number | null;
+  feedback: string | null;
+  gradedAt: Timestamp | null;
+  submittedAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface AssignmentSubmitPayload {
+  contentText?: string; // ≤ 20000
+  attachmentUrl?: string | null;
+  attachmentPublicId?: string;
+  attachmentName?: string;
+}
+
+/** `POST /media/upload` (API §16). */
+export interface UploadedMedia {
+  url: string;
+  publicId: string;
+  format?: string;
+  width?: number;
+  height?: number;
+  bytes?: number;
+}
+
+/** `GET /ai/summary/{lessonId}`. A failed generation has an `unavailable-` id. */
+export interface AiSummary {
+  id: string;
+  lessonId: UUID;
+  executiveSummary: string;
+  keyTakeaways: string[];
+  concepts: { term: string; definition: string; timestampSeconds?: number }[];
+  flashcards: { id: string; front: string; back: string; hint?: string }[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface AiMessage {
+  id: UUID;
+  conversationId: UUID;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  createdAt: Timestamp;
+}
+
+/** `GET /ai/history?limit=50`; messages are chronological. */
+export interface AiHistory {
+  conversation: { id: UUID; title: string; createdAt: Timestamp; updatedAt: Timestamp } | null;
+  messages: AiMessage[];
+}
+
+export interface AiHistoryMessageBody {
+  role: 'user' | 'assistant';
+  content: string; // 1–20000
+  title?: string;
+}
+
+/** `POST /ai/tutor-stream` body (not in openapi.json). */
+export interface TutorStreamBody {
+  courseId?: string | null;
+  lessonId?: string | null;
+  message: string; // 1–5000
+  context?: {
+    courseTitle?: string;
+    lessonTitle?: string;
+    lessonContent?: string | null; // ≤ 20000
+    userNotes?: string[]; // ≤ 50
+    chatHistory?: { role: 'user' | 'assistant'; content: string }[]; // ≤ 20
+  };
 }

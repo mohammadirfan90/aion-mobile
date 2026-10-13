@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { AssignmentScreen } from '@/features/assignment/screens/AssignmentScreen';
 
-export default function AssignmentScreen() {
-  return (
-    <Placeholder
-      screen="S16"
-      description="Assignment — instructions, file/text submission, score, feedback"
-    />
-  );
-}
+export default AssignmentScreen;

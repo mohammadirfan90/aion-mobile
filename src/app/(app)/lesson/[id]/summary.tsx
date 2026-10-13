@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { SummarySheet } from '@/features/lesson/screens/SummarySheet';
 
-export default function SummarySheet() {
-  return (
-    <Placeholder
-      screen="S14"
-      description="AI summary sheet — cached, then generated on demand"
-    />
-  );
-}
+export default SummarySheet;

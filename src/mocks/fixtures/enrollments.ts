@@ -2,6 +2,9 @@ import type { Enrollment, LearningSummary, MyLearningRow } from '@/api/types';
 import { courses } from './courses';
 import { getCurriculum } from './curriculum';
 
+/** Mock auth user id — matches the one in `users.ts`. */
+const MOCK_USER_ID = '11111111-1111-1111-1111-111111111111';
+
 /**
  * "Continue learning" rule (SCREENS §S07, API §12): the in-progress enrollment
  * with the most recent `lastActiveAt`, and its next lesson is the first lesson
@@ -142,4 +145,56 @@ export function getMyLearning(): MyLearningRow[] {
       };
     })
     .sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime());
+}
+
+/**
+ * In-memory enroll mutation (mock mode, P1-S10).
+ *
+ * Rules mirror the real API (API §5):
+ *   - `ALREADY_ENROLLED` is returned as the existing row (200/201 — UI treats
+ *     both as success).
+ *   - For invite-only courses the invite code is checked against
+ *     `accessConfig.inviteCode`. A wrong or missing code throws
+ *     `INVITATION_REQUIRED` so the screen can show a field error.
+ *   - A `closed` course throws `COURSE_CLOSED`.
+ *
+ * Mutates the exported `enrollments` array in place so the next
+ * `useMyEnrollments()` call returns the new row without a refetch hack.
+ */
+export function enrollMock(courseId: string, inviteCode?: string): Enrollment {
+  const existing = enrollments.find((e) => e.courseId === courseId);
+  if (existing) return existing;
+
+  const course = courses.find((c) => c.id === courseId);
+  if (!course) {
+    const err = new Error('Course not found');
+    (err as { code?: string }).code = 'COURSE_NOT_FOUND';
+    throw err;
+  }
+  const access = course.accessConfig;
+  if (access?.mode === 'closed') {
+    const err = new Error('Enrollment is closed for this course');
+    (err as { code?: string }).code = 'COURSE_CLOSED';
+    throw err;
+  }
+  if (access?.mode === 'invite_only') {
+    if (!inviteCode || inviteCode !== access.inviteCode) {
+      const err = new Error('A valid invite code is required');
+      (err as { code?: string }).code = 'INVITATION_REQUIRED';
+      throw err;
+    }
+  }
+
+  const row: Enrollment = {
+    id: `e-${Date.now()}`,
+    userId: MOCK_USER_ID,
+    courseId,
+    enrolledAt: new Date().toISOString(),
+    source: access?.mode === 'invite_only' ? 'invite_code' : 'free',
+    progressPercent: 0,
+    lastLessonId: null,
+    lastActiveAt: null,
+  };
+  enrollments.push(row);
+  return row;
 }

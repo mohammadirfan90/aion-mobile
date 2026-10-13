@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { TutorScreen } from '@/features/tutor/screens/TutorScreen';
 
-export default function TutorScreen() {
-  return (
-    <Placeholder
-      screen="S17"
-      description="AI Tutor — chat history, streaming replies, multiple chats"
-    />
-  );
-}
+export default TutorScreen;
