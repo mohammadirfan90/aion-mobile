@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { QuizScreen } from '@/features/quiz/screens/QuizScreen';
 
-export default function QuizScreen() {
-  return (
-    <Placeholder
-      screen="S15"
-      description="Quiz — single, multiple, true/false questions with submit + result"
-    />
-  );
-}
+export default QuizScreen;
