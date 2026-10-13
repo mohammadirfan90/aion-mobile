@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { CurriculumScreen } from '@/features/courses/screens/CurriculumScreen';
 
-export default function CurriculumScreen() {
-  return (
-    <Placeholder
-      screen="S11"
-      description="Curriculum — chapters, lessons, progress per chapter"
-    />
-  );
-}
+export default CurriculumScreen;

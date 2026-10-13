@@ -20,7 +20,15 @@ import {
 
 import { qk } from '@/api/query-keys';
 import type { Curriculum, EnrollBody, Enrollment, UUID } from '@/api/types';
-import { fetchCurriculum, fetchMyEnrollmentsForCourse, postEnroll } from './api';
+import {
+  fetchCourseLessonProgress,
+  fetchCourseProgress,
+  fetchCurriculum,
+  fetchMyEnrollmentsForCourse,
+  postEnroll,
+  type CourseProgress,
+  type LessonProgress,
+} from './api';
 
 export function useCourseCurriculum(courseId: UUID | null | undefined): UseQueryResult<Curriculum> {
   return useQuery({
@@ -41,6 +49,32 @@ export function useCourseEnrollment(
     queryFn: () => fetchMyEnrollmentsForCourse(courseId as UUID),
     enabled: !!courseId,
     staleTime: 30_000,
+  });
+}
+
+export function useCourseProgress(
+  courseId: UUID | null | undefined,
+): UseQueryResult<CourseProgress> {
+  return useQuery({
+    queryKey: courseId
+      ? [...qk.courses.detail(courseId), 'progress']
+      : ['courses', 'progress', 'pending'],
+    queryFn: () => fetchCourseProgress(courseId as UUID),
+    enabled: !!courseId,
+    staleTime: 15_000,
+  });
+}
+
+export function useCourseLessonProgress(
+  courseId: UUID | null | undefined,
+): UseQueryResult<LessonProgress[]> {
+  return useQuery({
+    queryKey: courseId
+      ? [...qk.courses.detail(courseId), 'lessonProgress']
+      : ['courses', 'lessonProgress', 'pending'],
+    queryFn: () => fetchCourseLessonProgress(courseId as UUID),
+    enabled: !!courseId,
+    staleTime: 15_000,
   });
 }
 
