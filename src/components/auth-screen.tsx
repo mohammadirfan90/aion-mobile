@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities -- visual reference; cleaned up in P1-X1 */
 import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
