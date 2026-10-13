@@ -2,6 +2,18 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-S04, P1-S05, P1-S06
+- Did: implemented Phase 1 mock UI for S04 (Verify email), S05 (Forgot password), and S06 (Reset password) per SCREENS.md and matching visual designs in `docs/design/`:
+  - **S04 (Verify email)**: mail badge, "Check your email", 6-box `OtpInput` with autoFocus/auto-submit, resend with 60-second cooldown timer, error state on invalid code, toast notification on success.
+  - **S05 (Forgot password)**: key icon badge, email `TextField`, "Send code" pill button, green confirmation card ("If an account exists for this email, a code is on its way"), handles `RATE_LIMITED` error, navigates to S06 with `?email=`.
+  - **S06 (Reset password)**: 6-box `OtpInput`, new password & confirm password `TextField`s with secure toggles and 3-segment strength meter, mismatch error handling, "Reset password" button, toast notification on success leaving user signed in on Home tab.
+  - **Mock Auth enhancements**: added `resendVerification(email)` to `src/mocks/auth-store.ts`, deterministic code behavior (any 6-digit code succeeds except `000000` which throws "invalid code"), and `resetPassword` leaves the user signed in.
+- Changed files: `src/features/auth/screens/VerifyEmailScreen.tsx` (new), `src/features/auth/screens/ForgotPasswordScreen.tsx` (new), `src/features/auth/screens/ResetPasswordScreen.tsx` (new), `src/app/(auth)/verify-email.tsx`, `src/app/(auth)/forgot-password.tsx`, `src/app/(auth)/reset-password.tsx`, `src/features/auth/hooks.ts`, `src/features/auth/schemas.ts`, `src/mocks/auth-store.ts`, `docs/TRACKER.md`, `docs/log/maria.md`.
+- Decisions/notes: Added `resendVerification` to mock auth store. In mock mode, any 6-digit code works except `000000`, which fails with an 'invalid code' error. A successful resetPassword leaves the user signed in.
+- Quality gates: `npm run check` green (0 errors, 0 warnings), `node scripts/verify.mjs check` 6/7 (single pre-existing false positive on secret pattern).
+- Next: P1-X1 (Delete legacy `src/components/auth-screen.tsx`) or P1-S18 (Lesson comments sheet).
+- Blockers: none.
+
 ## 2026-10-13 — P1-S03
 - Did: built the Signup screen matching the visual design (`docs/design/S03-signup.png`):
   - Top header with circular muted `HeaderBackButton` pill.

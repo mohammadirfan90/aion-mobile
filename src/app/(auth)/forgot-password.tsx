@@ -1,5 +1,5 @@
-import { Placeholder } from '@/components/placeholder';
+import { ForgotPasswordScreen } from '@/features/auth/screens/ForgotPasswordScreen';
 
-export default function ForgotPasswordScreen() {
-  return <Placeholder screen="S05" description="Request a password reset email" />;
+export default function ForgotPasswordRoute() {
+  return <ForgotPasswordScreen />;
 }

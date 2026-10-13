@@ -84,6 +84,7 @@ interface MockAuthState {
   }) => Promise<{ user: SupabaseUser | null; session: SupabaseSession | null }>;
   signOut: () => Promise<void>;
   verifyEmail: (code: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   resetPassword: (code: string, newPassword: string) => Promise<void>;
   /** Used by the API middleware to look up the bearer in mock mode. */
@@ -150,22 +151,48 @@ export const useMockAuth = create<MockAuthState>((set, get) => ({
     set({ user: null, session: null, profile: null });
   },
 
-  async verifyEmail(_code) {
-    // In the real app, the code is checked against Supabase. In mock mode we
-    // accept any 6-digit string after a short delay.
+  /**
+   * Deterministic mock verification: any 6-digit code works except '000000',
+   * which fails with an 'invalid code' error.
+   */
+  async verifyEmail(code) {
     await mockDelay(null, 400);
+    if (code === '000000') {
+      throw new Error('invalid code');
+    }
     const { user } = get();
     if (user) {
       set({ user: { ...user } });
     }
   },
 
+  async resendVerification(_email) {
+    await mockDelay(null, 350);
+  },
+
   async requestPasswordReset(_email) {
     await mockDelay(null, 350);
   },
 
-  async resetPassword(_code, _newPassword) {
+  /**
+   * Deterministic mock password reset: any 6-digit code works except '000000',
+   * which fails with an 'invalid code' error. A successful resetPassword leaves
+   * the user signed in per SPEC §5 / SCREENS.md S06.
+   */
+  async resetPassword(code, _newPassword) {
     await mockDelay(null, 400);
+    if (code === '000000') {
+      throw new Error('invalid code');
+    }
+    let { user, session, profile } = get();
+    if (!user || !session) {
+      const fallback = fallbackUser;
+      profile = fallback;
+      user = profileToSupabaseUser(fallback);
+      session = makeSession(user);
+    }
+    void setHasSeenWelcome();
+    set({ user, session, profile, isLoading: false });
   },
 
   getAccessToken() {
@@ -193,6 +220,8 @@ export const mockAuth = {
   }) => useMockAuth.getState().signUp(input),
   signOut: () => useMockAuth.getState().signOut(),
   verifyEmail: (code: string) => useMockAuth.getState().verifyEmail(code),
+  resendVerification: (email: string) =>
+    useMockAuth.getState().resendVerification(email),
   requestPasswordReset: (email: string) =>
     useMockAuth.getState().requestPasswordReset(email),
   resetPassword: (code: string, newPassword: string) =>

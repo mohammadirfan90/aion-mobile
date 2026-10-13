@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Maria: P1-S03 done (Signup screen with first/last name row, live debounced username check, email/password/confirm inputs, 3-segment strength meter, navigates to S04, `npm run check` green). Next up: P1-S04 (Verify email).
+- **Last update:** 2026-10-13, Maria: P1-S04..S06 done (Verify email, Forgot password, Reset password mock UI with OtpInput, strength bars, resend cooldown, deterministic mock auth, `npm run check` green). Next up: P1-X1 or P1-S18.
 - **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
 
 ## How to use this file
@@ -97,9 +97,9 @@ Done means:
 | P1-S01 | Welcome | Maria | done | P1-X0 | 3 swipeable slides, synchronized dots, seenWelcome flag in AsyncStorage, navigates to S02 and S03. Matches S01-welcome.png. |
 | P1-S02 | Login | Maria | done | P1-X0 | Email/password pill inputs, secure toggle, zod validation, error banners (rate limit, unverified with Enter code link), forgot password & signup links. Matches S02-login.png. |
 | P1-S03 | Signup | Maria | done | P1-X0 | First/last name row, live debounced username check, email/password/confirm inputs, 3-segment strength meter, navigates to S04. Matches S03-signup.png. |
-| P1-S04 | Verify email (code) | Maria | todo | P1-S03 | |
-| P1-S05 | Forgot password | Maria | todo | P1-S02 | |
-| P1-S06 | Reset password | Maria | todo | P1-S05 | |
+| P1-S04 | Verify email (code) | Maria | done | P1-S03 | 6-box OtpInput, 60s resend cooldown, invalid code error handling, toast on success. Matches S04-verify-email.png. |
+| P1-S05 | Forgot password | Maria | done | P1-S02 | Email input, RATE_LIMITED handling, success confirmation card, navigates to S06 with ?email=. Matches S05-forgot-password.png. |
+| P1-S06 | Reset password | Maria | done | P1-S05 | 6-box OtpInput, new/confirm password with strength bars, mismatch handling, toast on success, signs in user. Matches S06-reset-password.png. |
 | P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | todo | P1-S02…S06 | |
 | P1-S07 | Home | Irfan | todo | P1-X0 | |
 | P1-S08 | Explore (catalog) | Irfan | todo | P1-X0 | |

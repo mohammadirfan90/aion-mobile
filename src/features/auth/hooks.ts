@@ -148,3 +148,130 @@ export function useSignup() {
     clearServerError,
   };
 }
+
+export function useVerifyEmail() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const verify = async (code: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await mockAuth.verifyEmail(code);
+      setIsLoading(false);
+      return true;
+    } catch {
+      setIsLoading(false);
+      setError('Invalid code. Please check your email and try again.');
+      return false;
+    }
+  };
+
+  const resend = async (email: string): Promise<boolean> => {
+    setIsResending(true);
+    setError(null);
+    try {
+      await mockAuth.resendVerification(email);
+      setIsResending(false);
+      return true;
+    } catch {
+      setIsResending(false);
+      setError('Unable to resend code. Please try again.');
+      return false;
+    }
+  };
+
+  const clearError = () => setError(null);
+
+  return {
+    verify,
+    resend,
+    isLoading,
+    isResending,
+    error,
+    clearError,
+  };
+}
+
+export function useForgotPassword() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const requestReset = async (email: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+
+    const clean = email.trim().toLowerCase();
+    if (clean.startsWith('ratelimit')) {
+      setIsLoading(false);
+      setError('Too many attempts, please try again in a few minutes.');
+      return false;
+    }
+
+    try {
+      await mockAuth.requestPasswordReset(clean);
+      setIsLoading(false);
+      return true;
+    } catch (err: unknown) {
+      setIsLoading(false);
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      return false;
+    }
+  };
+
+  const clearError = () => setError(null);
+
+  return {
+    requestReset,
+    isLoading,
+    error,
+    clearError,
+  };
+}
+
+export function useResetPassword() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const resetPassword = async (code: string, newPassword: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await mockAuth.resetPassword(code, newPassword);
+      setIsLoading(false);
+      return true;
+    } catch {
+      setIsLoading(false);
+      setError('Invalid or expired code. Please try again.');
+      return false;
+    }
+  };
+
+  const resend = async (email: string): Promise<boolean> => {
+    setIsResending(true);
+    setError(null);
+    try {
+      await mockAuth.requestPasswordReset(email);
+      setIsResending(false);
+      return true;
+    } catch {
+      setIsResending(false);
+      setError('Unable to resend code. Please try again.');
+      return false;
+    }
+  };
+
+  const clearError = () => setError(null);
+
+  return {
+    resetPassword,
+    resend,
+    isLoading,
+    isResending,
+    error,
+    clearError,
+  };
+}
+
