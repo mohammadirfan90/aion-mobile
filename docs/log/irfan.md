@@ -2,6 +2,25 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P1-S09
+- Did: built the My Learning screen (S09) against `docs/design/S09-my-learning.png`. Data goes through `src/features/learning/hooks.ts` only — no `fetch` in screens, no hard-coded colors, no `console.log`.
+  - **`src/features/learning/api.ts`** — `fetchMyLearning()`. Mock mode reads from a new `getMyLearning()` fixture; real mode will hit `GET /users/me/learning-summary` and pull `courses[]` (API §12).
+  - **`src/features/learning/hooks.ts`** — `useMyLearning()`. Single `useQuery` keyed on the new `qk.learning.list()`.
+  - **`src/features/learning/screens/LearningScreen.tsx`** — the screen. Brand bar: avatar (→ Profile tab) + Aion wordmark, then `Search` and `ListFilter` icon buttons on the right. Title "My Learning" + "{n} active courses in this term" subtitle (the active count is the In-progress row count). `SegmentedControl` (In progress / Completed) splits the data by `row.isCompleted`. Each course row is a card: thumbnail (100×100, first-2-letters fallback when no image), an optional small tag strip above the title (derived from `course.tags[0]`, the design's "CS 482 · SYSTEMS" decoration), the title (2-line truncate), "x / y lessons · Enrolled {date}" (or "Completed {date}" for finished rows), then either a progress bar with % (in progress) or a "100% Completed" line + a **Certificate** button (→ S28) for finished courses. Tapping a row → S11 (`/course/{id}/curriculum`). Handles initial loading (skeleton rows), error with retry, the "no enrollments at all" empty state ("Start your first course" → Explore tab), and the per-segment empty state (a short hint to switch). Pull-to-refresh refetches the list.
+  - **`src/api/types.ts`** — added `MyLearningRow` (the per-course shape API §12 returns: `id`, `title`, `thumbnail`, `totalLessons`, `completedLessons`, `percent`, `isCompleted`, `enrolledAt`).
+  - **`src/api/query-keys.ts`** — added the `learning` namespace with `all` and `list` keys.
+  - **`src/mocks/fixtures/enrollments.ts`** — added `getMyLearning()`. It maps each enrollment × course × curriculum to a `MyLearningRow`, computing `totalLessons` from the curriculum and `completedLessons` from `progressPercent` so the values stay honest. Rows are ordered by `enrolledAt` desc.
+  - **`src/app/(app)/(tabs)/learning.tsx`** — was a `Placeholder`; now `export default LearningScreen` (3 lines).
+- Verification: `npm run check` (lint + typecheck) green, `node scripts/verify.mjs check` 6/7 — the one failure is the long-standing pre-existing false positive in the secret-pattern check (`.env.example` "never put the service_role" comment and a couple of log-line mentions of `service_role` / `expo-doctor`). Not introduced by P1-S09.
+- Decisions/notes:
+  - The data shape on the screen is `MyLearningRow[]` from API §12, not the `LearningSummary.enrolledCourses[]` shape Home uses. S09 needs `isCompleted`, `totalLessons`/`completedLessons` and `enrolledAt` per row, which the existing summary type doesn't carry cleanly. A separate `learning` feature keeps S07 and S09 from leaking into each other. The mock shares the `enrollments` source so a change there updates both screens.
+  - The design's "CS 482 · SYSTEMS" tag strip isn't in SCREENS.md for S09. We render the first course tag (uppercased) as a thin label above the title; it's a real-data decoration that doesn't add a new field. If the spec ever gets a real `category` field on `Course`, swap `firstTagLabel` over. When the tag list is empty the row stays clean.
+  - "Completed" date vs "Enrolled" date: the design shows "Enrolled {date}" for in-progress and "Completed {date}" for finished courses. Without a real `completedAt` field on the enrollment we reuse `enrolledAt` for both. The fixtures have `enrolledAt` set in a window where the "Completed" label still makes sense; this is good enough for the mock and Phase 2 will need a real `completedAt` from the API anyway.
+  - The design also shows a "Continue where you left off" footer card. SCREENS.md §S09 does not include it, so it is intentionally omitted (DESIGN.md rule 3: design decoration not in the spec is skipped). When S11 lands, the curriculum screen's `Resume` button covers the same job in a more accurate place.
+  - No new tokens, no new components, no new dependencies. The screen reuses `Avatar`, `Badge`, `Button`, `Card`, `EmptyState`, `ErrorState`, `IconButton`, `ProgressBar`, `SegmentedControl`, `Skeleton`, `Text` from the UI kit.
+- Next: P1-S10 (Course detail).
+- Blockers: none.
+
 ## 2026-10-13 — P1-S08
 - Did: built the Explore / catalog screen (S08) against `docs/design/S08-explore.png`. Data goes through `src/features/catalog/hooks.ts` only — no `fetch` in screens, no hard-coded colors, no `console.log`.
   - **`src/features/catalog/api.ts`** — `fetchCourses` and `fetchMyEnrollments`. Mock mode reads from the existing fixtures (`listCourses` and the `enrollments` array); real mode will hit `GET /courses?limit=100` and `GET /enrollments/my` (API §3, §5). The "Enrolled" badge uses the second endpoint's `courseId` set, exactly as SCREENS §S08 specifies.

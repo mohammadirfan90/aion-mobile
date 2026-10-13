@@ -210,6 +210,24 @@ export interface LessonProgressBody {
   completed?: boolean;
 }
 
+// ── Learning summary row (API §12) ────────────────────────────────────────────
+/**
+ * Per-course row in `GET /users/me/learning-summary`. Used by Home (S07) for
+ * the my-courses carousel and My Learning (S09) for the in-progress /
+ * completed segments. The screen never reads lesson-level progress: the API
+ * pre-aggregates it.
+ */
+export interface MyLearningRow {
+  id: UUID; // course id
+  title: string;
+  thumbnail: string | null;
+  totalLessons: number;
+  completedLessons: number;
+  percent: number; // 0..100
+  isCompleted: boolean;
+  enrolledAt: Timestamp;
+}
+
 // ── Enrollment & progress (API §5) ────────────────────────────────────────────
 export interface Enrollment {
   id: UUID;

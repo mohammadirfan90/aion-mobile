@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { LearningScreen } from '@/features/learning/screens/LearningScreen';
 
-export default function LearningScreen() {
-  return (
-    <Placeholder
-      screen="S09"
-      description="My Learning — every enrolled course and progress"
-    />
-  );
-}
+export default LearningScreen;

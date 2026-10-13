@@ -39,8 +39,7 @@ export const qk = {
 
   courses: {
     all: all('courses'),
-    list: (params: CourseListParams = {}) =>
-      ['courses', 'list', params] as const,
+    list: (params: CourseListParams = {}) => ['courses', 'list', params] as const,
     detail: (id: UUID) => ['courses', 'detail', id] as const,
     curriculum: (id: UUID) => ['courses', 'curriculum', id] as const,
   },
@@ -49,6 +48,11 @@ export const qk = {
     all: all('enrollments'),
     list: () => ['enrollments', 'list'] as const,
     detail: (id: UUID) => ['enrollments', 'detail', id] as const,
+  },
+
+  learning: {
+    all: all('learning'),
+    list: () => ['learning', 'list'] as const,
   },
 
   lessons: {
@@ -63,8 +67,7 @@ export const qk = {
   },
 
   assignment: {
-    byLesson: (lessonId: UUID) =>
-      ['assignment', 'lesson', lessonId] as const,
+    byLesson: (lessonId: UUID) => ['assignment', 'lesson', lessonId] as const,
   },
 
   tutor: {
@@ -91,8 +94,7 @@ export const qk = {
   },
 
   certificate: {
-    byCourse: (courseId: UUID) =>
-      ['certificate', 'course', courseId] as const,
+    byCourse: (courseId: UUID) => ['certificate', 'course', courseId] as const,
     verify: (code: string) => ['certificate', 'verify', code] as const,
   },
 } as const;

@@ -1,4 +1,4 @@
-import type { Enrollment, LearningSummary } from '@/api/types';
+import type { Enrollment, LearningSummary, MyLearningRow } from '@/api/types';
 import { courses } from './courses';
 import { getCurriculum } from './curriculum';
 
@@ -102,4 +102,44 @@ export function getLearningSummary(): LearningSummary {
       : null,
     enrolledCourses: enrolled,
   };
+}
+
+/**
+ * Per-course rows for S09 (My Learning). Mirrors the `courses[]` shape
+ * returned by `GET /users/me/learning-summary` (API §12). The lesson counts
+ * are derived from the curriculum + `progressPercent` so they stay honest
+ * when the seed values change.
+ *
+ * - `totalLessons` is every lesson in every chapter (locked chapters too —
+ *   the API counts the whole course).
+ * - `completedLessons` is rounded from the percent against `totalLessons`
+ *   (the per-lesson progress table is not part of the summary response).
+ * - `isCompleted` is `percent === 100`; the screen uses it to swap the row
+ *   for the "Completed" variant with a Certificate button.
+ *
+ * Order: by `lastActiveAt` desc, falling back to `enrolledAt` desc.
+ */
+export function getMyLearning(): MyLearningRow[] {
+  return enrollments
+    .map<MyLearningRow>((e) => {
+      const course = courses.find((c) => c.id === e.courseId)!;
+      const curriculum = getCurriculum(e.courseId);
+      const allLessons = curriculum?.chapters.flatMap((c) => c.lessons) ?? [];
+      const totalLessons = allLessons.length;
+      const completedLessons =
+        e.progressPercent >= 100
+          ? totalLessons
+          : Math.round((e.progressPercent / 100) * totalLessons);
+      return {
+        id: course.id,
+        title: course.title,
+        thumbnail: course.thumbnail,
+        totalLessons,
+        completedLessons,
+        percent: e.progressPercent,
+        isCompleted: e.progressPercent >= 100,
+        enrolledAt: e.enrolledAt,
+      };
+    })
+    .sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime());
 }
