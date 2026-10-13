@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { HomeScreen } from '@/features/home/screens/HomeScreen';
 
-export default function HomeScreen() {
-  return (
-    <Placeholder
-      screen="S07"
-      description="Home — continue learning, in-progress courses, announcements"
-    />
-  );
-}
+export default HomeScreen;

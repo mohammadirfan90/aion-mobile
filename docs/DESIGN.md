@@ -11,15 +11,26 @@ system "Aion Neutral", `assets/13354212775677618750`). Only Irfan's account can 
 1. **Open the image before building a screen.** Agents should read the PNG with their image/file tool.
 2. **Match the layout, hierarchy, spacing and components** you see: pill inputs and buttons, list rows, cards,
    badges, sheets, the tab bar.
-3. **SCREENS.md wins on behaviour, data and states.** The designs sometimes add decoration the spec doesn't ask
-   for. Examples: S28 shows an instructor signature and a "Verified by Aion Public Ledger" line; S29 shows extra
-   tags and a record number. Don't build anything that isn't in SCREENS.md. If you're unsure, follow
-   SCREENS.md and write the difference in your log.
+3. **SCREENS.md wins on behaviour, data and states.** The designs sometimes show things the backend does
+   **not** support. Don't build these:
+
+   | Screen | Shown in the design | Why not |
+   |---|---|---|
+   | S12 | A "Resources" file list under a video lesson | Nothing in the backend stores per-lesson attachments. Files exist only as the separate `resource` and `document` lesson types. |
+   | S13 | A `#` tag button in the note composer | Notes have no tags. |
+   | S17 | Thumbs-up/down on AI replies | There is no feedback endpoint. Copy-to-clipboard is fine (it's done on the device). |
+   | S28 | Instructor signature, "Verified by Aion Public Ledger" | Not in the certificate API. Use only the fields in API §14. |
+   | S29 | "Distinction", "Immutable record #…", extra tags | Not in the verify API. Show only the returned fields. |
+
+   For anything else you're unsure about, follow SCREENS.md and write the difference in your log.
 4. **Never copy colours, fonts or pixel sizes from the image.** Use `useTheme()` tokens and the UI kit
    (SPEC §6–7). The designs were generated from those same tokens.
 5. All text, names, avatars and thumbnails are **sample content**. Real data comes from the feature hooks.
 6. The designs are light mode only. Dark mode uses the dark tokens in SPEC §6.
 7. S13, S20 and S26 are a phone frame on a wide dark canvas; only the phone matters.
+8. **Logo:** wherever a design shows an "Aion" wordmark or logo (S01, S02, S07 header…), use the real logo from
+   `assets/brand/` (`logo.png` in light mode, `logo-dark.png` in dark mode; see `assets/brand/README.md`). Don't
+   recreate it from text.
 
 ## Screen → design
 

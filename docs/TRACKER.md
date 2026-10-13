@@ -9,8 +9,8 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 1, Screens (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-13, Irfan: P1-X0 done (UI kit aligned with designs — pill inputs with eye toggle, search icon, soft chips, chevron back button; no new tokens; `npm run check` green). Next up: P1-S07 (Home) — first screen against the designs.
-- **Open blockers:** S27 design (`docs/design/S27-settings.png`) not yet exported from Stitch (logged in CONTEXT? — still pending).
+- **Last update:** 2026-10-13, Irfan: P1-S09 done (My Learning — brand bar with avatar + Aion wordmark + search/filter, "N active courses in this term" subtitle, SegmentedControl In progress/Completed, course cards with thumbnail + tag strip + title + "x/y lessons · Enrolled/Completed {date}" + progress bar/Completed badge, Certificate button on completed cards → S28, tap → S11, empty state → Explore, pull-to-refresh; against `docs/design/S09-my-learning.png`). `npm run check` green. Next up: P1-S10 (Course detail).
+- **Open blockers:** none.
 
 ## How to use this file
 
@@ -97,13 +97,13 @@ Done means:
 | P1-S01 | Welcome | Maria | todo | P1-X0 | |
 | P1-S02 | Login | Maria | todo | P1-X0 | |
 | P1-S03 | Signup | Maria | todo | P1-X0 | |
-| P1-S04 | Verify email (code) | Maria | todo | P1-S03 | |
-| P1-S05 | Forgot password | Maria | todo | P1-S02 | |
-| P1-S06 | Reset password | Maria | todo | P1-S05 | |
+| P1-S04 | Verify email (code) | Maria | todo | P1-S03 | Build the full UI on mocks, including the "check your email, then log in" fallback state. The real code flow is P2-16. |
+| P1-S05 | Forgot password | Maria | todo | P1-S02 | UI on mocks. The real flow is P2-16 (the web has no set-new-password page, so a link-based reset can't be completed). |
+| P1-S06 | Reset password | Maria | todo | P1-S05 | UI on mocks. The real flow is P2-16. |
 | P1-X1 | Delete legacy `src/components/auth-screen.tsx` | Maria | todo | P1-S02…S06 | |
-| P1-S07 | Home | Irfan | todo | P1-X0 | |
-| P1-S08 | Explore (catalog) | Irfan | todo | P1-X0 | |
-| P1-S09 | My Learning | Irfan | todo | P1-X0 | |
+| P1-S07 | Home | Irfan | done | P1-X0 | Stats (3), continue-learning card, my-courses + explore-more carousels, brand bar (Aion + Ask Aion pill + avatar), greeting. Loading/empty/error states; pull-to-refresh. Long titles truncate to 2 lines. |
+| P1-S08 | Explore (catalog) | Irfan | done | P1-X0 | SearchBar (300ms debounce) + level + price chip filters; vertical list of cards with thumbnail, level + Enrolled badges, title, description, price, chevron; empty "No courses match" + Clear filters; pull-to-refresh. |
+| P1-S09 | My Learning | Irfan | done | P1-X0 | Brand bar (avatar → Profile, Aion wordmark, search + filter), "N active courses in this term" subtitle, `SegmentedControl` In progress / Completed, course rows with thumbnail + tag strip + title + "x/y lessons · Enrolled/Completed {date}" + progress bar with % (or "100% Completed" + `Certificate` button → S28), tap → S11, empty state → Explore, pull-to-refresh. |
 | P1-S10 | Course detail | Irfan | todo | P1-X0 | |
 | P1-S11 | Curriculum | Irfan | todo | P1-S10 | |
 | P1-S12 | Lesson | Irfan | todo | P1-S11 | |
@@ -132,7 +132,8 @@ Done means:
 | P2-01 | `lib/supabase.ts`: client with AsyncStorage persistence, foreground-only auto refresh (AppState). | Irfan | todo | Phase 0 | |
 | P2-02 | `api/client.ts` real mode: Bearer header from the session, refresh-and-retry once on 401, then sign out; error mapping. | Irfan | todo | P2-01 | |
 | P2-03 | Auth store real mode: restore session at start, load `/users/me`, sign out clears the query cache. | Irfan | todo | P2-02 | |
-| P2-04 | Wire auth screens S02–S06 (signup via API; login, verify, reset via supabase-js; SPEC §5). | Maria | todo | P2-03, B-01, B-02 | Login can be wired before B-01/B-02. |
+| P2-04 | Wire login (supabase-js) and signup (`POST /auth/signup` with `X-Aion-Client: mobile`). After signup, S04 shows the link-based state: "Open the link in your email, then log in". In real mode, hide the "Forgot password?" link on S02 until P2-16 is done. | Maria | todo | P2-03, B-01 | |
+| P2-16 | Wire code-based email verification (S04, `verifyOtp` type `email`) and password reset (S05 → S06: `resetPasswordForEmail` → `verifyOtp` type `recovery` → `updateUser`); show the "Forgot password?" link again. | Maria | todo | P2-04, B-02 | Open until the Supabase email templates include the 6-digit code (B-02). |
 | P2-05 | Media upload helper: pick an image or document → `FormData` → `POST /media/upload`, with progress and an error state. | Maria | todo | P2-02 | Used by S16, S21, S26. Convert HEIC to JPEG and resize first (API §16). |
 | P2-06 | Wire S07–S11 (home, catalog, my learning, course detail, curriculum). | Irfan | todo | P2-03 | |
 | P2-07 | Enrollment: free and invite-code enroll; paid courses → "Get on web" (D-04); refresh enrollments when the app returns to the foreground. | Irfan | todo | P2-06 | |
@@ -172,6 +173,26 @@ Done means:
 | P4-05 | Final QA run on a real device against the SCREENS.md acceptance lists. | Irfan + Maria | todo | P4-02 | |
 | P4-06 | GitHub release `v1.0.0` with the APK attached. | Irfan | todo | P4-05 | |
 
+## Later (open, not in the current plan)
+
+These stay open on purpose. **Don't build them unless a row is moved into a phase above.** Some need backend
+work that doesn't exist yet; others are out of scope for v1.
+
+| ID | Item | Why it's open | Needs |
+|---|---|---|---|
+| L-01 | Google / Apple sign-in | The backend has Google sign-in on the web only; Apple isn't configured at all. On iOS, Google sign-in also requires offering Apple. | Supabase native OAuth setup and a deep-link callback |
+| L-02 | In-app purchase of paid courses | D-04: no in-app payments in v1; paid courses are bought on the web. | App Store / Play billing, plus server-side receipt checks |
+| L-03 | Push notifications | No device-token storage or notification triggers on the backend. | B-06 (same as stretch P3-S2) |
+| L-04 | Instructor mode (stats, support inbox, grading) | Stretch; the endpoints exist but their responses aren't documented. | Document API §17 first (same as P3-S1) |
+| L-05 | Offline video download | The video URLs are YouTube, Vimeo or direct links; downloading YouTube breaks its terms. | Self-hosted video files |
+| L-06 | Per-lesson resource attachments under a lesson | Nothing in the backend writes `metadata.resources`; only `resource` and `document` lessons exist. | Backend and editor support |
+| L-07 | Tags on notes, feedback on AI replies | No API fields or endpoints. | Backend work |
+| L-08 | Payment history / receipts screen | `GET /payments/my` exists but no screen is planned. | A screen spec |
+| L-09 | Full native renderer for every `dynamic_page` block type | v1 renders the common blocks and falls back to a WebView. | Time |
+| L-10 | Realtime updates (live ticket and forum replies) | The backend has no realtime channel; the app uses refetch-on-focus and pull-to-refresh. | Backend realtime |
+| L-11 | Multiple languages | English only in v1. | i18n setup |
+| L-12 | Server-side catalog search and filters | `GET /courses` has none; S08 filters on the device. | Backend query parameters |
+
 ## Backend dependencies (done by Irfan in the private backend repo)
 
 Mobile work that depends on these builds against mocks until they are `done`.
@@ -181,7 +202,7 @@ Mobile work that depends on these builds against mocks until they are `done`.
 | B-01 | The signup endpoint must be usable from the mobile app (the app can't run the web's reCAPTCHA). | done | P2-04 (signup) | 2026-10-13. The app sends `X-Aion-Client: mobile`. Production must set the server flag `ALLOW_MOBILE_SIGNUP_WITHOUT_CAPTCHA=true` (Irfan, at deploy). |
 | B-02 | Email templates for "confirm signup" and "reset password" include the 6-digit code alongside the link. | todo | P2-04 (verify, reset) | Supports D-05. Supabase dashboard change only; the steps are written in the backend repo. |
 | B-03 | Refresh `api/openapi.json` here after backend API changes, then run `npm run api:types`. | ongoing | — | |
-| B-04 | Deployed API and web app; demo student and demo instructor accounts for graders. | todo | P4-02 | |
+| B-04 | Deployed API and web app; demo student and demo instructor accounts for graders. | doing | P4-02 | 2026-10-13: API live at `https://aion-7ysp.onrender.com` (health OK, enrollment gating verified). Still to do: web app URL (`EXPO_PUBLIC_WEB_URL`) and demo accounts. |
 | B-05 | Endpoint gaps found during integration: add rows as B-05a, B-05b, … | — | — | |
 | B-06 | *Stretch:* device push-token registration plus notifications on ticket and forum replies. | todo | P3-S2 | |
 | B-07 | *Optional:* allow the Expo web dev origin in API CORS (only needed to test in a browser). | todo | — | Not needed for Android/iOS. |

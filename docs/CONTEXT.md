@@ -20,7 +20,7 @@ university Mobile App Development course, and it is public. The API server and w
 
 | Thing | What it is | How the app uses it |
 |---|---|---|
-| **Aion API** | REST API, base path `/api/v1`, JSON | All data. Every protected call sends `Authorization: Bearer <supabase access token>`. Full reference in [API.md](API.md). |
+| **Aion API** | REST API at **`https://aion-7ysp.onrender.com`**, base path `/api/v1`, JSON. Health check: `/health`. It runs on Render's free tier, so it sleeps after about 15 minutes idle and the first request then takes 30–60 s. | All data. Every protected call sends `Authorization: Bearer <supabase access token>`. Full reference in [API.md](API.md). |
 | **Supabase Auth** | Hosted auth service | Sign in, session storage, token refresh, sign out, email codes. The app uses `@supabase/supabase-js` directly for these. |
 | **Cloudinary** (indirect) | Image/document hosting | The app never talks to Cloudinary. Uploads go through `POST /media/upload` on the API. |
 | **Stripe** (indirect) | Payments for paid courses | **Not used in the app** (see decision D-04). |
