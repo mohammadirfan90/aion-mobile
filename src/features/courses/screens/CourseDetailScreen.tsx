@@ -95,8 +95,8 @@ function lessonTypeIcon(type: LessonType | string, theme: Theme) {
   switch (type) {
     case 'video':
       return <CirclePlay size={20} color={color} />;
-    case 'text':
     case 'markdown':
+    case 'dynamic_page':
     case 'document':
     case 'resource':
     case 'embed':
@@ -105,7 +105,6 @@ function lessonTypeIcon(type: LessonType | string, theme: Theme) {
       return <CircleHelp size={20} color={color} />;
     case 'assignment':
       return <Trophy size={20} color={color} />;
-    case 'live':
     case 'live_session':
       return <Users size={20} color={color} />;
     default:

@@ -76,9 +76,10 @@ function lessonTypeLabel(type: LessonType | string): string {
   switch (type) {
     case 'video':
       return 'Video';
-    case 'text':
     case 'markdown':
       return 'Reading';
+    case 'dynamic_page':
+      return 'Interactive';
     case 'document':
       return 'Document';
     case 'embed':
@@ -89,7 +90,6 @@ function lessonTypeLabel(type: LessonType | string): string {
       return 'Quiz';
     case 'assignment':
       return 'Assignment';
-    case 'live':
     case 'live_session':
       return 'Live session';
     default:
@@ -102,8 +102,8 @@ function LessonTypeIcon({ type, theme }: { type: LessonType | string; theme: The
   switch (type) {
     case 'video':
       return <CirclePlay size={20} color={color} />;
-    case 'text':
     case 'markdown':
+    case 'dynamic_page':
     case 'document':
     case 'resource':
     case 'embed':
@@ -112,7 +112,6 @@ function LessonTypeIcon({ type, theme }: { type: LessonType | string; theme: The
       return <CircleHelp size={20} color={color} />;
     case 'assignment':
       return <Trophy size={20} color={color} />;
-    case 'live':
     case 'live_session':
       return <Users size={20} color={color} />;
     default:
