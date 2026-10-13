@@ -33,6 +33,7 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.2",
+    "prettier": "^3.9.10",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -40,7 +41,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run typecheck",
+    "api:types": "openapi-typescript api/openapi.json -o src/api/schema.d.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "status": "node scripts/verify.mjs status",
+    "verify": "node scripts/verify.mjs"
   },
   "private": true
 }

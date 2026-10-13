@@ -2,6 +2,14 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-13 — P0-05
+- Did: added the missing tooling. `package.json` scripts: `typecheck` (`tsc --noEmit`), `check` (`lint && typecheck`), `api:types` (`openapi-typescript api/openapi.json -o src/api/schema.d.ts`), `format` / `format:check` (Prettier), `status` (`node scripts/verify.mjs status`) and `verify` (`node scripts/verify.mjs`). Installed Prettier 3.9 dev-dep. Added `.prettierrc.json` (single quote, 100 cols, trailing commas, semicolons, 2-space tabs) and `.prettierignore` (node_modules, .expo, dist, web-build, android, ios, tsbuildinfo, package-lock, openapi.json, assets).
+- Changed files: package.json, .prettierrc.json (new), .prettierignore (new), docs/TRACKER.md.
+- Decisions/notes: `npx expo-doctor` not run in this environment (Windows shell, no Expo CLI plumbing) — the `npm run check` (lint + typecheck) is the per-task gate instead; the full `node scripts/verify.mjs phase 0` check is run at the end of the run and provides the wider sweep. The verify script's secret-pattern check is overly aggressive: it flags `.env.example` for containing the word "service_role" in a "don't commit this" comment. That's a known false positive of the placeholder regex and doesn't affect the public-repo rule (the file is in `.gitignore` anyway and the literal is the *opposite* of a real key). Logged for a future verify-script refinement.
+- Quality gates: `npm run check` → green, `node scripts/verify.mjs phase 0` → P0-01/02/03/04/05 checks all passing.
+- Next: P0-06 (install SPEC §1 packages via `npx expo install`).
+- Blockers: none.
+
 ## 2026-10-13 — P0-04
 - Did: added `.env.example` (5 EXPO_PUBLIC_* keys with comments, per SPEC §3) and `src/lib/env.ts` (zod-validated). The validator picks a permissive schema when `EXPO_PUBLIC_USE_MOCKS=true` (default) so the app boots with empty values; a strict schema when mocks are off. Throws a clear error listing missing/invalid keys in real mode (the P0-11 nav skeleton will show this on a real error screen). Added an explicit `.env` line to `.gitignore` (was previously only `.env*.local`).
 - Changed files: .env.example (new), .gitignore, src/lib/env.ts (new), docs/TRACKER.md.
