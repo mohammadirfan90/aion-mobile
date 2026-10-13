@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { CertificateScreen } from '@/features/certificate/screens/CertificateScreen';
 
-export default function CertificateScreen() {
-  return (
-    <Placeholder
-      screen="S28"
-      description="Certificate of completion with QR code and share button"
-    />
-  );
-}
+export default CertificateScreen;

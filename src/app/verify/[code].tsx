@@ -1,10 +1,3 @@
-import { Placeholder } from '@/components/placeholder';
+import { VerifyResultScreen } from '@/features/certificate/screens/VerifyResultScreen';
 
-export default function VerifyCodeScreen() {
-  return (
-    <Placeholder
-      screen="S29"
-      description="Certificate verification result for a given code"
-    />
-  );
-}
+export default VerifyResultScreen;

@@ -80,6 +80,7 @@ supersedes it.
 | D-11 | **Icons: `lucide-react-native`.** | Same icon set as the web app, so the products look related. |
 | D-12 | **The visual style follows the web app**: a neutral grey palette, near-black primary, 10px radius, Geist font, light and dark mode. Tokens are in [SPEC.md §6](SPEC.md#6-design-system). | Consistent brand. |
 | D-13 | **Markdown: `react-native-marked`**, through its `useMarkdown` hook, wrapped in `src/components/Markdown.tsx` on theme tokens. | Maintained, built on `marked`, renders with `react-native-svg` (already installed). The hook returns plain elements, so markdown can sit inside a ScrollView (the library's `<Markdown>` is a FlatList and can't be nested). Used by S12 readings, S16 briefs and S17 replies. |
+| D-14 | **QR codes: `react-native-qrcode-svg`** for the S28 certificate QR (encodes only the `certificateId`). | Pure JS on top of `react-native-svg` (already installed), so no native rebuild. Scanning comes later with `expo-camera` (P3-01). |
 
 ## 7. Glossary
 
