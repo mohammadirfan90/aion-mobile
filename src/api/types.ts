@@ -789,3 +789,236 @@ export interface TutorStreamBody {
     chatHistory?: { role: 'user' | 'assistant'; content: string }[]; // ≤ 20
   };
 }
+
+// ── Community, support, account, certificates (S19–S29) ───────────────────────
+// These follow API.md §2, §10, §11, §12 and §14 exactly. The older `ForumPost`,
+// `ForumReply`, `Ticket`, `TicketMessage`, `UserProfile`, `Certificate` and
+// `CertificateVerification` shapes above predate API.md; these screens don't
+// use them.
+
+export type ForumCategoryValue = 'question' | 'general' | 'feedback' | 'bug' | 'showcase';
+export type ForumSort = 'latest' | 'activity' | 'replies' | 'upvotes' | 'oldest';
+
+export interface ForumAuthor {
+  id: UUID;
+  name: string | null;
+  avatarUrl: string | null;
+  role: string | null;
+}
+
+/** `GET /forum/posts`, `GET /forum/posts/{id}` */
+export interface ForumPostItem {
+  id: UUID;
+  userId: UUID;
+  title: string;
+  content: string;
+  imageUrl: string | null;
+  imagePublicId: string | null;
+  category: ForumCategoryValue | (string & {});
+  courseId: UUID | null;
+  chapterId: UUID | null;
+  lessonId: UUID | null;
+  isPinned: boolean;
+  isSolved: boolean;
+  viewsCount: number;
+  upvotesCount: number;
+  repliesCount: number;
+  lastReplyAt: Timestamp | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  author: ForumAuthor | null;
+  course: { id: UUID; title: string; slug: string } | null;
+  lesson: { id: UUID; title: string; type: string } | null;
+  hasUpvoted: boolean;
+}
+
+export interface ForumStats {
+  totalPosts: number;
+  totalReplies: number;
+  totalSolved: number;
+}
+
+export interface ForumPostsQuery {
+  search?: string;
+  category?: ForumCategoryValue | 'all';
+  sort?: ForumSort;
+  page?: number; // ≥ 1
+  limit?: number; // 1–100, default 20
+  courseId?: UUID;
+  chapterId?: UUID;
+  lessonId?: UUID;
+}
+
+export interface ForumPostsPage {
+  posts: ForumPostItem[];
+  total: number;
+}
+
+/** `GET /forum/posts/{id}/replies`: flat, solution first, then oldest first. */
+export interface ForumReplyItem {
+  id: UUID;
+  postId: UUID;
+  userId: UUID;
+  parentId: UUID | null;
+  content: string;
+  isSolution: boolean;
+  upvotesCount: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  author: { id: UUID; name: string; avatarUrl: string | null; role: string };
+  hasUpvoted: boolean;
+}
+
+export interface CreateForumPostBody {
+  title: string; // 3–250
+  content: string; // ≥ 5
+  category?: ForumCategoryValue;
+  imageUrl?: string;
+  imagePublicId?: string;
+  courseId?: UUID;
+  chapterId?: UUID;
+  lessonId?: UUID;
+}
+
+export interface UpdateForumPostBody {
+  title?: string;
+  content?: string;
+  category?: ForumCategoryValue;
+  imageUrl?: string | null;
+  imagePublicId?: string | null;
+  isSolved?: boolean;
+}
+
+export interface CreateForumReplyBody {
+  content: string; // 2–5000
+  parentId?: UUID | null;
+}
+
+/** Both upvote endpoints toggle and return the new state. */
+export interface UpvoteResult {
+  upvoted: boolean;
+  count: number;
+}
+
+export type SupportTicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type SupportTicketPriority = 'low' | 'normal' | 'high' | 'urgent';
+
+export interface SupportTicket {
+  id: UUID;
+  ticketNumber: number;
+  studentId: UUID;
+  courseId: UUID | null;
+  chapterId: UUID | null;
+  lessonId: UUID | null;
+  subject: string;
+  status: SupportTicketStatus;
+  priority: SupportTicketPriority;
+  timestampSeconds: number | null;
+  lastReplyAt: Timestamp | null;
+  lastReplySenderRole: 'student' | 'instructor' | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface SupportTicketWithRelations extends SupportTicket {
+  course: { id: UUID; title: string; slug: string } | null;
+  lesson: { id: UUID; title: string; type: string } | null;
+}
+
+export interface SupportTicketMessage {
+  id: UUID;
+  ticketId: UUID;
+  senderId: UUID;
+  senderRole: 'student' | 'instructor';
+  message: string;
+  createdAt: Timestamp;
+  sender: { id: UUID; name: string; avatarUrl: string | null; role: string };
+}
+
+export interface SupportTicketsQuery {
+  status?: SupportTicketStatus | 'all';
+  priority?: SupportTicketPriority | 'all';
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface SupportTicketsPage {
+  tickets: SupportTicketWithRelations[];
+  total: number;
+}
+
+/** `GET /support/tickets/{id}`: messages oldest first. */
+export interface SupportTicketThread {
+  ticket: SupportTicketWithRelations;
+  messages: SupportTicketMessage[];
+}
+
+export interface CreateSupportTicketBody {
+  subject: string; // 3–250
+  description: string; // ≥ 5; becomes the first message
+  priority?: SupportTicketPriority;
+  courseId?: UUID;
+  chapterId?: UUID;
+  lessonId?: UUID;
+  timestampSeconds?: number;
+}
+
+/** `GET /users/me` */
+export interface Me {
+  id: UUID;
+  email: string;
+  username: string | null;
+  name: string | null;
+  role: 'student' | 'admin';
+  avatarUrl: string | null;
+  headline: string | null;
+  bio: string | null;
+  aiConsent: boolean;
+  learningGoals: string | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface UpdateMeBody {
+  name?: string;
+  username?: string;
+  avatarUrl?: string | null;
+  headline?: string | null;
+  bio?: string | null;
+  aiConsent?: boolean;
+  learningGoals?: string | null;
+}
+
+/** `GET /users/me/learning-summary` (API §12) */
+export interface LearningSummaryData {
+  totalEnrolled: number;
+  totalCompleted: number;
+  inProgress: number;
+  totalLessonsFinished: number;
+  courses: MyLearningRow[];
+}
+
+/** `GET /courses/{id}/student-certificate` (API §14) */
+export interface StudentCertificate {
+  certificateId: string; // e.g. "CERT-AION-XXXX-XXXXXXXX"
+  issueDate: string; // already formatted, e.g. "October 13, 2026"
+  studentName: string;
+  courseTitle: string;
+  certificateTitle: string;
+  issuerName: string;
+  html: string; // the full certificate as an HTML document
+  enabled: boolean;
+  verifyUrl: string; // relative web path; prefix with EXPO_PUBLIC_WEB_URL
+}
+
+/** `GET /courses/verify/{certificateId}` (public). Any failure is a 404. */
+export interface VerifiedCertificate extends StudentCertificate {
+  valid: true;
+  courseSlug: string;
+  courseId: UUID;
+  learnings: string[];
+  tags: string[];
+  completedAt: Timestamp | null;
+  score?: string; // e.g. "80%"
+}

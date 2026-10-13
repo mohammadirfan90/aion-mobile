@@ -86,6 +86,7 @@ export const qk = {
       ['forum', 'list', params] as const,
     detail: (id: UUID) => ['forum', 'detail', id] as const,
     replies: (id: UUID) => ['forum', 'replies', id] as const,
+    stats: () => ['forum', 'stats'] as const,
   },
 
   tickets: {
