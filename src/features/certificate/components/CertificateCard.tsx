@@ -73,8 +73,8 @@ export function CertificateCard({ certificate }: { certificate: StudentCertifica
           </Text>
           <Text
             variant="display"
+            // No adjustsFontSizeToFit: on Android it drops the second line.
             style={{ textAlign: 'center', fontStyle: 'italic' }}
-            adjustsFontSizeToFit
             numberOfLines={2}
           >
             {certificate.studentName}

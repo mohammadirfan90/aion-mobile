@@ -39,7 +39,7 @@ import { Text } from '@/components/ui/Text';
 import { showToast } from '@/components/ui/Toast';
 import { env } from '@/lib/env';
 import { friendlyError } from '@/lib/errors';
-import { findLessonPosition, lessonView } from '@/lib/lesson';
+import { findLessonPosition, isLessonLocked, lessonView } from '@/lib/lesson';
 import { palettes, useTheme, type Theme } from '@/theme';
 
 import { LessonBody } from '../components/LessonBody';
@@ -142,6 +142,22 @@ export function LessonScreen() {
             onRetry={code === 'LESSON_NOT_FOUND' ? undefined : onRefresh}
           />
         )}
+      </View>
+    );
+  }
+
+  // Reached by a deep link or a stale screen: locked lessons have no content.
+  if (lesson && position && isLessonLocked(position.chapter, position.lesson)) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <TopBar theme={theme} insetTop={insets.top} title={course?.title} />
+        <EmptyState
+          icon={<Lock size={28} color={theme.colors.mutedForeground} />}
+          title="This lesson is locked"
+          description="It opens once the earlier chapters are unlocked."
+          actionLabel={courseId ? 'Back to the curriculum' : undefined}
+          onAction={() => courseId && router.replace(`/(app)/course/${courseId}/curriculum` as Href)}
+        />
       </View>
     );
   }

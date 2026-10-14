@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -51,6 +52,7 @@ interface ReplyingTarget {
 export function LessonCommentsSheet() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const theme = useTheme();
   const inputRef = useRef<TextInput>(null);
 
@@ -262,7 +264,9 @@ export function LessonCommentsSheet() {
   return (
     <KeyboardAvoidingView
       style={{
-        flex: 1,
+        // The sheet sizes to its content (`fitToContents`), so it sets its own
+        // height; at a half detent Android cut the composer off.
+        height: Math.round(height * 0.85),
         backgroundColor: theme.colors.card,
       }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
