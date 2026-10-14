@@ -35,6 +35,14 @@ export type FriendlyErrorCode =
   | 'FORUM_POST_NOT_FOUND'
   | 'TICKET_NOT_FOUND'
   | 'CERTIFICATE_NOT_FOUND'
+  | 'INVALID_CREDENTIALS'
+  | 'EMAIL_NOT_CONFIRMED'
+  | 'INVALID_CODE'
+  | 'ALREADY_ENROLLED'
+  | 'PAYMENT_REQUIRED'
+  | 'CAPACITY_REACHED'
+  | 'QUIZ_NOT_FOUND'
+  | 'NOT_ENROLLED_IN_COURSE'
   | 'UNKNOWN';
 
 const messages: Record<FriendlyErrorCode, string> = {
@@ -68,6 +76,14 @@ const messages: Record<FriendlyErrorCode, string> = {
   FORUM_POST_NOT_FOUND: 'This post was removed or doesn’t exist.',
   TICKET_NOT_FOUND: 'We couldn’t find this ticket.',
   CERTIFICATE_NOT_FOUND: 'No certificate found for this code.',
+  INVALID_CREDENTIALS: 'Incorrect email or password.',
+  EMAIL_NOT_CONFIRMED: 'Confirm your email address before signing in.',
+  INVALID_CODE: 'That code is wrong or has expired.',
+  ALREADY_ENROLLED: 'You’re already enrolled in this course.',
+  PAYMENT_REQUIRED: 'This is a paid course. Get it on the web.',
+  CAPACITY_REACHED: 'This course is full.',
+  QUIZ_NOT_FOUND: 'This quiz isn’t available.',
+  NOT_ENROLLED_IN_COURSE: 'Enroll in this course to comment.',
   UNKNOWN: 'Something went wrong. Please try again.',
 };
 

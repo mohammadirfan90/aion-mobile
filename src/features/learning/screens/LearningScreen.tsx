@@ -46,7 +46,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
 import { useTheme, type Theme } from '@/theme';
-import { mockAuth } from '@/mocks/auth-store';
+import { useAuthStore } from '@/lib/auth-store';
 import { useMyLearning } from '@/features/learning/hooks';
 import { listCourses } from '@/mocks/fixtures/courses';
 import type { MyLearningRow } from '@/api/types';
@@ -262,7 +262,7 @@ export function LearningScreen() {
   const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>('inProgress');
   const query = useMyLearning();
-  const profile = mockAuth.getProfile();
+  const profile = useAuthStore((s) => s.profile);
 
   const { inProgress, completed } = useMemo(() => {
     const all = query.data ?? [];

@@ -30,7 +30,8 @@ import type {
   UpdateForumPostBody,
   UUID,
 } from '@/api/types';
-import { mockAuth } from '@/mocks/auth-store';
+import { useAuthStore } from '@/lib/auth-store';
+import { env } from '@/lib/env';
 import { currentUser } from '@/mocks/fixtures/users';
 
 import {
@@ -94,9 +95,11 @@ function refreshFeedsAndStats(qc: QueryClient) {
 
 // ── Current user ─────────────────────────────────────────────────────────────
 
-/** The signed-in user (mock store until P2 wires `/users/me`). */
+/** The signed-in user, from the auth store (`GET /users/me`). */
 export function useCurrentUser() {
-  const profile = mockAuth.useStore((s) => s.profile) ?? currentUser;
+  const signedIn = useAuthStore((s) => s.profile);
+  const profile = signedIn ?? (env.useMocks ? currentUser : null);
+  if (!profile) return { id: '', name: 'You', avatarUrl: null, role: 'student' as const };
   return { id: profile.id, name: profile.fullName, avatarUrl: profile.avatar, role: profile.role };
 }
 

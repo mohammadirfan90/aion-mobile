@@ -11,7 +11,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { qk } from '@/api/query-keys';
 import type { Comment, CreateNoteBody, LessonNote, LessonProgressRow, UUID } from '@/api/types';
-import { mockAuth } from '@/mocks/auth-store';
+import { useAuthStore } from '@/lib/auth-store';
+import { env } from '@/lib/env';
 import { currentUser as fallbackUser } from '@/mocks/fixtures/users';
 
 import {
@@ -298,8 +299,9 @@ export function useLessonComments(
   const [isPosting, setIsPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const profile = mockAuth.getProfile() ?? fallbackUser;
-  const currentUserId = profile?.id ?? fallbackUser.id;
+  const signedInProfile = useAuthStore((s) => s.profile);
+  const profile = signedInProfile ?? (env.useMocks ? fallbackUser : null);
+  const currentUserId = profile?.id ?? '';
 
   const refetch = useCallback(async () => {
     setIsLoading(true);

@@ -40,7 +40,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
 import { useTheme, type Theme } from '@/theme';
-import { mockAuth } from '@/mocks/auth-store';
+import { useAuthStore } from '@/lib/auth-store';
 import { useExploreMore, useLearningSummary, useMyCourses } from '@/features/home/hooks';
 import { formatCoursePrice, levelLabel } from '@/lib/course';
 import type { Course, LearningSummary } from '@/api/types';
@@ -332,7 +332,7 @@ function HorizontalCards<T>({
 export function HomeScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const profile = mockAuth.getProfile();
+  const profile = useAuthStore((s) => s.profile);
   const firstName = profile?.firstName ?? 'there';
 
   const summaryQ = useLearningSummary();

@@ -7,13 +7,13 @@
  *     certificate list (completed courses).
  *   - `POST /auth/password` (API §2) for Settings → Change password.
  *   - `POST /media/upload` (`folder=avatars`) through `lib/upload.ts` (API §16).
- *   - Sign-out: the mock auth store now; P2-03 swaps in `supabase.auth.signOut()`.
+ *   - Sign-out: `lib/auth-store.ts` (supabase-js in real mode, the mock store in mock mode).
  */
 import { request } from '@/api/client';
 import type { LearningSummaryData, Me, UpdateMeBody, UploadedMedia } from '@/api/types';
 import { env } from '@/lib/env';
 import { uploadMedia, type PickedFile } from '@/lib/upload';
-import { mockAuth } from '@/mocks/auth-store';
+import { signOut as authSignOut } from '@/lib/auth-store';
 import { mockDelay } from '@/mocks/delay';
 import { getMyLearning } from '@/mocks/fixtures/enrollments';
 import { changeMockPassword, getMockMe, setMockRole, updateMockMe } from '@/mocks/fixtures/me';
@@ -71,7 +71,7 @@ export async function switchFixtureRole(role: Me['role']): Promise<Me> {
 }
 
 export async function signOut(): Promise<void> {
-  // Mock and (until P2-03 wires Supabase) real mode both end the mock session;
-  // the root `Stack.Protected` guard then shows the (auth) group.
-  await mockAuth.signOut();
+  // Ends the session and clears cached data; the root `Stack.Protected` guard
+  // then shows the (auth) group.
+  await authSignOut();
 }

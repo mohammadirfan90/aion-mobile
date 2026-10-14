@@ -20,7 +20,6 @@ import { mockDelay } from './delay';
 import { currentUser as fallbackUser, users } from './fixtures/users';
 import type { SupabaseSession, SupabaseUser, UserProfile } from '@/api/types';
 import { setHasSeenWelcome } from '@/lib/auth-storage';
-import { env } from '@/lib/env';
 
 let nextUserSeq = users.length + 1;
 
@@ -230,20 +229,3 @@ export const mockAuth = {
   getProfile: () => useMockAuth.getState().getProfile(),
   useStore: useMockAuth,
 };
-
-/**
- * Thin hook used by the root layout's `Stack.Protected` guard. In mock mode
- * this reads the zustand store. In real mode (P2-03) it will read from the
- * Supabase-backed session; for now it returns `false` so the gating flips
- * the user to the (auth) group on launch.
- */
-export function useAuthSession(): { isSignedIn: boolean; isLoading: boolean } {
-  // Always call the store hooks unconditionally; just discard the result
-  // when we're not in mock mode. This keeps the hook order stable.
-  const session = useMockAuth((s) => s.session);
-  const isLoading = useMockAuth((s) => s.isLoading);
-  if (!env.useMocks) {
-    return { isSignedIn: false, isLoading: false };
-  }
-  return { isSignedIn: !!session, isLoading };
-}
