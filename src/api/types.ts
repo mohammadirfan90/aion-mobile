@@ -158,9 +158,16 @@ export interface Chapter {
   lessons: Lesson[];
 }
 
+export interface CurriculumStats {
+  totalActivities: number;
+  totalDurationSeconds: number;
+}
+
+/** App shape; `api/curriculum.ts` maps the wire's `activities` / `isLocked` to it. */
 export interface Curriculum {
   course: Course;
   chapters: Chapter[];
+  stats?: CurriculumStats;
 }
 
 export interface EnrollBody {
@@ -331,30 +338,32 @@ export interface MyLearningRow {
 }
 
 // ── Enrollment & progress (API §5) ────────────────────────────────────────────
+/** A `GET /enrollments/my` row: IDs only, no progress (API §5). */
 export interface Enrollment {
   id: UUID;
   userId: UUID;
   courseId: UUID;
   enrolledAt: Timestamp;
-  source: 'free' | 'invite_code' | 'paid' | 'admin_grant';
-  progressPercent: number;
-  lastLessonId: UUID | null;
-  lastActiveAt: Timestamp | null;
+  completedAt: Timestamp | null;
 }
 
-export interface LearningSummary {
+/** One enrolled course on Home: the catalog row plus its learning-summary row. */
+export interface HomeCourse {
+  course: Course;
+  progress: MyLearningRow;
+}
+
+/**
+ * What S07 Home renders, built on the device from `LearningSummaryData` and the
+ * catalog (API §12). "Continue learning" is the in-progress course with the
+ * latest `enrolledAt`, and its first lesson without a completed progress row.
+ */
+export interface HomeSummary {
   enrollmentsCount: number;
   lessonsCompletedCount: number;
   coursesCompletedCount: number;
-  continueLearning: {
-    enrollment: Enrollment;
-    course: Course;
-    nextLesson: Lesson | null;
-  } | null;
-  enrolledCourses: {
-    enrollment: Enrollment;
-    course: Course;
-  }[];
+  continueLearning: (HomeCourse & { nextLesson: Lesson | null }) | null;
+  enrolledCourses: HomeCourse[];
 }
 
 // ── Lesson comments (API §9) ─────────────────────────────────────────────────

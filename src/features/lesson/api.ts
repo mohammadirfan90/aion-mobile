@@ -4,6 +4,7 @@
  * mode calls the endpoints in API §4, §6–§9 and §13.
  */
 import { api, request } from '@/api/client';
+import { getCurriculumFromApi } from '@/api/curriculum';
 import type {
   AiSummary,
   Comment,
@@ -70,7 +71,7 @@ export async function fetchCurriculum(courseId: UUID): Promise<Curriculum> {
     if (!c) throw mockError('COURSE_NOT_FOUND', 'Course not found');
     return mockDelay(c);
   }
-  return request<Curriculum>(`/courses/${courseId}/curriculum`);
+  return getCurriculumFromApi(courseId);
 }
 
 /** Fetches a `markdownSettings.sourceType === 'link'` lesson body. */

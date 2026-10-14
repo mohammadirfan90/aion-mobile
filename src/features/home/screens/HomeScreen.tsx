@@ -43,7 +43,7 @@ import { useTheme, type Theme } from '@/theme';
 import { useAuthStore } from '@/lib/auth-store';
 import { useExploreMore, useLearningSummary, useMyCourses } from '@/features/home/hooks';
 import { formatCoursePrice, levelLabel } from '@/lib/course';
-import type { Course, LearningSummary } from '@/api/types';
+import type { Course, HomeSummary } from '@/api/types';
 
 const CARD_WIDTH = 220;
 const GUTTER = 12;
@@ -177,12 +177,12 @@ function ContinueLearningCard({
   onResume,
   onOpenCourse,
 }: {
-  summary: NonNullable<LearningSummary['continueLearning']>;
+  summary: NonNullable<HomeSummary['continueLearning']>;
   theme: Theme;
   onResume: () => void;
   onOpenCourse: () => void;
 }) {
-  const { course, enrollment, nextLesson } = summary;
+  const { course, progress, nextLesson } = summary;
   return (
     <Pressable onPress={onOpenCourse} accessibilityRole="button">
       <Card padded={false} style={{ overflow: 'hidden' }}>
@@ -244,10 +244,10 @@ function ContinueLearningCard({
                 Progress
               </Text>
               <Text variant="caption" tone="muted">
-                {enrollment.progressPercent}% complete
+                {progress.percent}% complete
               </Text>
             </View>
-            <ProgressBar value={enrollment.progressPercent / 100} height={4} />
+            <ProgressBar value={progress.percent / 100} height={4} />
           </View>
           <Button
             label="Resume"
@@ -519,12 +519,12 @@ export function HomeScreen() {
             ) : (
               <HorizontalCards
                 data={myCourses}
-                keyExtractor={(item) => item.enrollment.id}
+                keyExtractor={(item) => item.course.id}
                 renderItem={({ item }) => (
                   <CourseCarouselCard
                     course={item.course}
                     theme={theme}
-                    progressPercent={item.enrollment.progressPercent}
+                    progressPercent={item.progress.percent}
                     onPress={() =>
                       router.push(`/(app)/course/${item.course.id}/curriculum` as Href)
                     }

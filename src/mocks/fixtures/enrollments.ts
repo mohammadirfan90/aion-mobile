@@ -1,116 +1,50 @@
-import type { Enrollment, LearningSummary, MyLearningRow } from '@/api/types';
+import type { Enrollment, MyLearningRow } from '@/api/types';
 import { courses } from './courses';
 import { getCurriculum } from './curriculum';
 
 /** Mock auth user id — matches the one in `users.ts`. */
 const MOCK_USER_ID = '11111111-1111-1111-1111-111111111111';
 
-/**
- * "Continue learning" rule (SCREENS §S07, API §12): the in-progress enrollment
- * with the most recent `lastActiveAt`, and its next lesson is the first lesson
- * in the curriculum (chapter order, then position) that is not completed.
- */
-function findNextLesson(courseId: string, currentLessonId: string | null) {
-  const curriculum = getCurriculum(courseId);
-  if (!curriculum) return null;
-  for (const chapter of curriculum.chapters) {
-    if (chapter.locked) continue;
-    for (const lesson of chapter.lessons) {
-      if (lesson.completed) continue;
-      // If we know which lesson was last active, skip it so we land on the
-      // *next* one. If `lastLessonId` is null (never opened), the first
-      // uncompleted lesson is the answer.
-      if (currentLessonId && lesson.id === currentLessonId) continue;
-      return lesson;
-    }
-  }
-  return null;
-}
-
+/** `GET /enrollments/my` rows: IDs only, like the real API (API §5). */
 export const enrollments: Enrollment[] = [
   {
     id: 'e-001',
-    userId: '11111111-1111-1111-1111-111111111111',
+    userId: MOCK_USER_ID,
     courseId: 'c0000001-0000-0000-0000-000000000001',
     enrolledAt: '2026-08-20T10:00:00Z',
-    source: 'free',
-    progressPercent: 100,
-    lastLessonId: 'l-intro-03-01',
-    lastActiveAt: '2026-09-30T10:00:00Z',
+    completedAt: '2026-09-30T10:00:00Z',
   },
   {
     id: 'e-002',
-    userId: '11111111-1111-1111-1111-111111111111',
+    userId: MOCK_USER_ID,
     courseId: 'c0000002-0000-0000-0000-000000000002',
     enrolledAt: '2026-09-15T10:00:00Z',
-    source: 'invite_code',
-    progressPercent: 45,
-    lastLessonId: 'l-js-01-02',
-    lastActiveAt: '2026-10-10T10:00:00Z',
+    completedAt: null,
   },
   {
     id: 'e-003',
-    userId: '11111111-1111-1111-1111-111111111111',
+    userId: MOCK_USER_ID,
     courseId: 'c0000004-0000-0000-0000-000000000004',
     enrolledAt: '2026-10-01T10:00:00Z',
-    source: 'free',
-    progressPercent: 0,
-    lastLessonId: null,
-    lastActiveAt: null,
+    completedAt: null,
   },
 ];
 
-export function getLearningSummary(): LearningSummary {
-  const enrolled = enrollments.map((e) => ({
-    enrollment: e,
-    course: courses.find((c) => c.id === e.courseId)!,
-  }));
-
-  const continueLearning = enrolled
-    .filter((e) => e.enrollment.progressPercent > 0 && e.enrollment.progressPercent < 100)
-    .sort(
-      (a, b) =>
-        new Date(b.enrollment.lastActiveAt ?? 0).getTime() -
-        new Date(a.enrollment.lastActiveAt ?? 0).getTime(),
-    )[0];
-
-  // SPEC §9 honest "lessons finished" — sum the per-enrollment completed count.
-  // For the mock we don't have lesson-level progress per enrollment, so we
-  // approximate from the per-course percent against the curriculum.
-  const lessonsCompletedCount = enrolled.reduce((total, { enrollment, course }) => {
-    const curriculum = getCurriculum(course.id);
-    if (!curriculum) return total;
-    const all = curriculum.chapters.flatMap((c) => c.lessons);
-    if (all.length === 0) return total;
-    const done =
-      enrollment.progressPercent >= 100
-        ? all.length
-        : Math.round((enrollment.progressPercent / 100) * all.length);
-    return total + done;
-  }, 0);
-
-  return {
-    enrollmentsCount: enrollments.length,
-    lessonsCompletedCount,
-    coursesCompletedCount: enrollments.filter((e) => e.progressPercent === 100).length,
-    continueLearning: continueLearning
-      ? {
-          enrollment: continueLearning.enrollment,
-          course: continueLearning.course,
-          nextLesson: findNextLesson(
-            continueLearning.course.id,
-            continueLearning.enrollment.lastLessonId,
-          ),
-        }
-      : null,
-    enrolledCourses: enrolled,
-  };
-}
+/**
+ * Course percent per enrolled course (mock mode). Seeds the progress store
+ * (`progress.ts`: the first N lessons are completed) and is rewritten by it
+ * whenever a lesson is marked complete, so Home and My Learning stay in step.
+ */
+export const mockProgressPercent = new Map<string, number>([
+  ['c0000001-0000-0000-0000-000000000001', 100],
+  ['c0000002-0000-0000-0000-000000000002', 45],
+  ['c0000004-0000-0000-0000-000000000004', 0],
+]);
 
 /**
- * Per-course rows for S09 (My Learning). Mirrors the `courses[]` shape
+ * Per-course rows for S07 / S09 / S25. Mirrors the `courses[]` shape
  * returned by `GET /users/me/learning-summary` (API §12). The lesson counts
- * are derived from the curriculum + `progressPercent` so they stay honest
+ * are derived from the curriculum + `mockProgressPercent` so they stay honest
  * when the seed values change.
  *
  * - `totalLessons` is every lesson in every chapter (locked chapters too —
@@ -120,7 +54,7 @@ export function getLearningSummary(): LearningSummary {
  * - `isCompleted` is `percent === 100`; the screen uses it to swap the row
  *   for the "Completed" variant with a Certificate button.
  *
- * Order: by `lastActiveAt` desc, falling back to `enrolledAt` desc.
+ * Order: by `enrolledAt` desc (the real rows are unordered; screens sort).
  */
 export function getMyLearning(): MyLearningRow[] {
   return enrollments
@@ -129,18 +63,17 @@ export function getMyLearning(): MyLearningRow[] {
       const curriculum = getCurriculum(e.courseId);
       const allLessons = curriculum?.chapters.flatMap((c) => c.lessons) ?? [];
       const totalLessons = allLessons.length;
+      const percent = mockProgressPercent.get(e.courseId) ?? 0;
       const completedLessons =
-        e.progressPercent >= 100
-          ? totalLessons
-          : Math.round((e.progressPercent / 100) * totalLessons);
+        percent >= 100 ? totalLessons : Math.round((percent / 100) * totalLessons);
       return {
         id: course.id,
         title: course.title,
         thumbnail: course.thumbnail,
         totalLessons,
         completedLessons,
-        percent: e.progressPercent,
-        isCompleted: e.progressPercent >= 100,
+        percent,
+        isCompleted: percent >= 100,
         enrolledAt: e.enrolledAt,
       };
     })
@@ -190,11 +123,9 @@ export function enrollMock(courseId: string, inviteCode?: string): Enrollment {
     userId: MOCK_USER_ID,
     courseId,
     enrolledAt: new Date().toISOString(),
-    source: access?.mode === 'invite_only' ? 'invite_code' : 'free',
-    progressPercent: 0,
-    lastLessonId: null,
-    lastActiveAt: null,
+    completedAt: null,
   };
   enrollments.push(row);
+  mockProgressPercent.set(courseId, 0);
   return row;
 }

@@ -1,16 +1,16 @@
 import type { HeartbeatResult, LessonProgressRow } from '@/api/types';
 
 import { getCurriculum } from './curriculum';
-import { enrollments } from './enrollments';
+import { enrollments, mockProgressPercent } from './enrollments';
 
 /**
  * In-memory lesson progress (mock mode). Mirrors `GET /progress/course/{id}`,
  * `PATCH /progress` and `POST /progress/heartbeat` (API §4).
  *
  * Each course is seeded the first time it's read: the first N lessons (in
- * curriculum order) are completed, where N comes from the enrollment's
- * `progressPercent`. After that, mutations update the rows and write the new
- * percent back to the enrollment so Home and My Learning stay consistent.
+ * curriculum order) are completed, where N comes from `mockProgressPercent`.
+ * After that, mutations update the rows and write the new percent back so
+ * Home and My Learning stay consistent.
  */
 
 const MOCK_USER_ID = '11111111-1111-1111-1111-111111111111';
@@ -29,10 +29,9 @@ function seed(courseId: string) {
   const enrollment = enrollments.find((e) => e.courseId === courseId);
   if (!enrollment) return;
   const lessons = courseLessons(courseId);
+  const percent = mockProgressPercent.get(courseId) ?? 0;
   const completed =
-    enrollment.progressPercent >= 100
-      ? lessons.length
-      : Math.round((enrollment.progressPercent / 100) * lessons.length);
+    percent >= 100 ? lessons.length : Math.round((percent / 100) * lessons.length);
   lessons.slice(0, completed).forEach((l) => {
     rows.set(l.id, makeRow(l.id, { isCompleted: true, completedAt: enrollment.enrolledAt }));
   });
@@ -59,7 +58,8 @@ function syncEnrollment(courseId: string) {
   const lessons = courseLessons(courseId);
   if (!lessons.length) return;
   const done = lessons.filter((l) => rows.get(l.id)?.isCompleted).length;
-  enrollment.progressPercent = Math.round((done / lessons.length) * 100);
+  mockProgressPercent.set(courseId, Math.round((done / lessons.length) * 100));
+  enrollment.completedAt = done === lessons.length ? (enrollment.completedAt ?? new Date().toISOString()) : null;
 }
 
 export function getCourseProgressRows(courseId: string): LessonProgressRow[] {
@@ -79,11 +79,6 @@ export function setLessonCompleted(lessonId: string, courseId: string, completed
     completedAt: completed ? (prev.completedAt ?? new Date().toISOString()) : null,
     updatedAt: new Date().toISOString(),
   });
-  const enrollment = enrollments.find((e) => e.courseId === courseId);
-  if (enrollment) {
-    enrollment.lastLessonId = lessonId;
-    enrollment.lastActiveAt = new Date().toISOString();
-  }
   syncEnrollment(courseId);
   return { completed };
 }

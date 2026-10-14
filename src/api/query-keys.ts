@@ -16,7 +16,7 @@ import type {
   Enrollment,
   ForumPostsQuery,
   Lesson,
-  LearningSummary,
+  HomeSummary,
   UserProfile,
   UUID,
 } from './types';
@@ -28,7 +28,7 @@ export const qk = {
     all: all('me'),
     detail: () => ['me', 'detail'] as const,
     learningSummary: () => ['me', 'learningSummary'] as const,
-    /** S25's `LearningSummaryData` (API §12); Home still reads the older shape above until P2-06. */
+    /** S25's `LearningSummaryData` (API §12). */
     profileSummary: () => ['me', 'learningSummary', 'profile'] as const,
   },
 
@@ -127,7 +127,7 @@ export type {
   CourseListParams,
   Enrollment,
   Lesson,
-  LearningSummary,
+  HomeSummary,
   UserProfile,
   UUID,
 };

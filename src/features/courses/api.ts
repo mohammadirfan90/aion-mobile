@@ -2,13 +2,13 @@
  * Courses feature — data layer for S10 (course detail) and S11 (curriculum).
  *
  * Per D-07, screens never call `fetch`; they go through the hooks in
- * `./hooks.ts`. This file is the feature's `api.ts`: it returns fixtures in
- * mock mode and will call the real openapi-fetch client in Phase 2 with no
- * change to the screen.
+ * `./hooks.ts`. This file is the feature's `api.ts`: fixtures in mock mode,
+ * `request()` otherwise.
  *
  * Endpoints used (API §3, §5):
  *   - `GET /courses/{id}/curriculum` — returns `{ course, chapters, stats }`.
  *     The course is included, so S10 only needs this one call to render.
+ *     `api/curriculum.ts` maps the wire chapters to `chapter.lessons`.
  *   - `GET /enrollments/my` — ID list, used to decide the bottom-bar action.
  *   - `POST /enrollments` — free or invite-code enroll.
  */
@@ -17,7 +17,8 @@ import { enrollMock, enrollments } from '@/mocks/fixtures/enrollments';
 import { getCourseProgressRows } from '@/mocks/fixtures/progress';
 import { mockDelay } from '@/mocks/delay';
 import { env } from '@/lib/env';
-import { unwrap } from '@/api/client';
+import { request } from '@/api/client';
+import { getCurriculumFromApi } from '@/api/curriculum';
 import type { Curriculum, EnrollBody, Enrollment, UUID } from '@/api/types';
 
 /**
@@ -42,11 +43,7 @@ export async function fetchCurriculum(courseId: UUID): Promise<Curriculum> {
     }
     return mockDelay(c);
   }
-  // Real API: GET /courses/{id}/curriculum (API §3).
-  const res = await fetch(`${env.apiUrl}/api/v1/courses/${courseId}/curriculum`, {
-    headers: { Accept: 'application/json' },
-  });
-  return unwrap<Curriculum>(res);
+  return getCurriculumFromApi(courseId);
 }
 
 export async function fetchMyEnrollmentsForCourse(courseId: UUID): Promise<Enrollment | null> {
@@ -56,10 +53,7 @@ export async function fetchMyEnrollmentsForCourse(courseId: UUID): Promise<Enrol
   // Real API: GET /enrollments/my (API §5). The endpoint returns the full
   // list; we filter on the device because it's a small array and avoids a
   // dedicated "by course" call.
-  const res = await fetch(`${env.apiUrl}/api/v1/enrollments/my`, {
-    headers: { Accept: 'application/json' },
-  });
-  const list = await unwrap<Enrollment[]>(res);
+  const list = await request<Enrollment[]>('/enrollments/my');
   return list.find((e) => e.courseId === courseId) ?? null;
 }
 
@@ -68,12 +62,7 @@ export async function postEnroll(body: EnrollBody): Promise<Enrollment> {
     return mockDelay(enrollMock(body.courseId, body.inviteCode), 250);
   }
   // Real API: POST /enrollments (API §5).
-  const res = await fetch(`${env.apiUrl}/api/v1/enrollments`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(body),
-  });
-  return unwrap<Enrollment>(res);
+  return request<Enrollment>('/enrollments', { method: 'POST', body });
 }
 
 /**
@@ -100,23 +89,17 @@ export async function fetchCourseProgress(courseId: UUID): Promise<CourseProgres
     const percent = total ? Math.round((completed / total) * 100) : 0;
     return mockDelay({ total, completed, percent, isCompleted: total > 0 && completed >= total });
   }
-  const res = await fetch(`${env.apiUrl}/api/v1/enrollments/progress/${courseId}`, {
-    headers: { Accept: 'application/json' },
-  });
-  return unwrap<CourseProgress>(res);
+  return request<CourseProgress>(`/enrollments/progress/${courseId}`);
 }
 
 /**
  * `GET /progress/course/{courseId}` (API §5). Returns one row per lesson
  * the student has opened. In mock mode the rows come from the shared
- * in-memory progress store, seeded from the enrollment's `progressPercent`
+ * in-memory progress store, seeded from `mockProgressPercent`
  * (first N lessons completed) and updated by S12. The first non-completed
  * lesson becomes the resume target.
  */
 export async function fetchCourseLessonProgress(courseId: UUID): Promise<LessonProgress[]> {
   if (env.useMocks) return mockDelay(getCourseProgressRows(courseId), 150);
-  const res = await fetch(`${env.apiUrl}/api/v1/progress/course/${courseId}`, {
-    headers: { Accept: 'application/json' },
-  });
-  return unwrap<LessonProgress[]>(res);
+  return request<LessonProgress[]>(`/progress/course/${courseId}`);
 }

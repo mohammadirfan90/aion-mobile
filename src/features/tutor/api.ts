@@ -14,6 +14,7 @@
 import { fetch as expoFetch } from 'expo/fetch';
 
 import { request } from '@/api/client';
+import { getCurriculumFromApi } from '@/api/curriculum';
 import type {
   AiHistory,
   AiHistoryMessageBody,
@@ -78,7 +79,7 @@ export async function fetchContextCurriculum(courseId: UUID): Promise<Curriculum
     if (!c) throw codedError('COURSE_NOT_FOUND', 'Course not found');
     return mockDelay(c);
   }
-  return request<Curriculum>(`/courses/${courseId}/curriculum`);
+  return getCurriculumFromApi(courseId);
 }
 
 // ── Streaming ────────────────────────────────────────────────────────────────

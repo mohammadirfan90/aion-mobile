@@ -13,6 +13,7 @@
  * acting as the signed-in mock user.
  */
 import { request } from '@/api/client';
+import { getCurriculumFromApi } from '@/api/curriculum';
 import type {
   CreateForumPostBody,
   CreateForumReplyBody,
@@ -176,5 +177,5 @@ export async function fetchLinkedCurriculum(courseId: UUID): Promise<Curriculum>
     if (!c) return Promise.reject(codedError('COURSE_NOT_FOUND', 'Course not found'));
     return mockDelay(c);
   }
-  return request<Curriculum>(`/courses/${courseId}/curriculum`);
+  return getCurriculumFromApi(courseId);
 }

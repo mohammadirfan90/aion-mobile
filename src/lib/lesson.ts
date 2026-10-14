@@ -293,3 +293,17 @@ export function findLessonPosition(chapters: Chapter[], lessonId: string): Lesso
     next: i >= 0 && i < open.length - 1 ? open[i + 1].lesson : null,
   };
 }
+
+/**
+ * "Continue learning" target (API §12): the first open lesson, in curriculum
+ * order, without a completed progress row. `null` when everything is done.
+ */
+export function findNextLesson(chapters: Chapter[], completedIds: ReadonlySet<string>): Lesson | null {
+  for (const chapter of chapters) {
+    for (const lesson of chapter.lessons) {
+      if (isLessonLocked(chapter, lesson) || completedIds.has(lesson.id)) continue;
+      return lesson;
+    }
+  }
+  return null;
+}

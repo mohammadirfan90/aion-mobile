@@ -2,6 +2,16 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-01, P2-02, P2-03, P2-06
+- Did:
+  - **P2-01:** `lib/supabase.ts`, a lazy supabase-js client with the session in AsyncStorage; auto refresh runs only while the app is in the foreground. The local API port fallback is 3001.
+  - **P2-02:** `api/client.ts` `request()`: bearer token, one single-flight refresh and retry on 401 (sign out only when the refresh token is rejected, not when offline), JSON 429 lockout fields, 60 s timeout until the first success, "waking the server" banner after 5 s.
+  - **P2-03:** `lib/auth-store.ts` for both modes (mock mode mirrors the mock store). Restores the session, loads `/users/me`, sign-out clears the query cache. `scripts/contract-smoke.mjs` checks the live API shapes.
+  - **P2-06:** catalog, courses, home and learning `api.ts` use `request()`. `api/curriculum.ts` maps `activities` / `isLocked` to `lessons` / `locked` for every feature. `Enrollment` is the real `{ id, userId, courseId, enrolledAt, completedAt }` row. Home is a `HomeSummary` built from `LearningSummaryData` + the catalog; continue learning is the in-progress course with the latest `enrolledAt` and its first open lesson without a completed row (API §12). Fixtures follow the wire shapes (`mockProgressPercent` seeds the progress store).
+- Quality gates: `node scripts/verify.mjs check` → 8 passed; 70 tests.
+- Next: P2-07 (enrollment, `accessMode`).
+- Blockers: signed-in contract checks need a real-domain test account (Supabase rejects example.com). B-10 (Confirm email off) still to confirm.
+
 ## 2026-10-14 — P0-12, clean-ups, Phase 2 readiness
 - Did:
   - **Fonts:** Geist (4 weights + italics) is embedded with the `expo-font` config plugin. `Text` no longer sends `fontWeight` (the family encodes it) and maps italic to the real italic face. Android had been measuring family + weight / synthetic italic narrower than it drew, which clipped "Log in", "Password", "Sara Student"…
