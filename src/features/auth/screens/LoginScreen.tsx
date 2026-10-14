@@ -14,7 +14,11 @@ import { Text } from '@/components/ui/Text';
 import { TextField } from '@/components/ui/TextField';
 import { useLogin } from '@/features/auth/hooks';
 import { loginSchema } from '@/features/auth/schemas';
+import { env } from '@/lib/env';
 import { useTheme } from '@/theme';
+
+// Password reset needs emailed codes (B-02); until P2-16 the link is mock-only.
+const SHOW_FORGOT_PASSWORD = env.useMocks;
 
 export function LoginScreen() {
   const theme = useTheme();
@@ -183,16 +187,18 @@ export function LoginScreen() {
                 <Text variant="label" tone="muted">
                   Password
                 </Text>
-                <Pressable
-                  onPress={navigateToForgotPassword}
-                  accessibilityRole="button"
-                  accessibilityLabel="Forgot password?"
-                  hitSlop={8}
-                >
-                  <Text variant="caption" tone="muted">
-                    Forgot password?
-                  </Text>
-                </Pressable>
+                {SHOW_FORGOT_PASSWORD ? (
+                  <Pressable
+                    onPress={navigateToForgotPassword}
+                    accessibilityRole="button"
+                    accessibilityLabel="Forgot password?"
+                    hitSlop={8}
+                  >
+                    <Text variant="caption" tone="muted">
+                      Forgot password?
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
 
               <TextField

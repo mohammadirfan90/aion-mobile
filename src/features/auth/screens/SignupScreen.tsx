@@ -93,7 +93,7 @@ export function SignupScreen() {
       return;
     }
 
-    const success = await signUp({
+    const result = await signUp({
       firstName,
       lastName,
       username,
@@ -101,8 +101,9 @@ export function SignupScreen() {
       password,
     });
 
-    if (success) {
-      // Navigate to S04 verify-email screen with ?email= per SPEC/SCREENS.md
+    // Email demo mode (D-17): signup signs the user in and Stack.Protected
+    // shows Home. Only a pending confirmation goes to S04.
+    if (result?.needsVerification) {
       const target = `/(auth)/verify-email?email=${encodeURIComponent(email.trim())}`;
       router.push(target as never);
     }

@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-04
+- Did: login goes through `signInWithPassword` in the auth store; Supabase errors map to S02's banners (wrong password, unconfirmed email, lockout with minutes from `lockedForSeconds`, network). Signup posts to `/auth/signup` with `X-Aion-Client: mobile`; with a session back (email demo mode, D-17) the user lands on Home, and only a null session goes to S04. `USERNAME_TAKEN` sits on the username field and `PROFILE_CREATION_FAILED` on the email field as "This email may already have an account" (#19). The username check calls the `check_username_available` RPC (debounced 400 ms); a permission error skips the live check (#20). "Forgot password?" is hidden in real mode until P2-16. Mock mode keeps the Phase 1 demo emails.
+- Quality gates: tsc, lint, 87 tests (+4 for the error mapping).
+- Next: P2-05 (upload token).
+- Blockers: real sign-in needs a test account; B-10 (Confirm email off) to confirm.
+
 ## 2026-10-14 — P1-S19, P1-S20, P1-S21, P1-S22, P1-S23, P1-S24, P1-S25, P1-S26, P1-S27, P1-S28, P1-S29
 - Did: built the rest of my Phase 1 screens on mock data, one feature folder per area.
   - **Community** (`src/features/community`): S19 feed with stats, search, category, sort and infinite scroll; S20 post detail with optimistic upvotes, threaded replies, Mark as solution and an owner Edit/Delete menu; S21 new post with image upload. Fixture `mocks/fixtures/forum.ts` (14 posts, in-memory writes).
