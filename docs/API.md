@@ -28,15 +28,22 @@ type Err   = { success: false; error: { code: string; message: string } };
 codes are listed in each section.
 
 **Things the client must handle:**
-- Per-IP rate limits reply `429` with the normal envelope and code `RATE_LIMITED`. Older servers sent plain text,
-  so `unwrap()` must still treat any 429 as `RATE_LIMITED`, even when the body isn't JSON.
+- Per-IP rate limits reply `429` with the normal JSON envelope and code `RATE_LIMITED` (keep the message).
+  `unwrap()` should still treat a non-JSON 429 as `RATE_LIMITED`.
 - Auth lockouts reply with the JSON envelope plus extra top-level fields: `lockedForSeconds` (also sent as a
   `Retry-After` header) or `attemptsRemaining`.
-- Rough limits: login 10 per 15 min, signup 5/h, password reset 3/h, password change 5/h, AI tutor 60/h, AI summary
-  20/h, uploads 40/h.
+- Limits (in memory, per IP): login 10 per 15 min, signup 5/h, password reset 3/h, password change 5/h, AI tutor
+  60/h, AI summary 20/h (cache hits count too), uploads 40/h (`DELETE /media` shares it), lesson comments 60/h, and
+  **one shared 60/h bucket** for forum posts, replies, upvotes and solutions plus support tickets and ticket
+  messages. Until B-05a (`TRUSTED_PROXY`) is done on Render, all users may share these buckets.
+- The API is on Render's free tier: the first request after idle can take 30–60 s (B-05d). Use a long timeout for
+  it and ping `GET /health` at launch.
 
 **Auth header:** `Authorization: Bearer <supabase access_token>` on every protected call. The user's role isn't in
-the token; read it from `GET /users/me`.
+the token; read it from `GET /users/me`. The server validates the token with Supabase on every request: missing,
+expired or invalid gives `401 UNAUTHENTICATED`, and so does a Supabase outage, so refresh-and-retry only once.
+Course, lesson and forum **reads use optional auth**: a bad token is treated as anonymous instead of a 401 (you
+get outlines and `hasUpvoted: false`), so send the token there too.
 
 ---
 
@@ -55,13 +62,16 @@ data: { user: SupabaseUser | null; session: SupabaseSession | null }
 - `session` is `null` when email confirmation is required (the normal case). Go to S04.
 - Errors: `USERNAME_TAKEN` (409, case-insensitive), `SIGNUP_FAILED` (400, plus `attemptsRemaining`),
   `RATE_LIMITED` (429, plus `lockedForSeconds`), `RECAPTCHA_REQUIRED` / `RECAPTCHA_FAILED` (until B-01 is done),
-  `PROFILE_CREATION_FAILED` (500).
+  `PROFILE_CREATION_FAILED` (500). With email confirmation on, an **already-registered email** can come back
+  as `PROFILE_CREATION_FAILED` (Supabase returns a placeholder user); show "This email may already have an
+  account".
 - Don't send `bio` here; it isn't saved to the profile. Set it later with `PATCH /users/me`.
 
 ### Username availability (no REST endpoint)
 Call the Supabase RPC with the anon key:
 `supabase.rpc('check_username_available', { p_username })` returns `boolean` (`true` = available). Use it for a
-live check on S03, debounced by 400 ms.
+live check on S03, debounced by 400 ms. The anon grant depends on which SQL ran last on the live DB (B-05e): on a
+permission error, skip the live check and rely on `409 USERNAME_TAKEN` from signup.
 
 ### Login, session, refresh, logout
 - Login: `supabase.auth.signInWithPassword({ email, password })`. A bad password gives a Supabase
@@ -103,7 +113,11 @@ type PricingConfig = { type: 'free' | 'one_time' | 'subscription' | 'custom'; cu
   compareAtPrice?: number; hasDiscount?: boolean; billingPeriod?: 'weekly' | 'monthly' | 'quarterly' | 'yearly' };
 type AccessConfig = { accessMode: 'open' | 'invite' | 'closed'; pricingType?: 'free' | 'paid'; price?: number;
   maxCapacity?: number | null };
-type CertificateConfig = { enabled: boolean; title: string; passingScore: number; issuerName: string };
+type CertificateConfig = { enabled: boolean; title: string; passingScore: number; issuerName: string;
+  templateType: 'standard' | 'custom_html'; customHtml?: string; customCss?: string; signatureUrl?: string;
+  badgeUrl?: string };
+// accessConfig.inviteCode is only sent to admins and the course owner, never to students.
+// pricingConfig may also carry trialDays and customTierNote (ignore them).
 ```
 
 `learnings`, `tags`, `pricingConfig`, `accessConfig` and `certificateConfig` arrive as **real JSON**, not strings.
@@ -137,7 +151,10 @@ data: {
 }
 ```
 Chapters and lessons are already in order, and the server already hides draft lessons. Treat
-`metadata.isLocked` or a chapter's `isLocked` as locked.
+`metadata.isLocked` or a chapter's `isLocked` as locked. **Map `activities` to `lessons` and `isLocked` to
+`locked` in the feature `api.ts`** (the app types use those names). Locks are display-only on the server
+(`GET /lessons/{id}` doesn't check them), so the app enforces them. Lessons with no chapter appear only inside a
+chapter whose `position` is 10, otherwise only in `stats`.
 
 **What the viewer gets** (send the token so enrolled students get full lessons):
 - **Enrolled students** (and admins) get full lessons.
@@ -184,6 +201,10 @@ that matches the lesson's `type`:
 | `quiz` | Questions come from §6. `content` is usually null. | common keys only |
 | `dynamic_page` | `metadata.blocks` (below). `content` is a text synopsis, **not** for display. | `{ blocks: DynamicBlock[]; lastConfiguredAt: string }` |
 
+The editor saves **every** settings block, with empty strings for unused URLs, so use `||` (not `??`) when
+falling back from `*Settings.fileUrl` / `embedUrl` to `metadata.fileUrl` / `embedUrl`. `assignmentSettings` may also
+carry `autoGrading`, `blockCopyPaste` and `revealCorrectAnswers` (the API ignores them).
+
 `assignmentSettings.dueDate` may come without a timezone (`YYYY-MM-DDTHH:mm:00`) or with `Z`. Treat a value with no
 timezone as local time.
 
@@ -228,7 +249,8 @@ body: { lessonId: UUID; courseId: UUID; positionSeconds: number /*int ≥0*/; du
 data: { isCompleted: boolean; lastPositionSeconds: number }
 ```
 - Send it **at most once every ~6 seconds while a video plays**, and once more when playback pauses or the screen
-  is left.
+  is left. Always send `durationSeconds`: the server uses the lesson's own duration (author minutes × 60) and only
+  falls back to yours when the lesson has none. Position is clamped to the duration; seeking ahead counts as watched.
 - The server **auto-completes the lesson at 90% watched**. When the response says `isCompleted: true`, update the
   UI.
 - When the video ends, also call `PATCH /progress { completed: true }`.
@@ -251,8 +273,11 @@ This returns IDs only, **with no course details**. For lists of the student's co
 
 ### POST /enrollments (auth): free or invite enrollment
 `body: { courseId: UUID; inviteCode?: string }` → 201, the enrollment row.
-- Errors: `ALREADY_ENROLLED` (409; treat it as success), `INVITATION_REQUIRED` (403, wrong or missing code),
-  `COURSE_CLOSED`, `CAPACITY_REACHED` (409), `PAYMENT_REQUIRED` (paid course; the UI shouldn't offer enroll there).
+- Errors, checked in this order: `COURSE_NOT_FOUND` (404) → `PAYMENT_REQUIRED` (400, paid course; the UI shouldn't
+  offer enroll there) → `COURSE_CLOSED` (400) → `INVITATION_REQUIRED` (403, wrong or missing code) →
+  `CAPACITY_REACHED` (409) → `ALREADY_ENROLLED` (409; treat it as success). Because `ALREADY_ENROLLED` comes last,
+  check the student's enrollment **before** offering Enroll, or an enrolled student on a now-closed course gets
+  `COURSE_CLOSED`.
 
 ---
 
@@ -271,7 +296,8 @@ data: {
 type QuizSubmission = { id: UUID; quizId: UUID; lessonId: UUID; scorePercent: number; passed: boolean;
                         userAnswers: Record<string, string[]>; submittedAt: Timestamp };
 ```
-Correct answers and explanations are **not** included before you submit. Attempts left =
+Correct answers and explanations are **not** included before you submit. The server doesn't shuffle; do it on the
+device when `shuffleQuestions` is true. Attempts left =
 `maxAttempts === 0 ? ∞ : maxAttempts - submissions.length`. Error: `NOT_ENROLLED`.
 
 ### POST /quizzes/lesson/{lessonId}/submit (auth)
@@ -281,8 +307,8 @@ data: { submission: QuizSubmission; passed: boolean; scorePercent: number; total
         feedback: Array<{ questionId: string; prompt: string; isCorrect: boolean; explanation?: string;
                           correctOptionIds: string[] }> }
 ```
-A pass marks the lesson complete on the server. Errors: `NOT_ENROLLED`, `QUIZ_NOT_FOUND`,
-`MAX_ATTEMPTS_EXCEEDED`.
+A pass marks the lesson complete on the server (a later failed attempt doesn't undo it). Errors: `NOT_ENROLLED`
+(403), `QUIZ_NOT_FOUND` (404), `MAX_ATTEMPTS_EXCEEDED` (**403**, not 409, so map by code, not by status).
 
 ---
 
@@ -305,6 +331,9 @@ type AssignmentSubmission = { id: UUID; lessonId: UUID; courseId: UUID; studentI
   `ALREADY_GRADED` (409).
 - Other errors: `NOT_ENROLLED`, `EMPTY_SUBMISSION` (needs text or a file), `SUBMISSION_TOO_LONG`,
   `NOT_AN_ASSIGNMENT`.
+- `assignmentSettings` (`dueDate`, `allowRetries`, `maxAttempts`) is **not enforced** by the API: late
+  submissions and unlimited edits until grading are accepted. Treat them as UI hints. Over-long text arrives as
+  `VALIDATION_ERROR` (the request check runs before `SUBMISSION_TOO_LONG`). The row also has `gradedBy`.
 - To attach a file, first upload it with §16 (`kind=document`, `folder=assignments`), then send its `url`,
   `publicId` and file name.
 
@@ -316,10 +345,11 @@ type AssignmentSubmission = { id: UUID; lessonId: UUID; courseId: UUID; studentI
 type Note = { id: UUID; userId: UUID; lessonId: UUID; courseId: UUID; timestampSeconds: number | null;
               content: string; createdAt: Timestamp; updatedAt: Timestamp };
 ```
-- `GET /notes/lesson/{lessonId}` → `Note[]`.
+- `GET /notes/lesson/{lessonId}?courseId={uuid}` → `Note[]`, newest first. **`courseId` is required** (400
+  without it) and enrollment is checked.
 - `GET /notes/course/{courseId}` → `Note[]`.
-- `POST /notes` with `{ lessonId, courseId, timestampSeconds?, content }` → `Note`.
-- `DELETE /notes/{id}` → `{ deleted: true }`.
+- `POST /notes` with `{ lessonId, courseId, timestampSeconds?, content /*≥1*/ }` → `Note` (status **200**).
+- `DELETE /notes/{id}` → `{ deleted: true }`; someone else's note gives 404 `NOTE_NOT_FOUND`. There is no edit.
 
 ---
 
@@ -331,15 +361,19 @@ data: Array<{ id: UUID; lessonId: UUID; courseId: UUID; chapterId: UUID | null; 
   content: string; timestampSeconds: number | null; upvotesCount: number; createdAt: Timestamp; updatedAt: Timestamp;
   author: { id: UUID; name: string; avatarUrl: string | null; role: 'student' | 'admin' } }>
 ```
-The list is **flat, oldest first**. Build the reply threads on the device from `parentId`.
+The list is **flat, oldest first**, and public (no token needed). Build the reply threads on the device from
+`parentId`; a reply whose parent was deleted (there's no foreign key) should show as top-level. The author falls
+back to name "Learner", role "student". **There is no upvote endpoint for lesson comments** (B-05c): `upvotesCount`
+stays 0 and there's no `hasUpvoted`, so hide upvotes in S18.
 
 ### POST /lessons/{lessonId}/comments (auth)
 - Body: `{ courseId: UUID; chapterId?: UUID; content: string /*1–2000*/; parentId?: UUID; timestampSeconds?: number }`.
 - Returns the row (201) **without `author`**. For the optimistic item, fill `author` from the current user.
-- Errors: `NOT_ENROLLED_IN_COURSE`, `INVALID_COURSE_LESSON_PAIR`.
+- Errors: `NOT_ENROLLED_IN_COURSE` (403; the instructor and admins are exempt), `INVALID_COURSE_LESSON_PAIR`,
+  `COMMENT_EMPTY`, `COMMENT_TOO_LONG` (400), `LESSON_NOT_FOUND` (404). 60 posts per hour per IP.
 
-### DELETE /comments/{id} (auth, owner)
-Returns `{ deleted: true }`.
+### DELETE /comments/{id} (auth, author or admin)
+Returns `{ deleted: true }`. Anyone else gets **404** `COMMENT_NOT_FOUND`.
 
 ---
 
@@ -368,7 +402,9 @@ type ForumPost = { id: UUID; userId: UUID; title: string; content: string; image
 ```
 
 ### GET /forum/posts/{id}
-Returns a `ForumPost`. Each call counts as a view, so don't refetch it in a loop. Error: `FORUM_POST_NOT_FOUND`.
+Returns a `ForumPost` (also with `chapter` and `lastReplyUserId`). Each call counts as a view, and so does every
+write on the post (reply, upvote, solution, edit), so don't refetch it in a loop and don't trust `viewsCount`.
+Error: `FORUM_POST_NOT_FOUND`.
 
 ### GET /forum/posts/{id}/replies
 ```ts
@@ -376,7 +412,8 @@ data: Array<{ id: UUID; postId: UUID; userId: UUID; parentId: UUID | null; conte
   upvotesCount: number; createdAt: Timestamp; updatedAt: Timestamp;
   author: { id: UUID; name: string; avatarUrl: string | null; role: string }; hasUpvoted: boolean }>
 ```
-Flat: the solution first, then oldest first. Thread on the device by `parentId`.
+Flat: the solution first, then oldest first. Thread on the device by `parentId`. A missing post returns `[]`, not
+404.
 
 ### Writes (auth)
 
@@ -388,7 +425,9 @@ Flat: the solution first, then oldest first. Thread on the device by `parentId`.
 | `POST /forum/posts/{id}/replies` (201) | `{ content /*2–5000*/; parentId? }` | reply row |
 | `POST /forum/posts/{id}/upvote` | – | `{ upvoted: boolean; count: number }` (toggles) |
 | `POST /forum/replies/{replyId}/upvote` | – | `{ upvoted: boolean; count: number }` (toggles) |
-| `POST /forum/replies/{replyId}/solution` (post owner) | `{ postId }` | `{ success: true }` |
+| `POST /forum/replies/{replyId}/solution` (post owner, admin or instructor) | `{ postId }` | `{ success: true }`; clears any other solution on the post |
+
+All writes share the 60/h content bucket (§1). Upvoting a reply that doesn't exist returns 500, not 404 (B-05f).
 
 ---
 
@@ -413,7 +452,7 @@ type TicketMessage = { id: UUID; ticketId: UUID; senderId: UUID; senderRole: 'st
 | `GET /support/tickets/{id}` | `data: { ticket: TicketWithRelations; messages: TicketMessage[] }`, messages oldest first. Errors: `TICKET_NOT_FOUND`, `FORBIDDEN`. |
 | `POST /support/tickets` (201) | `{ subject /*3–250*/; description /*≥5*/; priority?; courseId?; chapterId?; lessonId?; timestampSeconds? }` returns a bare `Ticket`. The description becomes the **first message**. |
 | `POST /support/tickets/{id}/messages` (201) | `{ message: string }` returns the message row. |
-| `PATCH /support/tickets/{id}/status` | Students may set only `resolved` or `closed`. S23 offers **Mark as resolved**. |
+| `PATCH /support/tickets/{id}/status` | Students may set only `resolved` or `closed` (`open` gives 403). S23 offers **Mark as resolved**. A student reply to a resolved ticket does **not** reopen it; only a staff (admin) reply moves `open` to `in_progress`. |
 
 Show tickets as `#{ticketNumber} {subject}`. (A ticket's `student` object, if present, can be ignored.)
 
@@ -428,7 +467,9 @@ type Me = { id: UUID; email: string; username: string | null; name: string | nul
 ```
 - `GET /users/me` → `Me`.
 - `PATCH /users/me` with `{ name?, username?, avatarUrl?, headline?, bio?, aiConsent?, learningGoals? }` → `Me`.
-  Errors: `USERNAME_TAKEN`, `VALIDATION_ERROR`. Check field lengths against `api/openapi.json`.
+  Errors: `USERNAME_TAKEN` (409), `VALIDATION_ERROR`. Limits: name ≤ 100, username 3–20 `/^[a-z0-9_]+$/`,
+  avatarUrl ≤ 1000, headline ≤ 150, bio ≤ 1000, learningGoals ≤ 1000. A new `avatarUrl` makes the server delete the
+  old avatar, so don't also call `DELETE /media`. A missing profile row gives 404 `USER_NOT_FOUND`.
 
 ### GET /users/me/learning-summary
 ```ts
@@ -436,7 +477,9 @@ data: { totalEnrolled: number; totalCompleted: number; inProgress: number; total
   courses: Array<{ id: UUID /*course id*/; title: string; thumbnail: string | null; totalLessons: number;
                    completedLessons: number; percent: number; isCompleted: boolean; enrolledAt: Timestamp }> }
 ```
-This is the main source for Home (S07), My Learning (S09) and the Profile stats (S25).
+This is the main source for Home (S07), My Learning (S09) and the Profile stats (S25). Rows are unordered (sort on
+the device), and the counts include draft lessons until B-05b is fixed. `GET /enrollments/my` rows are only
+`{ id, userId, courseId, enrolledAt, completedAt }` (no progress, no last lesson).
 
 **"Continue learning" on S07:** pick the in-progress course with the latest `enrolledAt`. Then find its next lesson
 by loading its curriculum (§3) and progress (§4) and taking the first lesson without a completed row.
@@ -445,8 +488,9 @@ by loading its curriculum (§3) and progress (§4) and taking the first lesson w
 
 ## 13. AI
 
-All AI endpoints respect the user's `aiConsent`. If it's off, show "AI features are turned off" with a link to
-Edit profile.
+**The API has no consent gate.** With `aiConsent: false` the tutor still answers (it just leaves the profile and
+progress out of the prompt), summaries ignore it, and `/ai/context` returns `enrolledCourses: []`. So the app
+checks `Me.aiConsent` itself and shows "AI features are turned off" with a link to Edit profile.
 
 ### GET /ai/summary/{lessonId}?courseId={uuid}&lessonTitle={string} (auth; both query params required)
 ```ts
@@ -455,7 +499,9 @@ data: { id: string; lessonId: UUID; executiveSummary: string; keyTakeaways: stri
         flashcards: Array<{ id: string; front: string; back: string; hint?: string }>;
         createdAt: Timestamp; updatedAt: Timestamp }
 ```
-If generation failed, `id` starts with `unavailable-` and the lists are empty. Show S14's empty state.
+If generation failed, `id` starts with `unavailable-` and the lists are empty: show S14's empty state. An id
+starting with `temp-` is a valid summary that wasn't cached. Other failures are `500 AI_SUMMARY_ERROR`. Enrollment
+isn't checked, and summaries are built from the lesson title (cached per lesson).
 
 ### GET /ai/history?limit=50 · POST /ai/history/message · DELETE /ai/history
 ```ts
@@ -481,7 +527,9 @@ body: { courseId?: string | null; lessonId?: string | null; message: string /*1�
               userNotes?: string[] /*≤50*/; chatHistory?: Array<{ role: 'user' | 'assistant'; content: string }> /*≤20*/ } }
 ```
 - A validation error comes back as the normal JSON envelope (400). Otherwise the response is
-  `text/event-stream`. Server-side AI failures still stream a fallback answer; they don't return an error.
+  `text/event-stream; charset=utf-8`. Server-side AI failures still stream a canned fallback answer with 200, which
+  the app can't tell apart. The server caps each `chatHistory[].content` at 5000, each note at 2000 and titles at
+  500, so truncate before sending. `lessonId` is accepted but ignored.
 - **The stream doesn't save anything.** The app must `POST /ai/history/message` the user message **before**
   streaming and the full assistant text **after** the stream ends.
 - **Parsing rules** (use `fetch` from `expo/fetch`):
@@ -491,8 +539,12 @@ body: { courseId?: string | null; lessonId?: string | null; message: string /*1�
      `json.choices?.[0]?.delta?.content ?? json.candidates?.[0]?.content?.parts?.[0]?.text ?? ''`.
      Skip lines that fail to parse.
   4. **The end of the stream (EOF) is the end of the message.** Don't wait for `[DONE]`; it isn't always sent.
-  5. Trim a trailing literal `\n\n` (backslash-n characters) if it appears. The server sometimes appends it after
-     closing a code fence.
+  5. The server sometimes appends a literal `\n\n` (backslash-n characters) **after the JSON** on the line that
+     closes a code fence (`data: {...}\n\n`), so `JSON.parse` fails and that chunk is lost. Strip the literal
+     from the payload before parsing, and close any dangling code fence at the end (B-05g).
+  6. The stream comes in one of three shapes: NIM/OpenAI (`choices[0].delta.content`, may be null on reasoning
+     chunks, ends with `[DONE]`), Gemini (`candidates[0]…`, `\r\n` separators, no `[DONE]`), or the fallback
+     (OpenAI-shaped chunks plus `[DONE]`). An upstream error mid-stream breaks the read: keep the partial text.
 - Send the last few messages as `context.chatHistory` (the server uses the last 6).
 
 ---
@@ -506,13 +558,15 @@ data: { certificateId: string /*e.g. "CERT-AION-XXXX-XXXXXXXX"*/; issueDate: str
         html: string /*full HTML document of the certificate*/; enabled: boolean;
         verifyUrl: string /*RELATIVE web path; prefix with EXPO_PUBLIC_WEB_URL*/ }
 ```
-- Errors: `INCOMPLETE` (400, course not finished: show the not-earned state), `FORBIDDEN` (not enrolled),
-  `NOT_FOUND`.
+- Errors: `INCOMPLETE` (400, course not finished: show the not-earned state), `FORBIDDEN` (403, not enrolled),
+  `NOT_FOUND` (404). A 200 with `enabled: false` means certificates are off for the course: show that state.
+  Issuing needs **100 %** of lessons (there are no other criteria), and drafts count until B-05b is fixed.
 - S28 shows a native card and can render `html` in a WebView for the full certificate.
 - The QR code should encode the `certificateId`. S29 accepts either the bare ID or a URL containing it.
 
 ### GET /courses/verify/{certificateId} (public)
-Accepts the `CERT-…` code. Returns the fields above **plus**
+Accepts the `CERT-…` code (or the raw enrollment UUID). Returns the fields above **except `enabled`**, plus
+`isOwner` (always false here), plus
 `{ valid: true; courseSlug: string; courseId: UUID; learnings: string[]; tags: string[]; completedAt: Timestamp | null;
 score?: string /*e.g. "80%"*/ }`. Any failure is a **404** (`CERTIFICATE_NOT_FOUND`, `CERTIFICATE_INCOMPLETE`,
 `COURSE_NOT_FOUND`); show the invalid state for all of them.
@@ -532,6 +586,8 @@ score?: string /*e.g. "80%"*/ }`. Any failure is a **404** (`CERTIFICATE_NOT_FOU
 ## 16. Media upload
 
 ### POST /media/upload (auth, `multipart/form-data`, 201)
+Send `Authorization` like any other call (the upload XHR doesn't go through `request()`). `folder` defaults to
+`uploads` and is stored under `aion/<folder>`; the file's magic bytes must match its MIME type.
 - Fields:
   - `file`: required.
   - `folder`: optional. Use `avatars`, `forum` or `assignments`.

@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 2, Integration (ready to start)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-14, Irfan: P0-12 done; Phase 0 and Phase 1 gates pass; every route renders on Android (light and dark). Fonts embedded (no clipped text), real logo everywhere, headers clear the status bar, jest-expo set up (48 tests), Expo SDK 57 patches applied (expo-doctor clean). Deployed API and Supabase both reachable. Next up: Irfan P2-01 → P2-03; Maria P2-05 once P2-02 lands. Readiness notes are in docs/log/irfan.md (2026-10-14).
+- **Last update:** 2026-10-14, Irfan: backend audited against the app. The integration plan is in [INTEGRATION.md](INTEGRATION.md) (25 app-side fixes mapped to Phase 2 rows, backend asks B-05a–h) and API.md now matches the backend. Next up: P2-01 → P2-03 (Irfan), then rows in parallel per INTEGRATION.md §4.
 - **Open blockers:** none.
 
 ## How to use this file
@@ -129,17 +129,17 @@ Done means:
 
 | ID | Task | Owner | Status | Depends | Notes |
 |---|---|---|---|---|---|
-| P2-01 | `lib/supabase.ts`: client with AsyncStorage persistence, foreground-only auto refresh (AppState). | Irfan | todo | Phase 0 | |
-| P2-02 | `api/client.ts` real mode: Bearer header from the session, refresh-and-retry once on 401, then sign out; error mapping. | Irfan | todo | P2-01 | |
+| P2-01 | `lib/supabase.ts`: client with AsyncStorage persistence, foreground-only auto refresh (AppState). | Irfan | todo | Phase 0 | See INTEGRATION.md §2 and #25. Also export `getAccessToken()` / `refreshSession()` for the transport, uploads and the tutor stream. |
+| P2-02 | `api/client.ts` real mode: Bearer header from the session, refresh-and-retry once on 401, then sign out; error mapping. | Irfan | todo | P2-01 | INTEGRATION.md decisions 1, 2 and 5, bug #1: `request()` gets the bearer, one capped refresh-and-retry, the JSON 429 (message + `lockedForSeconds`), a long first-request timeout + `/health` wake-up; fix or drop the openapi-fetch retry middleware. Add `scripts/contract-smoke.mjs` (demo student, B-04). |
 | P2-03 | Auth store real mode: restore session at start, load `/users/me`, sign out clears the query cache. | Irfan | todo | P2-02 | |
 | P2-04 | Wire login (supabase-js) and signup (`POST /auth/signup` with `X-Aion-Client: mobile`). After signup, S04 shows the link-based state: "Open the link in your email, then log in". In real mode, hide the "Forgot password?" link on S02 until P2-16 is done. | Maria | todo | P2-03, B-01 | |
 | P2-16 | Wire code-based email verification (S04, `verifyOtp` type `email`) and password reset (S05 → S06: `resetPasswordForEmail` → `verifyOtp` type `recovery` → `updateUser`); show the "Forgot password?" link again. | Maria | todo | P2-04, B-02 | Open until the Supabase email templates include the 6-digit code (B-02). |
 | P2-05 | Media upload helper: pick an image or document → `FormData` → `POST /media/upload`, with progress and an error state. | Maria | todo | P2-02 | Used by S16, S21, S26. Convert HEIC to JPEG and resize first (API §16). |
-| P2-06 | Wire S07–S11 (home, catalog, my learning, course detail, curriculum). | Irfan | todo | P2-03 | Normalize in each `api.ts`: the real curriculum uses `activities` + `isLocked` (app: `lessons` + `locked`); `accessConfig` is `{ accessMode: 'open' \| 'invite' \| 'closed', pricingType, price }` (app: `mode`); Home still reads the older `LearningSummary` shape, while API §12 returns `LearningSummaryData` (S25 already uses it). Prices are whole units. |
-| P2-07 | Enrollment: free and invite-code enroll; paid courses → "Get on web" (D-04); refresh enrollments when the app returns to the foreground. | Irfan | todo | P2-06 | |
-| P2-08 | Wire S12–S14: lesson content, mark complete, heartbeat and resume position (API.md §4), notes, AI summary. | Irfan | todo | P2-06 | |
-| P2-09 | Wire S15–S16: quiz submit and results; assignment submit with file. | Irfan | todo | P2-08, P2-05 | |
-| P2-10 | Wire S17: AI tutor streaming via `expo/fetch` plus `lib/sse.ts` (with unit tests), saving history. | Irfan | todo | P2-03 | The stream doesn't save anything; the app saves both messages (API §13). |
+| P2-06 | Wire S07–S11 (home, catalog, my learning, course detail, curriculum). | Irfan | todo | P2-03 | Normalize in each `api.ts`: the real curriculum uses `activities` + `isLocked` (app: `lessons` + `locked`); `accessConfig` is `{ accessMode: 'open' \ INTEGRATION.md #4–#8: move catalog/courses/home/learning to `request()`; map curriculum `activities`/`isLocked`; fix `Enrollment` and Home's summary (`LearningSummaryData`, continue-learning computed on the device); fixtures follow the wire shapes. | 'invite' \| 'closed', pricingType, price }` (app: `mode`); Home still reads the older `LearningSummary` shape, while API §12 returns `LearningSummaryData` (S25 already uses it). Prices are whole units. |
+| P2-07 | Enrollment: free and invite-code enroll; paid courses → "Get on web" (D-04); refresh enrollments when the app returns to the foreground. | Irfan | todo | P2-06 | INTEGRATION.md #6, #21: `accessConfig.accessMode` (`open` / `invite` / `closed`); check enrollment before offering Enroll; map 400 `COURSE_CLOSED` / `PAYMENT_REQUIRED`. |
+| P2-08 | Wire S12–S14: lesson content, mark complete, heartbeat and resume position (API.md §4), notes, AI summary. | Irfan | todo | P2-06 | INTEGRATION.md #10, #11, #14, #17: `||` URL fallbacks; notes need `courseId`; AI-off from `Me.aiConsent`; summary `temp-` ids and `AI_SUMMARY_ERROR`; always send heartbeat `durationSeconds`. |
+| P2-09 | Wire S15–S16: quiz submit and results; assignment submit with file. | Irfan | todo | P2-08, P2-05 | INTEGRATION.md #22: `MAX_ATTEMPTS_EXCEEDED` is 403; assignment settings are UI hints only. |
+| P2-10 | Wire S17: AI tutor streaming via `expo/fetch` plus `lib/sse.ts` (with unit tests), saving history. | Irfan | todo | P2-03 | The stream doesn't save anything; the app saves both messages (API §13). INTEGRATION.md #3, #14–#16: bearer + refresh on the stream; the literal backslash-n pair outside the JSON; close dangling fences; keep partial text on error; truncate history, notes and titles; AI-off from `Me.aiConsent`. |
 | P2-11 | Wire S18–S21: comments, forum feed, post, replies, upvote, solution, new post with image. | Maria | todo | P2-03, P2-05 | |
 | P2-12 | Wire S22–S24: support tickets. | Maria | todo | P2-03 | |
 | P2-13 | Wire S25–S27: profile, edit profile with avatar upload, change password, logout. | Maria | todo | P2-03, P2-05 | |
@@ -204,6 +204,14 @@ Mobile work that depends on these builds against mocks until they are `done`.
 | B-03 | Refresh `api/openapi.json` here after backend API changes, then run `npm run api:types`. | ongoing | — | |
 | B-04 | Deployed API and web app; demo student and demo instructor accounts for graders. | doing | P4-02 | 2026-10-13: API live at `https://aion-7ysp.onrender.com` (health OK, enrollment gating verified). Still to do: web app URL (`EXPO_PUBLIC_WEB_URL`) and demo accounts. |
 | B-05 | Endpoint gaps found during integration: add rows as B-05a, B-05b, … | — | — | |
+| B-05a | Set `TRUSTED_PROXY=true` on Render so rate limits are per client, not one shared bucket for everyone behind the proxy. | todo | P2-15 | High. INTEGRATION.md §5. |
+| B-05b | Exclude draft lessons from completion counts (learning summary, `/enrollments/progress`, certificate checks). | todo | P2-06, P2-14 | High: a course with a draft lesson can never reach 100 % or issue a certificate. |
+| B-05c | Lesson-comment upvotes: add an endpoint, or confirm there is none. | todo | P2-11 | Decision (Irfan + Maria). S18 hides upvotes until then. |
+| B-05d | Keep the API warm (paid instance or keep-alive ping). | todo | P2-15 | Cold starts take 30–60 s; the app also shows a "waking the server" state (P2-02). |
+| B-05e | Confirm `check_username_available` is granted to `anon` on the live DB. | todo | P2-04 | The app falls back to `409 USERNAME_TAKEN` if not. |
+| B-05f | Forum: upvoting a missing reply returns 500 (should be 404); every write inflates `viewsCount`. | todo | — | Low. |
+| B-05g | Tutor stream: stop appending a literal backslash-n pair outside the JSON after a closing code fence. | todo | — | Low. The app strips it either way (P2-10). |
+| B-05h | Optional: a real "AI off" error when `aiConsent` is false. | todo | — | Low. The app checks `Me.aiConsent` itself. |
 | B-06 | *Stretch:* device push-token registration plus notifications on ticket and forum replies. | todo | P3-S2 | |
 | B-07 | *Optional:* allow the Expo web dev origin in API CORS (only needed to test in a browser). | todo | — | Not needed for Android/iOS. |
 | B-08 | Lesson content requires enrollment; curriculum and lesson lists return outlines to non-enrolled viewers; 429 responses use the JSON envelope. | done | — | 2026-10-13. Documented in API §1, §3, §4. `api/openapi.json` refreshed. |

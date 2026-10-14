@@ -81,6 +81,7 @@ supersedes it.
 | D-12 | **The visual style follows the web app**: a neutral grey palette, near-black primary, 10px radius, Geist font, light and dark mode. Tokens are in [SPEC.md §6](SPEC.md#6-design-system). | Consistent brand. |
 | D-13 | **Markdown: `react-native-marked`**, through its `useMarkdown` hook, wrapped in `src/components/Markdown.tsx` on theme tokens. | Maintained, built on `marked`, renders with `react-native-svg` (already installed). The hook returns plain elements, so markdown can sit inside a ScrollView (the library's `<Markdown>` is a FlatList and can't be nested). Used by S12 readings, S16 briefs and S17 replies. |
 | D-14 | **QR codes: `react-native-qrcode-svg`** for the S28 certificate QR (encodes only the `certificateId`). | Pure JS on top of `react-native-svg` (already installed), so no native rebuild. Scanning comes later with `expo-camera` (P3-01). |
+| D-15 | **One transport for the real API: `request<T>()` in `src/api/client.ts`.** It adds the bearer token, refreshes and retries once on 401, keeps the JSON 429 details, and every feature `api.ts` uses it. Uploads (XHR) and the tutor stream (`expo/fetch`) take the token from the same auth helpers. Wire shapes are normalized to the app types once, in each feature `api.ts`. | Most payloads the app uses are `unknown` in `openapi.json`, so the typed `openapi-fetch` client adds little; one path means one place for auth, refresh and errors. See [INTEGRATION.md](INTEGRATION.md). |
 
 ## 7. Glossary
 

@@ -10,7 +10,7 @@ repository. Prioritize mobile-first patterns, performance and cross-platform com
 1. Read, in order: [docs/CONTEXT.md](docs/CONTEXT.md) → [docs/SPEC.md](docs/SPEC.md) →
    [docs/TRACKER.md](docs/TRACKER.md). Then read the sections of [docs/SCREENS.md](docs/SCREENS.md) and
    [docs/API.md](docs/API.md) that your task needs. For screen work, also open that screen's visual design
-   ([docs/DESIGN.md](docs/DESIGN.md)). Ownership is in [docs/TEAM.md](docs/TEAM.md).
+   ([docs/DESIGN.md](docs/DESIGN.md)). Ownership is in [docs/TEAM.md](docs/TEAM.md). For Phase 2 rows, read [docs/INTEGRATION.md](docs/INTEGRATION.md) first.
 2. Work out who you are working for (**Irfan** or **Maria**): check `git config user.name`, and ask if it's unclear.
 3. Follow the "How to use this file" protocol in TRACKER.md: pick the next task, mark it `doing`, do it, run
    `node scripts/verify.mjs check` until it passes, mark it `done`, write a log entry in `docs/log/<name>.md`,
