@@ -8,12 +8,20 @@
  *   - The lesson, its notes and the course title feed the tutor's `context`
  *     when the chat is opened from a lesson (shared cache keys with S12/S13).
  *
- * Real streaming is a first version; P2-10 moves the parsing into
- * `lib/sse.ts` with unit tests.
+ * The stream goes through `expo/fetch` with the same bearer token and single
+ * 401 refresh as `request()`; `lib/sse.ts` parses it. Every body is clamped to
+ * the server's caps first (`./limits.ts`).
  */
 import { fetch as expoFetch } from 'expo/fetch';
 
-import { request } from '@/api/client';
+import {
+  apiBaseUrl,
+  getAuthToken,
+  refreshAuthToken,
+  reportSessionExpired,
+  request,
+  unwrap,
+} from '@/api/client';
 import { getCurriculumFromApi } from '@/api/curriculum';
 import type {
   AiHistory,
@@ -26,6 +34,7 @@ import type {
   UUID,
 } from '@/api/types';
 import { env } from '@/lib/env';
+import { createSseReader } from '@/lib/sse';
 import { mockDelay } from '@/mocks/delay';
 import {
   addMockHistoryMessage,
@@ -35,6 +44,8 @@ import {
 } from '@/mocks/fixtures/ai';
 import { getCurriculum, getLesson } from '@/mocks/fixtures/curriculum';
 import { getMockNotes } from '@/mocks/fixtures/notes';
+
+import { limitTutorBody, TUTOR_LIMITS } from './limits';
 
 function codedError(code: string, message: string): Error {
   const err = new Error(message);
@@ -48,8 +59,9 @@ export async function fetchHistory(): Promise<AiHistory> {
 }
 
 export async function saveHistoryMessage(body: AiHistoryMessageBody): Promise<AiMessage> {
-  if (env.useMocks) return mockDelay(addMockHistoryMessage(body.role, body.content), 120);
-  return request<AiMessage>('/ai/history/message', { method: 'POST', body });
+  const content = body.content.slice(0, TUTOR_LIMITS.savedMessage);
+  if (env.useMocks) return mockDelay(addMockHistoryMessage(body.role, content), 120);
+  return request<AiMessage>('/ai/history/message', { method: 'POST', body: { ...body, content } });
 }
 
 export async function clearHistory(): Promise<{ cleared: true }> {
@@ -65,12 +77,15 @@ export async function fetchContextLesson(lessonId: UUID): Promise<Lesson> {
     if (!lesson) throw codedError('LESSON_NOT_FOUND', 'Lesson not found');
     return mockDelay({ ...lesson });
   }
-  return request<Lesson>(`/lessons/${lessonId}`);
+  // Same shape as S12's `fetchLesson` (they share the cache key).
+  const lesson = await request<Omit<Lesson, 'completed'>>(`/lessons/${lessonId}`);
+  return { ...lesson, metadata: lesson.metadata ?? null, completed: false };
 }
 
-export async function fetchContextNotes(lessonId: UUID): Promise<LessonNote[]> {
+/** `courseId` is required by `GET /notes/lesson/{id}` (INTEGRATION.md #11). */
+export async function fetchContextNotes(lessonId: UUID, courseId: UUID): Promise<LessonNote[]> {
   if (env.useMocks) return mockDelay(getMockNotes(lessonId));
-  return request<LessonNote[]>(`/notes/lesson/${lessonId}`);
+  return request<LessonNote[]>(`/notes/lesson/${lessonId}`, { query: { courseId } });
 }
 
 export async function fetchContextCurriculum(courseId: UUID): Promise<Curriculum> {
@@ -101,22 +116,6 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
   });
 }
 
-/** Pulls the text delta out of one `data: {...}` line (API §13 rule 3). */
-function deltaFromLine(line: string): string {
-  if (!line.startsWith('data: ')) return '';
-  const payload = line.slice(6).trim();
-  if (!payload || payload === '[DONE]') return '';
-  try {
-    const json = JSON.parse(payload) as {
-      choices?: { delta?: { content?: string } }[];
-      candidates?: { content?: { parts?: { text?: string }[] } }[];
-    };
-    return json.choices?.[0]?.delta?.content ?? json.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-  } catch {
-    return '';
-  }
-}
-
 /**
  * Streams a tutor reply, calling `onDelta` with each new piece of text, and
  * resolves with the whole reply at EOF. Rejects with an `AbortError` when
@@ -141,46 +140,49 @@ export async function streamTutorReply(
     return full;
   }
 
-  const res = await expoFetch(`${env.apiUrl.replace(/\/$/, '')}/api/v1/ai/tutor-stream`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-    body: JSON.stringify(body),
-    signal,
-  });
+  const json = JSON.stringify(limitTutorBody(body));
+  const open = (token: string | null) =>
+    expoFetch(`${apiBaseUrl}/api/v1/ai/tutor-stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: json,
+      signal,
+    });
+
+  const token = getAuthToken();
+  let res = await open(token);
+  if (res.status === 401 && token) {
+    // Same rule as request(): one refresh, sign out only if it's rejected.
+    const fresh = await refreshAuthToken().catch(() => undefined);
+    if (fresh === null) reportSessionExpired();
+    else if (fresh) res = await open(fresh);
+  }
   if (!res.ok || !res.body) {
-    if (res.status === 429) throw codedError('RATE_LIMITED', 'Too many requests');
-    let code = 'UNKNOWN';
-    try {
-      code = ((await res.json()) as { error?: { code?: string } }).error?.code ?? code;
-    } catch {
-      // Not JSON.
-    }
-    throw codedError(code, 'The tutor couldn’t answer');
+    // JSON envelope (400 validation, 401, 429 with lockout details).
+    await unwrap(res as unknown as Response);
+    throw codedError('UNKNOWN', 'The tutor couldn’t answer');
   }
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
-  let buffer = '';
-  let full = '';
-  for (;;) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() ?? '';
-    for (const line of lines) {
-      const delta = deltaFromLine(line.trimEnd());
-      if (delta) {
-        full += delta;
-        onDelta(delta);
-      }
+  const sse = createSseReader(onDelta);
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      sse.push(decoder.decode(value, { stream: true }));
     }
+  } catch (e) {
+    if ((e as Error).name === 'AbortError' || signal.aborted) throw abortError();
+    // An upstream error mid-stream breaks the read: keep what arrived (API §13 rule 6).
+    const partial = sse.text();
+    if (partial.trim()) return partial;
+    throw e;
   }
-  const last = deltaFromLine(buffer.trimEnd());
-  if (last) {
-    full += last;
-    onDelta(last);
-  }
-  // The server sometimes appends a literal "\n\n" after a closing code fence.
-  return full.replace(/\\n\\n$/, '');
+  sse.push(decoder.decode());
+  return sse.end();
 }

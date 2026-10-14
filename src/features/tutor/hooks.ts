@@ -24,9 +24,7 @@ import {
   streamTutorReply,
 } from './api';
 
-const HISTORY_FOR_CONTEXT = 6; // the server uses the last 6
-const MAX_LESSON_CONTENT = 20_000;
-const MAX_NOTES = 50;
+const HISTORY_FOR_CONTEXT = 6; // the server uses the last 6 (caps: ./limits.ts)
 
 export function useTutorHistory() {
   return useQuery({ queryKey: qk.ai.history(), queryFn: fetchHistory });
@@ -52,8 +50,8 @@ export function useTutorContext(courseId: UUID | null, lessonId: UUID | null) {
   });
   const notes = useQuery({
     queryKey: qk.notes.lesson(lessonId ?? 'pending'),
-    queryFn: () => fetchContextNotes(lessonId as UUID),
-    enabled: !!lessonId,
+    queryFn: () => fetchContextNotes(lessonId as UUID, courseId as UUID),
+    enabled: !!lessonId && !!courseId,
   });
   const curriculum = useQuery({
     queryKey: qk.courses.curriculum(courseId ?? 'pending'),
@@ -110,13 +108,13 @@ export function useTutorChat(options: {
       return {
         courseId,
         lessonId,
-        message: message.slice(0, 5000),
+        message,
         context: lessonId
           ? {
               courseTitle: context.courseTitle ?? undefined,
               lessonTitle: context.lessonTitle ?? undefined,
-              lessonContent: context.lessonContent?.slice(0, MAX_LESSON_CONTENT) ?? null,
-              userNotes: context.notes.slice(0, MAX_NOTES).map((n) => n.content),
+              lessonContent: context.lessonContent ?? null,
+              userNotes: context.notes.map((n) => n.content),
               chatHistory: history,
             }
           : { chatHistory: history },

@@ -48,6 +48,15 @@ export function useAuthSession(): { isSignedIn: boolean; isLoading: boolean } {
   return { isSignedIn: status === 'signedIn', isLoading: status === 'loading' };
 }
 
+/**
+ * The student turned AI off (`Me.aiConsent === false`). The API has no "AI off"
+ * error, so S14 and S17 check it themselves (INTEGRATION.md #14). Unknown
+ * (profile still loading, or mock mode) counts as on.
+ */
+export function useAiOff(): boolean {
+  return useAuthStore((s) => s.me?.aiConsent === false);
+}
+
 export function getAccessToken(): string | null {
   return useAuthStore.getState().session?.access_token ?? null;
 }

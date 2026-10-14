@@ -11,6 +11,8 @@
  * - Composer: multiline input and Send, which becomes Stop while streaming.
  * - A failed reply shows inline with Retry. The keyboard never covers the
  *   composer.
+ * - With AI turned off (`Me.aiConsent === false`) the chat is replaced by a
+ *   message linking to Edit profile; the API itself never refuses.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -41,11 +43,13 @@ import {
 
 import type { AiMessage } from '@/api/types';
 import { Markdown } from '@/components/Markdown';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { IconButton } from '@/components/ui/IconButton';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
 import { showToast } from '@/components/ui/Toast';
+import { useAiOff } from '@/lib/auth-store';
 import { friendlyError } from '@/lib/errors';
 import { formatTime } from '@/lib/format';
 import { useTheme, type Theme } from '@/theme';
@@ -74,6 +78,7 @@ export function TutorScreen() {
   const context = useTutorContext(courseId, lessonId);
   const chat = useTutorChat({ courseId, lessonId, context });
   const clear = useClearHistory();
+  const aiOff = useAiOff();
   const [draft, setDraft] = useState('');
   const listRef = useRef<FlatList<Row>>(null);
 
@@ -83,9 +88,11 @@ export function TutorScreen() {
     const list: Row[] = chat.messages
       .filter((m) => m.role !== 'system')
       .map((message) => ({ kind: 'message', message }));
-    if (chat.status === 'streaming' && chat.streaming) list.push({ kind: 'streaming', text: chat.streaming });
+    if (chat.status === 'streaming' && chat.streaming)
+      list.push({ kind: 'streaming', text: chat.streaming });
     else if (busy) list.push({ kind: 'thinking' });
-    if (chat.status === 'error' && chat.failure) list.push({ kind: 'failed', failure: chat.failure });
+    if (chat.status === 'error' && chat.failure)
+      list.push({ kind: 'failed', failure: chat.failure });
     return list;
   }, [chat.messages, chat.status, chat.streaming, chat.failure, busy]);
 
@@ -180,7 +187,17 @@ export function TutorScreen() {
         />
       </View>
 
-      {chat.historyQ.isError && !chat.historyQ.data ? (
+      {aiOff ? (
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <EmptyState
+            icon={<Sparkles size={28} color={theme.colors.mutedForeground} />}
+            title="AI features are turned off"
+            description="You can turn them back on in your profile settings."
+            actionLabel="Edit profile"
+            onAction={() => router.push('/(app)/profile/edit' as Href)}
+          />
+        </View>
+      ) : chat.historyQ.isError && !chat.historyQ.data ? (
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <ErrorState
             title="Couldn’t load your chat"
@@ -227,7 +244,9 @@ export function TutorScreen() {
           <Text tone="muted" style={{ textAlign: 'center' }}>
             Your tutor knows your courses and can explain, quiz or summarize.
           </Text>
-          <View style={{ gap: theme.spacing.two, alignSelf: 'stretch', marginTop: theme.spacing.three }}>
+          <View
+            style={{ gap: theme.spacing.two, alignSelf: 'stretch', marginTop: theme.spacing.three }}
+          >
             {SUGGESTIONS.map(({ label, icon: Icon }) => (
               <Pressable
                 key={label}
@@ -271,7 +290,7 @@ export function TutorScreen() {
         />
       )}
 
-      {!empty && !busy && rows.length > 0 ? (
+      {!aiOff && !empty && !busy && rows.length > 0 ? (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -308,65 +327,78 @@ export function TutorScreen() {
         </ScrollView>
       ) : null}
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-          gap: theme.spacing.two,
-          marginHorizontal: theme.spacing.four,
-          marginBottom: Math.max(insets.bottom, theme.spacing.three),
-          paddingLeft: theme.spacing.four,
-          paddingRight: theme.spacing.one,
-          paddingVertical: theme.spacing.one,
-          borderRadius: 26,
-          borderWidth: 1,
-          borderColor: theme.colors.border,
-          backgroundColor: theme.colors.muted,
-        }}
-      >
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          placeholder={context.lessonTitle ? 'Ask anything about this lesson…' : 'Ask Aion anything…'}
-          placeholderTextColor={theme.colors.mutedForeground}
-          multiline
-          maxLength={5000}
-          accessibilityLabel="Message"
+      {aiOff ? null : (
+        <View
           style={{
-            flex: 1,
-            minHeight: 44,
-            maxHeight: 140,
-            paddingVertical: theme.spacing.three,
-            color: theme.colors.foreground,
-            fontFamily: theme.fonts.regular,
-            fontSize: theme.typography.body.fontSize,
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            gap: theme.spacing.two,
+            marginHorizontal: theme.spacing.four,
+            marginBottom: Math.max(insets.bottom, theme.spacing.three),
+            paddingLeft: theme.spacing.four,
+            paddingRight: theme.spacing.one,
+            paddingVertical: theme.spacing.one,
+            borderRadius: 26,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.muted,
           }}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={chat.status === 'streaming' ? 'Stop' : 'Send'}
-          disabled={chat.status === 'sending' || (chat.status !== 'streaming' && !draft.trim())}
-          onPress={() => (chat.status === 'streaming' ? chat.stop() : onSend(draft))}
-          style={({ pressed }) => ({
-            width: 44,
-            height: 44,
-            borderRadius: 22,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor:
-              chat.status === 'streaming' || draft.trim() ? theme.colors.primary : theme.colors.border,
-            opacity: pressed ? 0.8 : 1,
-          })}
         >
-          {chat.status === 'sending' ? (
-            <ActivityIndicator color={theme.colors.primaryForeground} />
-          ) : chat.status === 'streaming' ? (
-            <Square size={16} color={theme.colors.primaryForeground} fill={theme.colors.primaryForeground} />
-          ) : (
-            <ArrowUp size={20} color={draft.trim() ? theme.colors.primaryForeground : theme.colors.mutedForeground} />
-          )}
-        </Pressable>
-      </View>
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            placeholder={
+              context.lessonTitle ? 'Ask anything about this lesson…' : 'Ask Aion anything…'
+            }
+            placeholderTextColor={theme.colors.mutedForeground}
+            multiline
+            maxLength={5000}
+            accessibilityLabel="Message"
+            style={{
+              flex: 1,
+              minHeight: 44,
+              maxHeight: 140,
+              paddingVertical: theme.spacing.three,
+              color: theme.colors.foreground,
+              fontFamily: theme.fonts.regular,
+              fontSize: theme.typography.body.fontSize,
+            }}
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={chat.status === 'streaming' ? 'Stop' : 'Send'}
+            disabled={chat.status === 'sending' || (chat.status !== 'streaming' && !draft.trim())}
+            onPress={() => (chat.status === 'streaming' ? chat.stop() : onSend(draft))}
+            style={({ pressed }) => ({
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor:
+                chat.status === 'streaming' || draft.trim()
+                  ? theme.colors.primary
+                  : theme.colors.border,
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            {chat.status === 'sending' ? (
+              <ActivityIndicator color={theme.colors.primaryForeground} />
+            ) : chat.status === 'streaming' ? (
+              <Square
+                size={16}
+                color={theme.colors.primaryForeground}
+                fill={theme.colors.primaryForeground}
+              />
+            ) : (
+              <ArrowUp
+                size={20}
+                color={draft.trim() ? theme.colors.primaryForeground : theme.colors.mutedForeground}
+              />
+            )}
+          </Pressable>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -409,7 +441,9 @@ function ChatRow({
   }
 
   if (row.kind === 'failed') {
-    const aiOff = ['AI_DISABLED', 'AI_CONSENT_REQUIRED', 'FORBIDDEN'].includes(row.failure.code ?? '');
+    const aiOff = ['AI_DISABLED', 'AI_CONSENT_REQUIRED', 'FORBIDDEN'].includes(
+      row.failure.code ?? '',
+    );
     return (
       <AssistantShell theme={theme}>
         <View style={{ gap: theme.spacing.two }}>

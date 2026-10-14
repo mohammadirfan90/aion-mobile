@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-10
+- Did: `lib/sse.ts` follows API §13's parsing rules: buffered lines, `data:` only, `[DONE]` ignored, EOF ends the message, the literal backslash-n pair stripped before `JSON.parse`, dangling code fences closed (#15). The stream uses `expo/fetch` with the bearer token and the same single 401 refresh as `request()` (#3). A mid-stream error keeps the partial text; Stop still aborts. `features/tutor/limits.ts` clamps the message, titles, lesson content, notes and history to the server caps, and saved messages to 20,000 (#16). Context notes send `courseId` (#11). `useAiOff()` moved to the auth store; S17 shows the AI-off state and hides the composer (#14).
+- Quality gates: tsc, lint, 83 tests. Prettier reformatted TutorScreen.tsx (line length only).
+- Next: P2-15 with Maria once her rows land.
+- Blockers: none.
+
 ## 2026-10-15 — P2-09
 - Did: quiz and assignment were already on `request()` from Phase 1. Added: `MAX_ATTEMPTS_EXCEEDED` (403) reloads the quiz so "attempts left" catches up (mapped by code, #22); `ALREADY_GRADED` (409) reloads the submission; the assignment's `GET /lessons/{id}` is normalized like S12's (shared cache key). `assignmentSettings` stay UI hints. The attachment upload goes through `lib/upload.ts`, which P2-05 (Maria) wires to the token.
 - Quality gates: tsc, lint, 75 tests.

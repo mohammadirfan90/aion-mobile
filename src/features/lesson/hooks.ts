@@ -11,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { qk } from '@/api/query-keys';
 import type { Comment, CreateNoteBody, LessonNote, LessonProgressRow, UUID } from '@/api/types';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAiOff, useAuthStore } from '@/lib/auth-store';
 import { env } from '@/lib/env';
 import { currentUser as fallbackUser } from '@/mocks/fixtures/users';
 
@@ -266,14 +266,7 @@ export function useDeleteNote(lessonId: UUID | null | undefined) {
 
 // ── AI summary (S14) ─────────────────────────────────────────────────────────
 
-/**
- * The student turned AI off (`Me.aiConsent === false`). The API has no "AI off"
- * error, so the app checks it itself (INTEGRATION.md #14). Unknown (still
- * loading, or mock mode) counts as on.
- */
-export function useAiOff(): boolean {
-  return useAuthStore((s) => s.me?.aiConsent === false);
-}
+export { useAiOff };
 
 export function useLessonSummary(
   lessonId: UUID | null | undefined,
