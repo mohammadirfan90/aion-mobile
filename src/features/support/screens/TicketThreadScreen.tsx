@@ -9,7 +9,8 @@
  *   the left with their avatar and name.
  * - A reply composer above the keyboard; a "This ticket is closed" bar
  *   instead when the status is `closed`. Replies show at once and the list
- *   scrolls to them.
+ *   scrolls to them. A resolved ticket says it stays resolved: a student
+ *   reply doesn't reopen it (INTEGRATION.md #23).
  *
  * Skipped from the design: the attachment button (tickets have no
  * attachments in the API) and read receipts (not in the API).
@@ -215,6 +216,20 @@ export function TicketThreadScreen() {
           }
         />
       )}
+
+      {ticket?.status === 'resolved' ? (
+        <Text
+          variant="caption"
+          tone="muted"
+          style={{
+            textAlign: 'center',
+            paddingHorizontal: theme.spacing.four,
+            paddingTop: theme.spacing.two,
+          }}
+        >
+          This ticket is resolved. You can still reply; it stays resolved.
+        </Text>
+      ) : null}
 
       {ticket && closed ? (
         <View

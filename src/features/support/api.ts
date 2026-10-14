@@ -105,7 +105,7 @@ export async function updateTicketStatus(
 export async function fetchMyCourses(): Promise<MyLearningRow[]> {
   if (env.useMocks) return mockDelay(getMyLearning());
   const summary = await request<LearningSummaryData>('/users/me/learning-summary');
-  return summary.courses;
+  return [...summary.courses].sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export async function fetchLesson(lessonId: UUID): Promise<Lesson> {
@@ -114,5 +114,7 @@ export async function fetchLesson(lessonId: UUID): Promise<Lesson> {
     if (!lesson) throw codedError('LESSON_NOT_FOUND', 'Lesson not found');
     return mockDelay({ ...lesson });
   }
-  return request<Lesson>(`/lessons/${lessonId}`);
+  // Same shape as S12's `fetchLesson` (they share the cache key).
+  const lesson = await request<Omit<Lesson, 'completed'>>(`/lessons/${lessonId}`);
+  return { ...lesson, metadata: lesson.metadata ?? null, completed: false };
 }

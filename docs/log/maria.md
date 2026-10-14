@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-12
+- Did: support was already on `request()` from Phase 1. A resolved ticket now says it stays resolved when the student replies, and makes no reopen promise (#23). "Mark as resolved" still only shows for open / in-progress tickets (students may set only `resolved` / `closed`). S24's course picker is sorted by title (the summary rows are unordered); the linked lesson is normalized like S12's.
+- Quality gates: tsc, lint.
+- Next: P2-13 (profile).
+- Blockers: none.
+
 ## 2026-10-15 — P2-11
 - Did: lesson comments moved from the raw openapi client to `request()`: list, post (the row comes back without `author`, so the hook fills it from the signed-in user) and delete. Errors show friendly copy instead of "[object Object]" (#12). There is no comment upvote endpoint, so the upvote control is mock-only (`COMMENT_UPVOTES_ENABLED`, #13). `threadComments()` puts replies, and replies to replies, under their top-level comment, and shows a reply whose parent was deleted as top-level (+2 tests). The comments hook takes the course from the lesson when the route has none (it used to fall back to a fixture course id). Forum: an admin (the teacher) can mark a solution as well as the post owner (#24); the linked lesson is normalized like S12's.
 - Quality gates: tsc, lint, 89 tests.
