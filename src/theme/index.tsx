@@ -15,9 +15,13 @@ import { createContext, useContext, useEffect, useMemo, useSyncExternalStore, ty
 import { useColorScheme } from 'react-native';
 import {
   Geist_400Regular,
+  Geist_400Regular_Italic,
   Geist_500Medium,
+  Geist_500Medium_Italic,
   Geist_600SemiBold,
+  Geist_600SemiBold_Italic,
   Geist_700Bold,
+  Geist_700Bold_Italic,
   useFonts,
 } from '@expo-google-fonts/geist';
 import * as SplashScreen from 'expo-splash-screen';
@@ -128,11 +132,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme();
   const override = useSettings((s) => s.themeOverride);
   const settingsHydrated = useSettingsHydrated();
+  // Also embedded at build time by the expo-font plugin (app.json), so on
+  // Android this resolves at once; the runtime load covers Expo Go / web.
   const [fontsLoaded, fontError] = useFonts({
     Geist_400Regular,
+    Geist_400Regular_Italic,
     Geist_500Medium,
+    Geist_500Medium_Italic,
     Geist_600SemiBold,
+    Geist_600SemiBold_Italic,
     Geist_700Bold,
+    Geist_700Bold_Italic,
   });
 
   const mode = resolveMode(override, systemScheme);

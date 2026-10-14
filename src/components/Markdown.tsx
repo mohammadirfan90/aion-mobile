@@ -31,7 +31,7 @@ export function Markdown({ value, compact = false, color, style }: MarkdownProps
       text: { color: text, fontFamily: theme.fonts.regular, ...size, fontWeight: undefined },
       paragraph: { paddingVertical: theme.spacing.one },
       strong: { fontFamily: theme.fonts.semibold, fontWeight: undefined },
-      em: { fontStyle: 'italic' },
+      em: { fontFamily: `${theme.fonts.regular}_Italic`, fontStyle: 'normal' },
       link: { color: text, textDecorationLine: 'underline' },
       h1: { color: text, fontFamily: theme.fonts.bold, ...theme.typography.title, fontWeight: undefined },
       h2: { color: text, fontFamily: theme.fonts.semibold, ...theme.typography.heading, fontWeight: undefined },

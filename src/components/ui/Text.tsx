@@ -1,5 +1,4 @@
-import { type StyleProp, type TextProps, type TextStyle } from 'react-native';
-import { Text as RNText } from 'react-native';
+import { StyleSheet, Text as RNText, type StyleProp, type TextProps, type TextStyle } from 'react-native';
 
 import { useTheme, type TypographyVariant } from '@/theme';
 
@@ -32,7 +31,7 @@ export function Text({
             ? theme.colors.success
             : theme.colors.foreground;
 
-  const fontFamily =
+  const family =
     weight === 'bold' || (!weight && t.fontWeight === '700')
       ? theme.fonts.bold
       : weight === 'semibold' || (!weight && t.fontWeight === '600')
@@ -40,6 +39,10 @@ export function Text({
         : weight === 'medium' || (!weight && t.fontWeight === '500')
           ? theme.fonts.medium
           : theme.fonts.regular;
+  // Geist ships real italic faces; a synthetic slant overflows the measured
+  // width on Android and clips the last glyph.
+  const italic = StyleSheet.flatten(style)?.fontStyle === 'italic';
+  const fontFamily = italic ? `${family}_Italic` : family;
 
   return (
     <RNText
@@ -49,10 +52,12 @@ export function Text({
           color,
           fontSize: t.fontSize,
           lineHeight: t.lineHeight,
-          fontWeight: t.fontWeight,
+          // No fontWeight: the Geist family name already encodes the weight,
+          // and Android measures a family + weight pair narrower than it draws.
           fontFamily,
         },
         style,
+        italic ? { fontStyle: 'normal' } : null,
       ]}
     >
       {children}

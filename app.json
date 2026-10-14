@@ -34,6 +34,21 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/geist/400Regular/Geist_400Regular.ttf",
+            "node_modules/@expo-google-fonts/geist/400Regular_Italic/Geist_400Regular_Italic.ttf",
+            "node_modules/@expo-google-fonts/geist/500Medium/Geist_500Medium.ttf",
+            "node_modules/@expo-google-fonts/geist/500Medium_Italic/Geist_500Medium_Italic.ttf",
+            "node_modules/@expo-google-fonts/geist/600SemiBold/Geist_600SemiBold.ttf",
+            "node_modules/@expo-google-fonts/geist/600SemiBold_Italic/Geist_600SemiBold_Italic.ttf",
+            "node_modules/@expo-google-fonts/geist/700Bold/Geist_700Bold.ttf",
+            "node_modules/@expo-google-fonts/geist/700Bold_Italic/Geist_700Bold_Italic.ttf"
+          ]
+        }
       ]
     ],
     "experiments": {

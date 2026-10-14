@@ -232,7 +232,7 @@ export function LessonCommentsSheet() {
                     variant="caption"
                     style={{
                       color: item.upvoted ? theme.colors.primary : theme.colors.mutedForeground,
-                      fontWeight: item.upvoted ? '600' : '400',
+                      fontFamily: item.upvoted ? theme.fonts.semibold : theme.fonts.regular,
                     }}
                   >
                     {upvotes}
