@@ -24,16 +24,22 @@ export function isFreeCourse(course: Pick<Course, 'pricingConfig' | 'accessConfi
   return true;
 }
 
+function money(amount: number, currency: string): string {
+  const code = currency.toUpperCase();
+  return code === 'USD' ? `$${amount}` : `${amount} ${code}`;
+}
+
 /**
- * A short, single-line price string for course cards. `Free` for free
- * courses, otherwise `$NN` (whole dollars) since the catalog is USD-only.
+ * A short, single-line price string for course cards: `Free`, or the price in
+ * whole units (API §3: `pricingConfig.price` is not in cents), e.g. `$49` or
+ * `49 EUR`. The `accessConfig` price is always USD.
  */
 export function formatCoursePrice(course: Pick<Course, 'pricingConfig' | 'accessConfig'>): string {
   if (isFreeCourse(course)) return 'Free';
   const p = course.pricingConfig;
-  if (p && p.type !== 'free' && p.price > 0) return `$${(p.price / 100).toFixed(0)}`;
+  if (p && p.type !== 'free' && p.price > 0) return money(p.price, p.currency || 'USD');
   const a = course.accessConfig;
-  if (a?.price && a.price > 0) return `$${a.price}`;
+  if (a?.price && a.price > 0) return money(a.price, 'USD');
   return 'Free';
 }
 
