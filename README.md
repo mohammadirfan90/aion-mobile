@@ -1,32 +1,77 @@
 # Aion — Mobile App
 
-The student app for the **Aion** learning platform (LMS). Browse courses, enroll,
-take lessons, track progress, keep notes, ask the AI tutor, discuss in the
-forum, and earn certificates — all from iOS, Android, and the web.
+The student app for the **Aion** learning platform. Students browse courses, enroll, learn lesson by lesson, take
+quizzes and assignments, keep notes, ask an AI tutor, talk in the community, get support and earn verifiable
+certificates. Built with Expo and React Native for Android and iOS by Irfan and Maria for a university Mobile App
+Development course.
 
-> **Status: Phase 0 — Cleanup & scaffold.** The app is being built by Irfan and
-> Maria for a university Mobile App Development course. The current phase only
-> removes the starter template, sets the project identity, and wires up the
-> build tooling. Real screens come in Phase 1.
->
-> See [`docs/TRACKER.md`](docs/TRACKER.md) for the full plan, status of every
-> task, and the phase we're in.
+<p>
+  <img src="docs/screenshots/home.jpg" width="150" alt="Home">
+  <img src="docs/screenshots/curriculum.jpg" width="150" alt="Curriculum">
+  <img src="docs/screenshots/lesson.jpg" width="150" alt="Interactive lesson">
+  <img src="docs/screenshots/community.jpg" width="150" alt="Community">
+  <img src="docs/screenshots/certificate.jpg" width="150" alt="Certificate">
+  <img src="docs/screenshots/tutor-dark.jpg" width="150" alt="AI tutor in dark mode">
+</p>
+
+---
+
+## Features
+
+- **Account:** sign up, log in, email verification and password reset with 6-digit codes.
+- **Discover:** home dashboard with "continue learning", course catalog with search and filters, course detail
+  with the full curriculum, free and invite-code enrollment (paid courses open on the web).
+- **Learn:** a lesson player for every lesson type (video, YouTube/Vimeo, reading, interactive page, document,
+  embed, resource, live session), mark complete, previous/next across chapters, and video resume.
+- **Study tools:** timestamped notes, AI summary with key concepts and flip flashcards, quizzes with a review of
+  every answer, assignments with file attachments.
+- **Ask Aion:** an AI tutor chat that streams its answers and knows which lesson you're on.
+- **Community:** forum with search, categories, upvotes, replies and accepted solutions; comments on lessons.
+- **Support:** tickets with a chat-style thread.
+- **Profile:** learning stats, edit profile with avatar, settings (light / dark / system theme, change password).
+- **Certificates:** a certificate card with a QR code, and public verification that works without an account.
+
+---
+
+## How it works
+
+```mermaid
+flowchart LR
+  S["Screen<br/>src/features/*/screens"] --> H["Hook<br/>features/*/hooks.ts"]
+  H --> A["Data<br/>features/*/api.ts"]
+  A -- "mock mode" --> M["Fixtures<br/>src/mocks"]
+  A -- "real mode" --> C["request()<br/>src/api/client.ts"]
+  C --> API["Aion REST API<br/>/api/v1"]
+  L["Login<br/>Supabase Auth"] -. "access token" .-> C
+```
+
+- **Screens never call the network.** Each screen reads data through its feature's hooks
+  ([TanStack Query](https://tanstack.com/query)), the hook calls the feature's `api.ts`, and `api.ts` answers from
+  fixtures (mock mode) or from the Aion API (real mode). Swapping the data source doesn't touch the screens.
+- **Auth:** the app signs in with Supabase and sends the access token on every API call. Sign-up goes through the
+  API, which creates the profile.
+- **Navigation:** [Expo Router](https://docs.expo.dev/router/introduction/) with route groups for signed-out
+  screens, the five tabs, and lesson sheets (notes, AI summary, comments).
+- **Design:** one set of theme tokens for light and dark mode, the Geist font, and a shared UI kit in
+  `src/components/ui`.
+
+The API is a separate, private service. This repo keeps its contract in [`api/openapi.json`](api/openapi.json)
+and our notes on every endpoint in [`docs/API.md`](docs/API.md).
 
 ---
 
 ## Stack
 
-- **Expo SDK 57** (managed workflow) + **React Native 0.86** + **React 19.2**
-- **TypeScript 6** (strict)
-- **Expo Router** (file-based navigation, typed routes)
-- **expo-image**, **expo-font**, **expo-splash-screen**, **expo-video**,
-  **expo-symbols**, **expo-glass-effect**
-- **react-native-reanimated**, **react-native-gesture-handler**,
-  **react-native-svg**, **react-native-safe-area-context**
-
-Phase 0 also installs (but doesn't use yet): **react-query**, **zustand**,
-**react-hook-form**, **zod**, **@hookform/resolvers**, **lucide-react-native**,
-**openapi-fetch**, **@supabase/supabase-js**, **@react-native-async-storage/async-storage**.
+| Area | Choice |
+| :--- | :--- |
+| Framework | Expo SDK 57, React Native 0.86, React 19, TypeScript (strict), React Compiler |
+| Navigation | Expo Router (typed routes) |
+| Data | TanStack Query, `openapi-fetch` + `openapi-typescript`, Zustand for session and settings |
+| Auth | `@supabase/supabase-js` with AsyncStorage sessions |
+| Forms | react-hook-form + zod |
+| Media | expo-video, react-native-webview, expo-image, expo-image-picker, expo-document-picker |
+| UI | Reanimated, lucide-react-native, react-native-svg, react-native-marked (markdown), react-native-qrcode-svg |
+| Quality | ESLint (`eslint-config-expo`), `tsc`, jest-expo, `scripts/verify.mjs` |
 
 ---
 
@@ -34,9 +79,8 @@ Phase 0 also installs (but doesn't use yet): **react-query**, **zustand**,
 
 ### Prerequisites
 
-- Node.js 18+ (LTS recommended)
-- npm 9+ (or `bun` / `yarn` — Expo supports either)
-- Expo Go on a physical device, or an Android Emulator / iOS Simulator
+- Node.js 20 or newer, and npm
+- Android Studio with an emulator (or an Android phone with USB debugging); Xcode for iOS on a Mac
 
 ### Setup
 
@@ -44,21 +88,33 @@ Phase 0 also installs (but doesn't use yet): **react-query**, **zustand**,
 git clone <repo-url>
 cd aion-mobile
 npm install
-cp .env.example .env          # fill in values; defaults work for mock mode
+cp .env.example .env
 ```
 
-`.env` is **never** committed. The five `EXPO_PUBLIC_*` keys are listed and
-documented in [`.env.example`](.env.example); they are validated at startup by
-[`src/lib/env.ts`](src/lib/env.ts).
+`.env` is never committed. It holds five public settings, checked at startup by
+[`src/lib/env.ts`](src/lib/env.ts):
 
-### Run the dev server
+| Variable | What it's for |
+| :--- | :--- |
+| `EXPO_PUBLIC_API_URL` | Base URL of the Aion API (without `/api/v1`) |
+| `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase public (anon) key |
+| `EXPO_PUBLIC_WEB_URL` | Aion web app, for "Get this course on the web" and certificate links |
+| `EXPO_PUBLIC_USE_MOCKS` | `true` runs the whole app on built-in sample data; `false` uses the real API |
+
+In mock mode any email and password logs you in, so the app works without a server or accounts.
+
+### Run it
+
+The app uses native modules (video, WebView, file pickers) and embeds its fonts, so run it as a development
+build:
 
 ```bash
-npm start              # interactive: press a, i, or w
-npm run android        # Android emulator / device
-npm run ios            # iOS simulator
-npm run web            # web preview
+npx expo run:android     # build, install and start on an emulator or device
+npx expo run:ios         # macOS only
 ```
+
+After the first build, `npm start` is enough until native dependencies or `app.json` change.
 
 ---
 
@@ -67,35 +123,36 @@ npm run web            # web preview
 | Command | What it does |
 | :--- | :--- |
 | `npm start` | Start the Expo dev server |
-| `npm run android` | Start Expo and open the Android target |
-| `npm run ios` | Start Expo and open the iOS target |
-| `npm run web` | Launch the web preview |
-| `npm run lint` | Run `expo lint` (ESLint with `eslint-config-expo`) |
-| `npm run typecheck` | Run `tsc --noEmit` |
-| `npm run check` | Run `lint` then `typecheck` (SPEC §9 quality gate) |
+| `npm run android` / `npm run ios` | Build and run a development build |
+| `npm run lint` | ESLint via `expo lint` |
+| `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
+| `npm test` | Unit tests (jest-expo) |
+| `npm run check` | Lint, then typecheck |
+| `npm run verify -- check` | The full quality gate: lint, types, tests, and project rules (no hard-coded colors, no network calls in screens, no secrets in the repo) |
+| `npm run status` | Progress per phase and the next tasks, read from `docs/TRACKER.md` |
 | `npm run api:types` | Regenerate `src/api/schema.d.ts` from `api/openapi.json` |
+| `npm run format` | Prettier |
 
 ---
 
 ## Project layout
 
 ```
-api/             OpenAPI 3.1 snapshot of the backend (typed by api:types)
-assets/          App icon, splash, adaptive icon (replaced in P4-01)
-docs/            CONTEXT, SPEC, SCREENS, API, TEAM, TRACKER + per-person logs
-scripts/         verify.mjs — phase / status / quality-gate checks
+api/                  OpenAPI snapshot of the backend
+assets/               App icon, splash and brand logos
+docs/                 Spec, screens, API notes, design images, tracker, work logs
+scripts/verify.mjs    Quality gate and project status
 src/
-  app/           Expo Router routes (one file per screen + _layout files)
-  components/    Shared React components
-  components/ui/ Shared UI kit (built in P0-09)
-  features/      One folder per area: hooks.ts, api.ts, schemas.ts, screens/
-  api/           openapi-fetch client, generated schema, hand-written types
-  lib/           env, supabase, auth-store, format, course, lesson, sse
-  mocks/         Fixtures + in-memory mutations (built in P0-10)
-  theme/         Design tokens + useTheme() (built in P0-08)
-app.json         Expo config (name, slug, scheme, bundle IDs, plugins)
-package.json     Deps and scripts
-tsconfig.json    TypeScript (extends expo/tsconfig.base)
+  app/                Routes only (Expo Router): one small file per screen, plus layouts
+  features/           One folder per area: screens/, components/, hooks.ts, api.ts, schemas.ts
+    auth  home  catalog  learning  courses  lesson  quiz  assignment  tutor
+    community  support  profile  certificate
+  components/ui/      Shared UI kit (Button, Card, TextField, Header, …)
+  components/         Markdown renderer, brand logo
+  api/                HTTP client, data types, query keys, generated schema
+  lib/                Helpers with unit tests: env, course pricing, lesson types, dates, uploads
+  mocks/              Sample data and in-memory mutations for mock mode
+  theme/              Color tokens, fonts, light/dark mode
 ```
 
 ---
@@ -104,28 +161,24 @@ tsconfig.json    TypeScript (extends expo/tsconfig.base)
 
 | Person | Owns |
 | :--- | :--- |
-| **Irfan** | Discover & Learn screens (S07–S17), backend dependencies (B-xx), API client + Supabase setup, EAS builds & release |
-| **Maria** | Auth, Community, Support, Account, Certificate screens (S01–S06, S18–S29), media upload helper, README & demo video |
+| **Irfan** | Home, Explore, My Learning, course detail and curriculum, the lesson player, notes, AI summary, quiz, assignment and AI tutor (S07–S17); API client, Supabase setup, builds and release |
+| **Maria** | Sign-up and login flows, lesson comments, community forum, support tickets, profile, settings, certificates and verification (S01–S06, S18–S29); media upload helper |
 
 ---
 
 ## Docs
 
-- [`docs/CONTEXT.md`](docs/CONTEXT.md) — what the project is, the decision log
-  (D-01 … D-12), constraints, glossary
-- [`docs/SPEC.md`](docs/SPEC.md) — technical spec: stack, folder layout, env,
-  data layer, auth, design tokens, UI kit, quality gates
-- [`docs/SCREENS.md`](docs/SCREENS.md) — all 29 screens with acceptance lists
-- [`docs/API.md`](docs/API.md) — REST endpoints the mobile app uses
-- [`docs/TEAM.md`](docs/TEAM.md) — ownership and screen split
-- [`docs/TRACKER.md`](docs/TRACKER.md) — current state, all task rows, how to
-  start/end a session
-- [`docs/log/irfan.md`](docs/log/irfan.md), [`docs/log/maria.md`](docs/log/maria.md) —
-  per-person work logs
-- [`api/openapi.json`](api/openapi.json) — backend OpenAPI 3.1 snapshot
+- [`docs/CONTEXT.md`](docs/CONTEXT.md): what the project is, constraints and the decision log
+- [`docs/SPEC.md`](docs/SPEC.md): technical spec (stack, folders, data layer, auth, design system, quality gates)
+- [`docs/SCREENS.md`](docs/SCREENS.md): all 29 screens with their acceptance lists
+- [`docs/DESIGN.md`](docs/DESIGN.md): the visual design of every screen
+- [`docs/API.md`](docs/API.md): every endpoint the app uses, as the backend actually behaves
+- [`docs/INTEGRATION.md`](docs/INTEGRATION.md): the plan for connecting the app to the real API
+- [`docs/TEAM.md`](docs/TEAM.md): who owns what
+- [`docs/TRACKER.md`](docs/TRACKER.md): every task and how to pick up work
 
 ---
 
 ## License
 
-[MIT](LICENSE) — Aion Mobile contributors, 2026.
+[MIT](LICENSE). Aion Mobile contributors, 2026.
