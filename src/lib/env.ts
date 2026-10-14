@@ -46,7 +46,8 @@ function read(): {
     (rawEnv.useMocks ?? 'true').toString().trim().toLowerCase() !== 'false';
 
   const values = {
-    apiUrl: rawEnv.apiUrl?.trim() || 'http://localhost:3000',
+    // The local API runs on 3001 (3000 is the web app).
+    apiUrl: rawEnv.apiUrl?.trim() || 'http://localhost:3001',
     supabaseUrl:
       rawEnv.supabaseUrl?.trim() || 'http://localhost:54321',
     supabaseAnonKey:
