@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-08
+- Did: `lib/lesson.ts` `firstUrl()` skips the editor's empty strings for poster, markdown link, document, embed and resource URLs (#10). `fetchNotes` sends the required `courseId` (#11). `useAiOff()` reads `Me.aiConsent`; S14 shows "AI features are turned off" and doesn't call the API when it's false (#14). `AI_SUMMARY_ERROR` has its own copy; `temp-` summaries render normally (#17). Heartbeats send the lesson's duration when the player has none yet. `GET /lessons/{id}` is normalized to the app's `Lesson`.
+- Quality gates: tsc, lint, 75 tests.
+- Next: P2-09 (quiz, assignment).
+- Blockers: none.
+
 ## 2026-10-15 — P2-07
 - Did: `AccessConfig` is the real `{ accessMode: 'open' | 'invite' | 'closed', pricingType?, price?, maxCapacity? }` (no invite code for students; mock codes live in the enrollment fixture). `enrollAction()` in `lib/course.ts` decides S10's bottom bar: enrollment first, then the API's own order (paid → web, closed, invite, free), with tests. Enroll errors use `friendlyError`; `COURSE_CLOSED` / `PAYMENT_REQUIRED` / `CAPACITY_REACHED` refetch the course; `ALREADY_ENROLLED` returns the existing row. `focusManager` follows `AppState`, so stale queries (enrollments included) refetch on return from the web checkout.
 - Quality gates: tsc, lint, 73 tests.

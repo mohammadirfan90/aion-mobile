@@ -6,6 +6,8 @@ import {
   fileNameFromUrl,
   fileTypeLabel,
   findLessonPosition,
+  findNextLesson,
+  firstUrl,
   lessonView,
   liveStatus,
   parseDynamicPage,
@@ -124,6 +126,18 @@ describe('lessonView', () => {
     expect(view).toMatchObject({ kind: 'document', fileUrl: 'https://x.com/a.pdf', allowDownload: false });
   });
 
+  it('skips the empty strings the editor saves (INTEGRATION.md #10)', () => {
+    const view = lessonView(
+      lesson({
+        id: 'd2',
+        type: 'document',
+        metadata: { documentSettings: { fileUrl: '' }, fileUrl: 'https://x.com/b.pdf' },
+      }),
+    );
+    expect(view).toMatchObject({ kind: 'document', fileUrl: 'https://x.com/b.pdf' });
+    expect(firstUrl('', '  ', null, undefined)).toBeNull();
+  });
+
   it('falls back to the top-level fileUrl', () => {
     expect(lessonView(lesson({ id: 'r', type: 'resource', metadata: { fileUrl: 'https://x.com/r' } }))).toMatchObject(
       { kind: 'resource', url: 'https://x.com/r', label: 'Open resource' },
@@ -221,5 +235,20 @@ describe('findLessonPosition', () => {
 
   it('returns null for an unknown lesson', () => {
     expect(findLessonPosition(chapters, 'nope')).toBeNull();
+  });
+});
+
+describe('findNextLesson', () => {
+  const ch = (id: string, locked: boolean, lessons: Lesson[]) =>
+    ({ id, courseId: 'c', title: id, position: 0, locked, lessons }) as Chapter;
+
+  it('returns the first open lesson without a completed row', () => {
+    const chapters = [
+      ch('a', false, [lesson({ id: 'a1', type: 'video' }), lesson({ id: 'a2', type: 'video', metadata: { isLocked: true } })]),
+      ch('b', true, [lesson({ id: 'b1', type: 'video' })]),
+      ch('c', false, [lesson({ id: 'c1', type: 'video' })]),
+    ];
+    expect(findNextLesson(chapters, new Set(['a1']))?.id).toBe('c1');
+    expect(findNextLesson(chapters, new Set(['a1', 'c1']))).toBeNull();
   });
 });

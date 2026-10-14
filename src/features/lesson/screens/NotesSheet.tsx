@@ -49,7 +49,7 @@ export function NotesSheet() {
   const lessonId = typeof id === 'string' ? id : null;
 
   const lessonQ = useLesson(lessonId);
-  const notesQ = useLessonNotes(lessonId);
+  const notesQ = useLessonNotes(lessonId, lessonQ.data?.courseId);
   const addNote = useAddNote(lessonId);
   const deleteNote = useDeleteNote(lessonId);
 

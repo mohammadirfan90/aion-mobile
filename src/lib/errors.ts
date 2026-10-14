@@ -6,6 +6,7 @@
 
 export type FriendlyErrorCode =
   | 'RATE_LIMITED'
+  | 'AI_SUMMARY_ERROR'
   | 'UNAUTHENTICATED'
   | 'FORBIDDEN'
   | 'INSUFFICIENT_PERMISSIONS'
@@ -47,6 +48,7 @@ export type FriendlyErrorCode =
 
 const messages: Record<FriendlyErrorCode, string> = {
   RATE_LIMITED: 'Too many attempts, please try again in a few minutes.',
+  AI_SUMMARY_ERROR: 'We couldn’t make a summary right now. Try again in a minute.',
   UNAUTHENTICATED: 'Please sign in to continue.',
   FORBIDDEN: 'You don’t have access to this.',
   INSUFFICIENT_PERMISSIONS: 'You don’t have permission to do that.',

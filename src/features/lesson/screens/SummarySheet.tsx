@@ -47,7 +47,7 @@ import { formatClock } from '@/lib/format';
 import { useTheme, type Theme } from '@/theme';
 
 import { playback } from '../playback';
-import { useLesson, useLessonSummary } from '../hooks';
+import { useAiOff, useLesson, useLessonSummary } from '../hooks';
 
 type Tab = 'summary' | 'concepts' | 'flashcards';
 
@@ -68,6 +68,7 @@ export function SummarySheet() {
   const lessonQ = useLesson(lessonId);
   const lesson = lessonQ.data;
   const summaryQ = useLessonSummary(lessonId, lesson?.courseId, lesson?.title);
+  const aiOff = useAiOff();
   const [tab, setTab] = useState<Tab>('summary');
 
   const summary = summaryQ.data;
@@ -75,8 +76,8 @@ export function SummarySheet() {
   const errorCode = (summaryQ.error as { code?: string } | null)?.code;
 
   let body: React.ReactNode;
-  if (summaryQ.isError && !summary) {
-    body = AI_OFF_CODES.has(errorCode ?? '') ? (
+  if (aiOff || (summaryQ.isError && !summary)) {
+    body = aiOff || AI_OFF_CODES.has(errorCode ?? '') ? (
       <EmptyState
         icon={<Sparkles size={28} color={theme.colors.mutedForeground} />}
         title="AI features are turned off"

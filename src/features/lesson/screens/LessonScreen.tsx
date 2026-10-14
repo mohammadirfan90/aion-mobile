@@ -183,7 +183,9 @@ export function LessonScreen() {
               resumeAt={resumeAt}
               posterUrl={view.posterUrl}
               onHeartbeat={(positionSeconds, durationSeconds) => {
-                if (enrolled && lessonId) heartbeat.mutate({ lessonId, positionSeconds, durationSeconds });
+                // Always send a duration: the player's, else the lesson's own (API §4).
+                const duration = durationSeconds > 0 ? durationSeconds : (lesson?.durationSeconds ?? undefined);
+                if (enrolled && lessonId) heartbeat.mutate({ lessonId, positionSeconds, durationSeconds: duration });
               }}
               onEnded={() => {
                 if (!completed && enrolled) setCompleted(true);

@@ -202,11 +202,11 @@ export function useAssignmentIntro(lessonId: UUID | null | undefined, enabled: b
 
 // ── Notes (S13) ──────────────────────────────────────────────────────────────
 
-export function useLessonNotes(lessonId: UUID | null | undefined) {
+export function useLessonNotes(lessonId: UUID | null | undefined, courseId: UUID | null | undefined) {
   return useQuery({
     queryKey: qk.notes.lesson(lessonId ?? 'pending'),
-    queryFn: () => fetchNotes(lessonId as UUID),
-    enabled: enabledId(lessonId),
+    queryFn: () => fetchNotes(lessonId as UUID, courseId as UUID),
+    enabled: enabledId(lessonId) && enabledId(courseId),
   });
 }
 
@@ -266,15 +266,25 @@ export function useDeleteNote(lessonId: UUID | null | undefined) {
 
 // ── AI summary (S14) ─────────────────────────────────────────────────────────
 
+/**
+ * The student turned AI off (`Me.aiConsent === false`). The API has no "AI off"
+ * error, so the app checks it itself (INTEGRATION.md #14). Unknown (still
+ * loading, or mock mode) counts as on.
+ */
+export function useAiOff(): boolean {
+  return useAuthStore((s) => s.me?.aiConsent === false);
+}
+
 export function useLessonSummary(
   lessonId: UUID | null | undefined,
   courseId: UUID | null | undefined,
   lessonTitle: string | null | undefined,
 ) {
+  const aiOff = useAiOff();
   return useQuery({
     queryKey: qk.ai.summary(lessonId ?? 'pending'),
     queryFn: () => fetchSummary(lessonId as UUID, courseId as UUID, lessonTitle ?? ''),
-    enabled: enabledId(lessonId) && enabledId(courseId) && !!lessonTitle,
+    enabled: enabledId(lessonId) && enabledId(courseId) && !!lessonTitle && !aiOff,
     staleTime: 10 * 60_000,
     retry: (count, err) => {
       const code = (err as { code?: string }).code;

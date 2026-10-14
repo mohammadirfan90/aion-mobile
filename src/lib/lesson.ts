@@ -174,6 +174,15 @@ export type LessonView =
 
 const DEFAULT_EMBED_HEIGHT = 450;
 
+/**
+ * First non-blank URL. The web editor saves empty strings for unused fields,
+ * so `??` would stop at `''` and never reach the fallback (INTEGRATION.md #10).
+ */
+export function firstUrl(...candidates: (string | null | undefined)[]): string | null {
+  for (const c of candidates) if (typeof c === 'string' && c.trim()) return c.trim();
+  return null;
+}
+
 /** Picks how S12 renders a lesson. Reads only the settings block for its type. */
 export function lessonView(lesson: Lesson): LessonView {
   const md: LessonMetadata = lesson.metadata ?? {};
@@ -186,23 +195,23 @@ export function lessonView(lesson: Lesson): LessonView {
         kind: 'video',
         source: videoSource(lesson.videoUrl, startSeconds),
         startSeconds,
-        posterUrl: settings.posterImageUrl ?? null,
+        posterUrl: firstUrl(settings.posterImageUrl),
         description: content,
       };
     }
     case 'markdown': {
       const settings = md.markdownSettings ?? {};
-      const isLink = settings.sourceType === 'link' && !!settings.markdownUrl;
+      const linkUrl = settings.sourceType === 'link' ? firstUrl(settings.markdownUrl) : null;
       return {
         kind: 'markdown',
-        markdown: isLink ? null : content,
-        markdownUrl: isLink ? (settings.markdownUrl ?? null) : null,
+        markdown: linkUrl ? null : content,
+        markdownUrl: linkUrl,
       };
     }
     case 'dynamic_page':
       return { kind: 'dynamic_page', page: parseDynamicPage(md, content) };
     case 'document': {
-      const fileUrl = md.documentSettings?.fileUrl ?? md.fileUrl ?? null;
+      const fileUrl = firstUrl(md.documentSettings?.fileUrl, md.fileUrl);
       return {
         kind: 'document',
         fileUrl,
@@ -215,19 +224,19 @@ export function lessonView(lesson: Lesson): LessonView {
     case 'embed':
       return {
         kind: 'embed',
-        url: md.embedSettings?.embedUrl ?? md.embedUrl ?? null,
-        height: md.embedSettings?.height ?? DEFAULT_EMBED_HEIGHT,
+        url: firstUrl(md.embedSettings?.embedUrl, md.embedUrl),
+        height: md.embedSettings?.height || DEFAULT_EMBED_HEIGHT,
         description: content,
       };
     case 'resource':
       return {
         kind: 'resource',
-        url: md.resourceSettings?.fileUrl ?? md.fileUrl ?? null,
+        url: firstUrl(md.resourceSettings?.fileUrl, md.fileUrl),
         label: md.resourceSettings?.buttonLabel || 'Open resource',
         description: content,
       };
     case 'quiz':
-      return { kind: 'quiz', description: md.description ?? content };
+      return { kind: 'quiz', description: md.description || content };
     case 'assignment':
       return { kind: 'assignment', brief: content, settings: md.assignmentSettings ?? {} };
     case 'live_session': {

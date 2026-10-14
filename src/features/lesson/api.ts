@@ -61,7 +61,9 @@ export async function fetchLesson(lessonId: UUID): Promise<Lesson> {
     }
     return mockDelay({ ...lesson });
   }
-  return request<Lesson>(`/lessons/${lessonId}`);
+  const lesson = await request<Omit<Lesson, 'completed'>>(`/lessons/${lessonId}`);
+  // Completion comes from the progress rows, not the lesson.
+  return { ...lesson, metadata: lesson.metadata ?? null, completed: false };
 }
 
 /** `GET /courses/{id}/curriculum`, for the chapter name and Previous / Next. */
@@ -133,9 +135,10 @@ export async function fetchAssignmentIntro(
 
 // ── Notes (API §8) ───────────────────────────────────────────────────────────
 
-export async function fetchNotes(lessonId: UUID): Promise<LessonNote[]> {
+/** `GET /notes/lesson/{id}?courseId=` — `courseId` is required (400 without it). */
+export async function fetchNotes(lessonId: UUID, courseId: UUID): Promise<LessonNote[]> {
   if (env.useMocks) return mockDelay(getMockNotes(lessonId));
-  return request<LessonNote[]>(`/notes/lesson/${lessonId}`);
+  return request<LessonNote[]>(`/notes/lesson/${lessonId}`, { query: { courseId } });
 }
 
 export async function createNote(body: CreateNoteBody): Promise<LessonNote> {
@@ -156,6 +159,8 @@ export async function fetchSummary(
   lessonTitle: string,
 ): Promise<AiSummary> {
   if (env.useMocks) return mockDelay(getMockSummary(lessonId), 700);
+  // A `temp-` id is a valid, uncached summary; `unavailable-` is the empty
+  // state; other failures are 500 AI_SUMMARY_ERROR (API §13).
   return request<AiSummary>(`/ai/summary/${lessonId}`, { query: { courseId, lessonTitle } });
 }
 
