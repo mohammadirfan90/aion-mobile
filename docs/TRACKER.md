@@ -79,7 +79,7 @@ Add `--skip-commands` for a quick run without lint, typecheck or tests, and `--d
 | P0-09 | UI kit: every component in SPEC §7, in `src/components/ui`. | Irfan | done | P0-08 | |
 | P0-10 | Mock layer: fixtures for every area (see [§ Phase 0 details](#phase-0-details)), `mockDelay`, in-memory mutations, and a mock auth store (any credentials sign in). | Irfan | done | P0-07 | |
 | P0-11 | Navigation skeleton: every route from SPEC §2 exists as a placeholder screen whose text contains the exact marker `TODO Sxx` (e.g. `TODO S07`; the verify script counts these to track screen progress, so Phase 1 removes each marker when the screen is built); `Stack.Protected` gating; tabs with lucide icons; sheets use `formSheet`; new post and new ticket open as modals. | Irfan | done | P0-09, P0-10 | |
-| P0-12 | Smoke check: in mock mode on Android the app boots, you can "log in", reach every placeholder, and log out. Light and dark both work. | Any | todo | P0-11 | |
+| P0-12 | Smoke check: in mock mode on Android the app boots, you can "log in", reach every placeholder, and log out. Light and dark both work. | Any | done | P0-11 | Done 2026-10-14 on the Pixel_8 emulator (mock mode, new dev build with embedded fonts): cold start, log in, all 34 routes render with no JS errors (signed-out auth + verify, every tab, course, every lesson type, sheets, quiz, assignment, tutor, forum, support, profile, settings), log out returns to S02 and the guard blocks app routes, light and dark. Fixed on the way: missing root providers, clipped text (fonts now embedded), headers under the status bar. |
 
 ## Phase 1: Screens (UI against mock data)
 
@@ -135,7 +135,7 @@ Done means:
 | P2-04 | Wire login (supabase-js) and signup (`POST /auth/signup` with `X-Aion-Client: mobile`). After signup, S04 shows the link-based state: "Open the link in your email, then log in". In real mode, hide the "Forgot password?" link on S02 until P2-16 is done. | Maria | todo | P2-03, B-01 | |
 | P2-16 | Wire code-based email verification (S04, `verifyOtp` type `email`) and password reset (S05 → S06: `resetPasswordForEmail` → `verifyOtp` type `recovery` → `updateUser`); show the "Forgot password?" link again. | Maria | todo | P2-04, B-02 | Open until the Supabase email templates include the 6-digit code (B-02). |
 | P2-05 | Media upload helper: pick an image or document → `FormData` → `POST /media/upload`, with progress and an error state. | Maria | todo | P2-02 | Used by S16, S21, S26. Convert HEIC to JPEG and resize first (API §16). |
-| P2-06 | Wire S07–S11 (home, catalog, my learning, course detail, curriculum). | Irfan | todo | P2-03 | |
+| P2-06 | Wire S07–S11 (home, catalog, my learning, course detail, curriculum). | Irfan | todo | P2-03 | Normalize in each `api.ts`: the real curriculum uses `activities` + `isLocked` (app: `lessons` + `locked`); `accessConfig` is `{ accessMode: 'open' \| 'invite' \| 'closed', pricingType, price }` (app: `mode`); Home still reads the older `LearningSummary` shape, while API §12 returns `LearningSummaryData` (S25 already uses it). Prices are whole units. |
 | P2-07 | Enrollment: free and invite-code enroll; paid courses → "Get on web" (D-04); refresh enrollments when the app returns to the foreground. | Irfan | todo | P2-06 | |
 | P2-08 | Wire S12–S14: lesson content, mark complete, heartbeat and resume position (API.md §4), notes, AI summary. | Irfan | todo | P2-06 | |
 | P2-09 | Wire S15–S16: quiz submit and results; assignment submit with file. | Irfan | todo | P2-08, P2-05 | |
