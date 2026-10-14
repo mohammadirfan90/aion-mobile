@@ -15,14 +15,12 @@
  */
 import { useState } from 'react';
 import { Alert, Pressable, RefreshControl, ScrollView, View } from 'react-native';
-import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Award, Bot, ChevronRight, Headset, Info, LogOut, Pencil, Settings } from 'lucide-react-native';
 
-import logoLight from '@/assets/brand/logo.png';
-import logoDark from '@/assets/brand/logo-dark.png';
 import type { LearningSummaryData, Me } from '@/api/types';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -102,12 +100,7 @@ export function ProfileScreen() {
     >
       {/* Brand bar */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Image
-          source={theme.mode === 'dark' ? logoDark : logoLight}
-          style={{ width: 80, height: 24 }}
-          contentFit="contain"
-          accessibilityLabel="Aion"
-        />
+        <BrandLogo height={24} />
         <IconButton
           icon={<Bot size={22} color={theme.colors.foreground} />}
           label="Open AI tutor"

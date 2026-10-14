@@ -7,6 +7,7 @@ import {
 import { useRouter } from 'expo-router';
 import { CircleAlert, ShieldCheck } from 'lucide-react-native';
 
+import { BrandLogo } from '@/components/BrandLogo';
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { Text } from '@/components/ui/Text';
@@ -88,36 +89,9 @@ export function LoginScreen() {
       <View style={{ flex: 1, justifyContent: 'space-between', minHeight: 560 }}>
         {/* Main Content Area */}
         <View style={{ gap: theme.spacing.six }}>
-          {/* Top Logo & App Title (matching S02-login.png) */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: theme.spacing.three,
-              marginTop: theme.spacing.four,
-            }}
-          >
-            <View
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: theme.radius.md,
-                backgroundColor: theme.colors.foreground,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text
-                variant="heading"
-                weight="bold"
-                style={{ color: theme.colors.background }}
-              >
-                A
-              </Text>
-            </View>
-            <Text variant="title" weight="bold">
-              Aion
-            </Text>
+          {/* Logo (S02-login.png; the real brand artwork, DESIGN.md rule 8) */}
+          <View style={{ marginTop: theme.spacing.four }}>
+            <BrandLogo height={36} />
           </View>
 
           {/* Heading block */}

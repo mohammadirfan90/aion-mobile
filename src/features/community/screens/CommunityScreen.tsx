@@ -15,13 +15,11 @@
 import { useEffect, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, View, type ListRenderItem } from 'react-native';
 import { router, type Href } from 'expo-router';
-import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronDown, MessagesSquare, Plus, SearchX, Sparkles } from 'lucide-react-native';
 
-import logoLight from '@/assets/brand/logo.png';
-import logoDark from '@/assets/brand/logo-dark.png';
 import type { ForumCategoryValue, ForumPostItem, ForumStats } from '@/api/types';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Avatar } from '@/components/ui/Avatar';
 import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -122,12 +120,7 @@ export function CommunityScreen() {
           style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.three }}
         >
           <Avatar uri={me.avatarUrl} name={me.name} size={36} />
-          <Image
-            source={theme.mode === 'dark' ? logoDark : logoLight}
-            style={{ width: 64, height: 20 }}
-            contentFit="contain"
-            accessibilityLabel="Aion"
-          />
+          <BrandLogo height={20} />
         </Pressable>
         <Pressable
           onPress={() => router.push('/tutor' as Href)}

@@ -32,8 +32,7 @@ import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { Award, CheckCircle2, ListFilter, MoreHorizontal, Search } from 'lucide-react-native';
 
-import logoLight from '@/assets/brand/logo.png';
-import logoDark from '@/assets/brand/logo-dark.png';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -360,12 +359,7 @@ export function LearningScreen() {
                 style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.three }}
               >
                 <Avatar uri={profile?.avatar} name={profile?.fullName} size={36} />
-                <Image
-                  source={theme.mode === 'dark' ? logoDark : logoLight}
-                  style={{ width: 64, height: 20 }}
-                  contentFit="contain"
-                  accessibilityLabel="Aion"
-                />
+                <BrandLogo height={20} />
               </Pressable>
               <View style={{ flexDirection: 'row', gap: theme.spacing.one }}>
                 <IconButton

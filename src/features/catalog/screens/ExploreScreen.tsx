@@ -25,10 +25,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View, type ListRenderItem } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { ChevronRight, Sparkles } from 'lucide-react-native';
-import { Image } from 'expo-image';
 
-import logoLight from '@/assets/brand/logo.png';
-import logoDark from '@/assets/brand/logo-dark.png';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { ChipGroup } from '@/components/ui/Chip';
@@ -249,12 +247,7 @@ export function ExploreScreen() {
                 justifyContent: 'space-between',
               }}
             >
-              <Image
-                source={theme.mode === 'dark' ? logoDark : logoLight}
-                style={{ width: 80, height: 24 }}
-                contentFit="contain"
-                accessibilityLabel="Aion"
-              />
+              <BrandLogo height={24} />
               <Pressable
                 onPress={() => router.push('/tutor' as Href)}
                 accessibilityRole="button"

@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Award, BookOpen, Bot, CheckCircle2, Compass, Sparkles } from 'lucide-react-native';
 
+import { BrandLogo } from '@/components/BrandLogo';
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { Text } from '@/components/ui/Text';
@@ -246,9 +247,7 @@ export function WelcomeScreen() {
           justifyContent: 'center',
         }}
       >
-        <Text variant="heading" weight="bold">
-          Aion
-        </Text>
+        <BrandLogo height={28} />
       </View>
 
       {/* Swipeable Carousel */}

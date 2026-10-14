@@ -25,12 +25,10 @@ import {
   View,
   type ListRenderItem,
 } from 'react-native';
-import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { BookOpen, GraduationCap, Layers, Play, Search, Sparkles } from 'lucide-react-native';
 
-import logoLight from '@/assets/brand/logo.png';
-import logoDark from '@/assets/brand/logo-dark.png';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -400,12 +398,7 @@ export function HomeScreen() {
           justifyContent: 'space-between',
         }}
       >
-        <Image
-          source={theme.mode === 'dark' ? logoDark : logoLight}
-          style={{ width: 80, height: 24 }}
-          contentFit="contain"
-          accessibilityLabel="Aion"
-        />
+        <BrandLogo height={24} />
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.two }}>
           <Pressable
             onPress={() => router.push('/tutor' as Href)}
