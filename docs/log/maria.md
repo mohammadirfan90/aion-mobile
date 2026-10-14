@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-05
+- Did: `lib/upload.ts` sends the bearer token on the upload XHR, refreshes once on 401 and signs out only if the refresh token is rejected (same rule as `request()`, #2). Errors come back as `ApiError` from the JSON envelope (plain-text 429 → `RATE_LIMITED`). Added `expo-image-manipulator` (in Expo Go): HEIC photos become JPEG, and photos with an edge over 2048 px are scaled down to JPEG before upload; PNG/WebP/GIF under the limit go as they are, SVG is refused. S16, S21 and S26 needed no change.
+- Quality gates: tsc, lint, 87 tests.
+- Next: P2-11 (comments, forum).
+- Blockers: none.
+
 ## 2026-10-15 — P2-04
 - Did: login goes through `signInWithPassword` in the auth store; Supabase errors map to S02's banners (wrong password, unconfirmed email, lockout with minutes from `lockedForSeconds`, network). Signup posts to `/auth/signup` with `X-Aion-Client: mobile`; with a session back (email demo mode, D-17) the user lands on Home, and only a null session goes to S04. `USERNAME_TAKEN` sits on the username field and `PROFILE_CREATION_FAILED` on the email field as "This email may already have an account" (#19). The username check calls the `check_username_available` RPC (debounced 400 ms); a permission error skips the live check (#20). "Forgot password?" is hidden in real mode until P2-16. Mock mode keeps the Phase 1 demo emails.
 - Quality gates: tsc, lint, 87 tests (+4 for the error mapping).
