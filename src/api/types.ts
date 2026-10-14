@@ -826,8 +826,12 @@ export interface StudentCertificate {
   verifyUrl: string; // relative web path; prefix with EXPO_PUBLIC_WEB_URL
 }
 
-/** `GET /courses/verify/{certificateId}` (public). Any failure is a 404. */
-export interface VerifiedCertificate extends StudentCertificate {
+/**
+ * `GET /courses/verify/{certificateId}` (public). Any failure is a 404. Same
+ * fields as the student's certificate except `enabled`, plus the course facts.
+ */
+export interface VerifiedCertificate extends Omit<StudentCertificate, 'enabled'> {
+  isOwner: boolean; // always false on this public endpoint
   valid: true;
   courseSlug: string;
   courseId: UUID;

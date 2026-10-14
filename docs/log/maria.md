@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-14
+- Did: certificates were already on `request()`. Type fix: `VerifiedCertificate` has no `enabled` and does have `isOwner` (API §14); the mock matches. S29's verify call is anonymous, so a stale token never triggers a refresh on the public page. `verifyLink()` builds the "Verify online" URL from the relative `verifyUrl` (absolute URLs pass through), with tests alongside `normalizeCertificateCode`. S28's states (`INCOMPLETE`, `FORBIDDEN`, `NOT_FOUND`, `enabled: false`) were already mapped by code.
+- Quality gates: tsc, lint, 92 tests.
+- Next: P2-15 with Irfan (mocks off, full pass).
+- Blockers: B-05b (draft lessons count toward completion) can keep a course below 100 %.
+
 ## 2026-10-15 — P2-13
 - Did: S26's limits now match the server's (headline 150, bio 1,000, learning goals 1,000; name 100, username 3–20), so a bio written on the web can be saved from the app (#18). `GET` and `PATCH /users/me` write the result to the auth store (`setCurrentMe`), so Home's name and the AI-off checks in S14 / S17 follow an edit at once. Change password (`POST /auth/password`), avatar upload (P2-05) and logout (auth store) were already wired.
 - Quality gates: tsc, lint, 89 tests.

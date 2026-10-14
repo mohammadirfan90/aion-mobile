@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 2, Integration (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-15, Maria: P2-04, P2-05, P2-11 → P2-13 done. Irfan's rows P2-01 → P2-03, P2-06 → P2-10 are done. Next: Maria P2-14, then P2-15 together. Signed-in contract checks need a real-domain test account (B-04).
+- **Last update:** 2026-10-15: every Phase 2 row except P2-15 (joint) and P2-16 (waits on B-02) is done. Irfan: P2-01 → P2-03, P2-06 → P2-10. Maria: P2-04, P2-05, P2-11 → P2-14. Next: P2-15, a full pass with mocks off; it needs a real-domain test account (B-04) and B-10 confirmed.
 - **Open blockers:** none.
 
 ## How to use this file
@@ -143,7 +143,7 @@ Done means:
 | P2-11 | Wire S18–S21: comments, forum feed, post, replies, upvote, solution, new post with image. | Maria | done | P2-03, P2-05 | 2026-10-15: comments on `request()` (author filled from the current user, friendly errors); comment upvotes mock-only (no endpoint, B-05c); threads keep orphans and nested replies; admin can mark a forum solution. |
 | P2-12 | Wire S22–S24: support tickets. | Maria | done | P2-03 | 2026-10-15: already on `request()`; resolved-ticket copy (a reply doesn't reopen it); course picker sorted. |
 | P2-13 | Wire S25–S27: profile, edit profile with avatar upload, change password, logout. | Maria | done | P2-03, P2-05 | 2026-10-15: server limits (headline 150, bio 1000, goals 1000); `/users/me` reads and edits sync the auth store (`setCurrentMe`). |
-| P2-14 | Wire S28–S29: certificate and verification. | Maria | todo | P2-03 | |
+| P2-14 | Wire S28–S29: certificate and verification. | Maria | done | P2-03 | 2026-10-15: `VerifiedCertificate` type fixed (no `enabled`, has `isOwner`); S29 verify is anonymous; `verifyLink()` for the relative `verifyUrl` (+3 tests). |
 | P2-15 | Switch mocks off by default; do a full pass against the real API; record any missing endpoints as B-05x. | Irfan + Maria | todo | P2-04…P2-14 | |
 
 ## Phase 3: Native features & polish

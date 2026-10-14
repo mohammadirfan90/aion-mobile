@@ -181,10 +181,11 @@ export function verifyMockCertificate(code: string): VerifiedCertificate {
     const done = completion(courseId);
     if (!done) break;
     const course = courses.find((c) => c.id === courseId);
-    const cert = buildCertificate(courseId, done.completedAt);
+    const { enabled: _enabled, ...cert } = buildCertificate(courseId, done.completedAt);
     const score = SCORES[courseId];
     return {
       ...cert,
+      isOwner: false,
       valid: true,
       courseSlug: course?.slug ?? '',
       courseId,

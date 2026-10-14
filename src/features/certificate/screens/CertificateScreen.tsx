@@ -24,10 +24,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
 import { showToast } from '@/components/ui/Toast';
 import type { StudentCertificate } from '@/api/types';
-import { env } from '@/lib/env';
 import { useTheme } from '@/theme';
 
-import { errorCode } from '../api';
+import { errorCode, verifyLink } from '../api';
 import { CertificateCard } from '../components/CertificateCard';
 import { CertificateHeader } from '../components/CertificateHeader';
 import { FullCertificateModal } from '../components/FullCertificateModal';
@@ -178,7 +177,7 @@ function EarnedCertificate({
   const [fullOpen, setFullOpen] = useState(false);
 
   const verifyOnline = async () => {
-    const url = `${env.webUrl.replace(/\/$/, '')}${certificate.verifyUrl}`;
+    const url = verifyLink(certificate.verifyUrl);
     try {
       await WebBrowser.openBrowserAsync(url);
     } catch {

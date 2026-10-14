@@ -48,7 +48,20 @@ export async function fetchCourseProgressSummary(courseId: UUID): Promise<Course
 
 export async function fetchVerifiedCertificate(code: string): Promise<VerifiedCertificate> {
   if (env.useMocks) return mockCall(() => verifyMockCertificate(code), 400);
-  return request<VerifiedCertificate>(`/courses/verify/${encodeURIComponent(code)}`);
+  // Public (S29 works signed out), so no token and no refresh on a 401.
+  return request<VerifiedCertificate>(`/courses/verify/${encodeURIComponent(code)}`, {
+    anonymous: true,
+  });
+}
+
+/**
+ * The web page for a certificate's `verifyUrl`, which the API sends as a
+ * relative path (API §14). An absolute URL is used as it is.
+ */
+export function verifyLink(verifyUrl: string, webUrl: string = env.webUrl): string {
+  if (/^https?:\/\//i.test(verifyUrl)) return verifyUrl;
+  const base = webUrl.replace(/\/$/, '');
+  return `${base}${verifyUrl.startsWith('/') ? '' : '/'}${verifyUrl}`;
 }
 
 /** The error `code` from a coded mock error or an `ApiError`, if any. */
