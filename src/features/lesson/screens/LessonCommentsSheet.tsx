@@ -24,7 +24,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
 import { useTheme } from '@/theme';
 
-import { useLessonComments } from '../hooks';
+import { COMMENT_UPVOTES_ENABLED, useLessonComments } from '../hooks';
 
 function formatRelativeTime(dateString?: string): string {
   if (!dateString) return 'just now';
@@ -63,8 +63,7 @@ export function LessonCommentsSheet() {
   }>();
 
   // Standalone fallback fixture lesson ID per TRACKER.md
-  const lessonId =
-    typeof id === 'string' && id && id !== '[id]' ? id : 'l-intro-01-01';
+  const lessonId = typeof id === 'string' && id && id !== '[id]' ? id : 'l-intro-01-01';
 
   const {
     threads,
@@ -80,7 +79,7 @@ export function LessonCommentsSheet() {
   } = useLessonComments(
     lessonId,
     typeof courseId === 'string' ? courseId : undefined,
-    typeof chapterId === 'string' ? chapterId : undefined
+    typeof chapterId === 'string' ? chapterId : undefined,
   );
 
   const [inputText, setInputText] = useState('');
@@ -111,20 +110,16 @@ export function LessonCommentsSheet() {
   };
 
   const handleDeletePrompt = (commentId: string) => {
-    Alert.alert(
-      'Delete comment',
-      'Are you sure you want to delete this comment?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            void deleteComment(commentId);
-          },
+    Alert.alert('Delete comment', 'Are you sure you want to delete this comment?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          void deleteComment(commentId);
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const renderCommentItem = (item: Comment, isReply = false) => {
@@ -143,11 +138,7 @@ export function LessonCommentsSheet() {
           paddingVertical: theme.spacing.two,
         }}
       >
-        <Avatar
-          uri={author?.avatarUrl}
-          name={authorName}
-          size={isReply ? 32 : 38}
-        />
+        <Avatar uri={author?.avatarUrl} name={authorName} size={isReply ? 32 : 38} />
 
         <View style={{ flex: 1 }}>
           {/* Header row: Author Name, Badge, Relative Time */}
@@ -171,12 +162,8 @@ export function LessonCommentsSheet() {
               <Text variant="bodyStrong" weight="semibold">
                 {authorName}
               </Text>
-              {isInstructor && (
-                <Badge label="Instructor" tone="primary" />
-              )}
-              {isOwn && (
-                <Badge label="You" tone="neutral" />
-              )}
+              {isInstructor && <Badge label="Instructor" tone="primary" />}
+              {isOwn && <Badge label="You" tone="neutral" />}
             </View>
 
             <Text variant="caption" tone="muted">
@@ -217,30 +204,32 @@ export function LessonCommentsSheet() {
                 </Text>
               </Pressable>
 
-              <Pressable
-                onPress={() => void toggleUpvote(item.id)}
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel={`Upvote comment, currently ${upvotes} upvotes`}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
-              >
-                <ThumbsUp
-                  size={14}
-                  color={item.upvoted ? theme.colors.primary : theme.colors.mutedForeground}
-                  fill={item.upvoted ? theme.colors.primary : 'transparent'}
-                />
-                {upvotes > 0 ? (
-                  <Text
-                    variant="caption"
-                    style={{
-                      color: item.upvoted ? theme.colors.primary : theme.colors.mutedForeground,
-                      fontFamily: item.upvoted ? theme.fonts.semibold : theme.fonts.regular,
-                    }}
-                  >
-                    {upvotes}
-                  </Text>
-                ) : null}
-              </Pressable>
+              {COMMENT_UPVOTES_ENABLED ? (
+                <Pressable
+                  onPress={() => void toggleUpvote(item.id)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Upvote comment, currently ${upvotes} upvotes`}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                >
+                  <ThumbsUp
+                    size={14}
+                    color={item.upvoted ? theme.colors.primary : theme.colors.mutedForeground}
+                    fill={item.upvoted ? theme.colors.primary : 'transparent'}
+                  />
+                  {upvotes > 0 ? (
+                    <Text
+                      variant="caption"
+                      style={{
+                        color: item.upvoted ? theme.colors.primary : theme.colors.mutedForeground,
+                        fontFamily: item.upvoted ? theme.fonts.semibold : theme.fonts.regular,
+                      }}
+                    >
+                      {upvotes}
+                    </Text>
+                  ) : null}
+                </Pressable>
+              ) : null}
             </View>
 
             {isOwn && (
@@ -459,11 +448,7 @@ export function LessonCommentsSheet() {
               ref={inputRef}
               value={inputText}
               onChangeText={setInputText}
-              placeholder={
-                replyingTo
-                  ? `Reply to ${replyingTo.authorName}...`
-                  : 'Add a comment...'
-              }
+              placeholder={replyingTo ? `Reply to ${replyingTo.authorName}...` : 'Add a comment...'}
               placeholderTextColor={theme.colors.mutedForeground}
               multiline
               style={{
@@ -491,11 +476,7 @@ export function LessonCommentsSheet() {
               opacity: !canSend ? 0.35 : pressed ? 0.8 : 1,
             })}
           >
-            <ArrowUp
-              size={20}
-              color={theme.colors.primaryForeground}
-              strokeWidth={2.5}
-            />
+            <ArrowUp size={20} color={theme.colors.primaryForeground} strokeWidth={2.5} />
           </Pressable>
         </View>
       </View>

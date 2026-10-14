@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-11
+- Did: lesson comments moved from the raw openapi client to `request()`: list, post (the row comes back without `author`, so the hook fills it from the signed-in user) and delete. Errors show friendly copy instead of "[object Object]" (#12). There is no comment upvote endpoint, so the upvote control is mock-only (`COMMENT_UPVOTES_ENABLED`, #13). `threadComments()` puts replies, and replies to replies, under their top-level comment, and shows a reply whose parent was deleted as top-level (+2 tests). The comments hook takes the course from the lesson when the route has none (it used to fall back to a fixture course id). Forum: an admin (the teacher) can mark a solution as well as the post owner (#24); the linked lesson is normalized like S12's.
+- Quality gates: tsc, lint, 89 tests.
+- Next: P2-12 (support).
+- Blockers: none.
+
 ## 2026-10-15 — P2-05
 - Did: `lib/upload.ts` sends the bearer token on the upload XHR, refreshes once on 401 and signs out only if the refresh token is rejected (same rule as `request()`, #2). Errors come back as `ApiError` from the JSON envelope (plain-text 429 → `RATE_LIMITED`). Added `expo-image-manipulator` (in Expo Go): HEIC photos become JPEG, and photos with an edge over 2048 px are scaled down to JPEG before upload; PNG/WebP/GIF under the limit go as they are, SVG is refused. S16, S21 and S26 needed no change.
 - Quality gates: tsc, lint, 87 tests.

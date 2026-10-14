@@ -3,7 +3,7 @@
  * S18 (comments). Mock mode returns fixtures with in-memory mutations; real
  * mode calls the endpoints in API §4, §6–§9 and §13.
  */
-import { api, request } from '@/api/client';
+import { request } from '@/api/client';
 import { getCurriculumFromApi } from '@/api/curriculum';
 import type {
   AiSummary,
@@ -171,12 +171,10 @@ export async function fetchLessonComments(lessonId: string): Promise<Comment[]> 
     const data = getMockCommentsByLesson(lessonId);
     return mockDelay([...data], 180);
   }
-
-  const res = await api.GET('/api/v1/lessons/{lessonId}/comments', {
-    params: { path: { lessonId } },
-  });
-  if (!res.data) throw new Error(res.error ? String(res.error) : 'Failed to fetch comments');
-  return (res.data as { data: Comment[] }).data ?? [];
+  // Flat, oldest first, public (API §9). There is no comment upvote endpoint
+  // (B-05c), so `upvotes` is just the stored count and `upvoted` is false.
+  const rows = await request<Comment[]>(`/lessons/${lessonId}/comments`);
+  return rows.map((c) => ({ ...c, upvotes: c.upvotesCount ?? 0, upvoted: false }));
 }
 
 export async function postLessonComment(
@@ -215,28 +213,22 @@ export async function postLessonComment(
     return mockDelay(newComment, 200);
   }
 
-  const res = await api.POST('/api/v1/lessons/{lessonId}/comments', {
-    params: { path: { lessonId } },
+  // Returns the row without `author`; the hook fills it in from the current user.
+  const created = await request<Comment>(`/lessons/${lessonId}/comments`, {
+    method: 'POST',
     body: {
       courseId: body.courseId,
-      chapterId: body.chapterId,
+      chapterId: body.chapterId ?? undefined,
       content: body.content,
-      parentId: body.parentId,
-      timestampSeconds: body.timestampSeconds,
+      parentId: body.parentId ?? undefined,
+      timestampSeconds: body.timestampSeconds ?? undefined,
     },
   });
-  if (!res.data) throw new Error(res.error ? String(res.error) : 'Failed to post comment');
-  const created = res.data as unknown as Comment;
   return {
     ...created,
-    author: authorInfo
-      ? {
-          id: authorInfo.id,
-          name: authorInfo.name,
-          avatarUrl: authorInfo.avatarUrl,
-          role: authorInfo.role,
-        }
-      : undefined,
+    upvotes: 0,
+    upvoted: false,
+    author: authorInfo ?? created.author,
   };
 }
 
@@ -246,10 +238,8 @@ export async function deleteComment(commentId: string): Promise<boolean> {
     return mockDelay(true, 150);
   }
 
-  const res = await api.DELETE('/api/v1/comments/{id}', {
-    params: { path: { id: commentId } },
-  });
-  return !!res.data?.data?.deleted;
+  const res = await request<{ deleted: boolean }>(`/comments/${commentId}`, { method: 'DELETE' });
+  return res.deleted;
 }
 
 export async function upvoteComment(
@@ -260,5 +250,6 @@ export async function upvoteComment(
     return mockDelay(result ?? { upvoted: true, upvotes: 1 }, 100);
   }
 
-  return { upvoted: true, upvotes: 1 };
+  // No endpoint (B-05c): the control is hidden in real mode.
+  throw mockError('NOT_FOUND', 'Comment upvotes are not available');
 }

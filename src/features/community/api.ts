@@ -4,7 +4,8 @@
  *   - `GET /forum/stats`, `GET /forum/posts` (search, category, sort, page).
  *   - `GET /forum/posts/{id}` (counts a view) and `GET .../replies` (flat).
  *   - Writes: create / edit / delete a post, reply, toggle upvotes on posts
- *     and replies, mark a reply as the solution (post owner only).
+ *     and replies, mark a reply as the solution (post owner, admin or
+ *     instructor).
  *   - The post image goes through the shared `lib/upload.ts` helper
  *     (`folder=forum`).
  *   - The course / lesson a new post links to, for S21's context chip.
@@ -168,7 +169,9 @@ export async function fetchLinkedLesson(lessonId: UUID): Promise<Lesson> {
     if (!lesson) return Promise.reject(codedError('LESSON_NOT_FOUND', 'Lesson not found'));
     return mockDelay({ ...lesson });
   }
-  return request<Lesson>(`/lessons/${lessonId}`);
+  // Same shape as S12's `fetchLesson` (they share the cache key).
+  const lesson = await request<Omit<Lesson, 'completed'>>(`/lessons/${lessonId}`);
+  return { ...lesson, metadata: lesson.metadata ?? null, completed: false };
 }
 
 export async function fetchLinkedCurriculum(courseId: UUID): Promise<Curriculum> {

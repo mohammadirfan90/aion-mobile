@@ -9,7 +9,7 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 - **Phase:** 2, Integration (in progress)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-15, Maria: P2-04, P2-05 done. Irfan's rows P2-01 → P2-03, P2-06 → P2-10 are done. Next: Maria P2-11 → P2-14, then P2-15 together. Signed-in contract checks need a real-domain test account (B-04).
+- **Last update:** 2026-10-15, Maria: P2-04, P2-05, P2-11 done. Irfan's rows P2-01 → P2-03, P2-06 → P2-10 are done. Next: Maria P2-12 → P2-14, then P2-15 together. Signed-in contract checks need a real-domain test account (B-04).
 - **Open blockers:** none.
 
 ## How to use this file
@@ -140,7 +140,7 @@ Done means:
 | P2-08 | Wire S12–S14: lesson content, mark complete, heartbeat and resume position (API.md §4), notes, AI summary. | Irfan | done | P2-06 | INTEGRATION.md #10, #11, #14, #17: `||` URL fallbacks; notes need `courseId`; AI-off from `Me.aiConsent`; summary `temp-` ids and `AI_SUMMARY_ERROR`; always send heartbeat `durationSeconds`. 2026-10-15: `firstUrl()` for every URL fallback; notes send `courseId`; `useAiOff()` from `Me.aiConsent` gates S14; `AI_SUMMARY_ERROR` copy; heartbeat falls back to the lesson duration; `/lessons/{id}` normalized (`completed` from progress rows). Comments stay with P2-11. |
 | P2-09 | Wire S15–S16: quiz submit and results; assignment submit with file. | Irfan | done | P2-08, P2-05 | INTEGRATION.md #22: `MAX_ATTEMPTS_EXCEEDED` is 403; assignment settings are UI hints only. 2026-10-15: quiz errors mapped by code; `MAX_ATTEMPTS_EXCEEDED` reloads the attempts count; `ALREADY_GRADED` reloads the submission; assignment settings stay hints (no client block on due date / attempts). Upload path is Maria's P2-05. |
 | P2-10 | Wire S17: AI tutor streaming via `expo/fetch` plus `lib/sse.ts` (with unit tests), saving history. | Irfan | done | P2-03 | The stream doesn't save anything; the app saves both messages (API §13). INTEGRATION.md #3, #14–#16: bearer + refresh on the stream; the literal backslash-n pair outside the JSON; close dangling fences; keep partial text on error; truncate history, notes and titles; AI-off from `Me.aiConsent`. 2026-10-15: `lib/sse.ts` (+7 tests); stream sends the bearer and refreshes once on 401; partial text kept on a mid-stream error; `features/tutor/limits.ts` clamps every field (+2 tests); context notes send `courseId`; S17 AI-off state. |
-| P2-11 | Wire S18–S21: comments, forum feed, post, replies, upvote, solution, new post with image. | Maria | todo | P2-03, P2-05 | |
+| P2-11 | Wire S18–S21: comments, forum feed, post, replies, upvote, solution, new post with image. | Maria | done | P2-03, P2-05 | 2026-10-15: comments on `request()` (author filled from the current user, friendly errors); comment upvotes mock-only (no endpoint, B-05c); threads keep orphans and nested replies; admin can mark a forum solution. |
 | P2-12 | Wire S22–S24: support tickets. | Maria | todo | P2-03 | |
 | P2-13 | Wire S25–S27: profile, edit profile with avatar upload, change password, logout. | Maria | todo | P2-03, P2-05 | |
 | P2-14 | Wire S28–S29: certificate and verification. | Maria | todo | P2-03 | |

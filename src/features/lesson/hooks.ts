@@ -13,6 +13,7 @@ import { qk } from '@/api/query-keys';
 import type { Comment, CreateNoteBody, LessonNote, LessonProgressRow, UUID } from '@/api/types';
 import { useAiOff, useAuthStore } from '@/lib/auth-store';
 import { env } from '@/lib/env';
+import { friendlyError } from '@/lib/errors';
 import { currentUser as fallbackUser } from '@/mocks/fixtures/users';
 
 import {
@@ -292,9 +293,44 @@ export interface ThreadedComment extends Comment {
   replies: Comment[];
 }
 
+/** Lesson comments have no upvote endpoint (B-05c); the control is mock-only. */
+export const COMMENT_UPVOTES_ENABLED = env.useMocks;
+
+/**
+ * Threads the flat, oldest-first list (API §9): each reply goes under its
+ * top-level ancestor, and a reply whose parent was deleted shows as top-level.
+ */
+export function threadComments(comments: Comment[]): ThreadedComment[] {
+  const byId = new Map(comments.map((c) => [c.id, c]));
+  const rootOf = (c: Comment): Comment => {
+    let node = c;
+    const seen = new Set<string>();
+    while (node.parentId && byId.has(node.parentId) && !seen.has(node.id)) {
+      seen.add(node.id);
+      node = byId.get(node.parentId)!;
+    }
+    return node;
+  };
+  const threads = new Map<string, ThreadedComment>();
+  for (const c of comments) {
+    const root = rootOf(c);
+    if (root.id === c.id) threads.set(c.id, { ...c, replies: threads.get(c.id)?.replies ?? [] });
+  }
+  for (const c of comments) {
+    const root = rootOf(c);
+    if (root.id !== c.id) threads.get(root.id)?.replies.push(c);
+  }
+  return [...threads.values()];
+}
+
+function commentError(err: unknown, fallback: string): string {
+  const code = (err as { code?: string } | null)?.code;
+  return code ? friendlyError(code) : fallback;
+}
+
 export function useLessonComments(
   lessonId: string,
-  courseId: string = 'c0000001-0000-0000-0000-000000000001',
+  courseIdParam?: string,
   chapterId?: string
 ) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -305,6 +341,9 @@ export function useLessonComments(
   const signedInProfile = useAuthStore((s) => s.profile);
   const profile = signedInProfile ?? (env.useMocks ? fallbackUser : null);
   const currentUserId = profile?.id ?? '';
+  // The route may not carry the course; the lesson always knows it.
+  const lessonQ = useLesson(lessonId);
+  const courseId = courseIdParam || lessonQ.data?.courseId || '';
 
   const refetch = useCallback(async () => {
     setIsLoading(true);
@@ -313,7 +352,7 @@ export function useLessonComments(
       const data = await fetchLessonComments(lessonId);
       setComments(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load comments');
+      setError(commentError(err, 'Failed to load comments'));
     } finally {
       setIsLoading(false);
     }
@@ -330,7 +369,7 @@ export function useLessonComments(
       })
       .catch((err: unknown) => {
         if (active) {
-          setError(err instanceof Error ? err.message : 'Failed to load comments');
+          setError(commentError(err, 'Failed to load comments'));
           setIsLoading(false);
         }
       });
@@ -340,32 +379,7 @@ export function useLessonComments(
     };
   }, [lessonId]);
 
-  // Build the threaded structure from flat list (API §9)
-  const threads = useMemo<ThreadedComment[]>(() => {
-    const parentMap = new Map<string, Comment[]>();
-    const topLevel: ThreadedComment[] = [];
-
-    // Group replies by parentId
-    for (const c of comments) {
-      if (c.parentId) {
-        const existing = parentMap.get(c.parentId) ?? [];
-        existing.push(c);
-        parentMap.set(c.parentId, existing);
-      }
-    }
-
-    // Attach replies to top-level comments
-    for (const c of comments) {
-      if (!c.parentId) {
-        topLevel.push({
-          ...c,
-          replies: parentMap.get(c.id) ?? [],
-        });
-      }
-    }
-
-    return topLevel;
-  }, [comments]);
+  const threads = useMemo(() => threadComments(comments), [comments]);
 
   const totalCount = comments.length;
 
@@ -379,7 +393,7 @@ export function useLessonComments(
       const tempId = `temp-${Date.now().toString(36)}`;
       const optimisticAuthor = {
         id: currentUserId,
-        name: profile?.fullName ?? 'Alex Chen',
+        name: profile?.fullName ?? 'You',
         avatarUrl: profile?.avatar ?? null,
         role: profile?.role ?? 'student',
       };
@@ -424,7 +438,7 @@ export function useLessonComments(
       } catch (err: unknown) {
         // Roll back optimistic comment on failure
         setComments((prev) => prev.filter((c) => c.id !== tempId));
-        setError(err instanceof Error ? err.message : 'Failed to post comment');
+        setError(commentError(err, 'Failed to post comment'));
         setIsPosting(false);
         return false;
       }
@@ -445,7 +459,7 @@ export function useLessonComments(
       } catch (err: unknown) {
         // Roll back on failure
         setComments(previous);
-        setError(err instanceof Error ? err.message : 'Failed to delete comment');
+        setError(commentError(err, 'Failed to delete comment'));
         return false;
       }
     },
@@ -458,7 +472,7 @@ export function useLessonComments(
       prev.map((c) => {
         if (c.id !== commentId) return c;
         const upvoted = !c.upvoted;
-        const upvotes = upvoted ? c.upvotes + 1 : Math.max(0, c.upvotes - 1);
+        const upvotes = upvoted ? (c.upvotes ?? 0) + 1 : Math.max(0, (c.upvotes ?? 0) - 1);
         return {
           ...c,
           upvoted,
@@ -476,7 +490,7 @@ export function useLessonComments(
         prev.map((c) => {
           if (c.id !== commentId) return c;
           const upvoted = !c.upvoted;
-          const upvotes = upvoted ? c.upvotes + 1 : Math.max(0, c.upvotes - 1);
+          const upvotes = upvoted ? (c.upvotes ?? 0) + 1 : Math.max(0, (c.upvotes ?? 0) - 1);
           return {
             ...c,
             upvoted,

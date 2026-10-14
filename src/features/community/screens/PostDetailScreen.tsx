@@ -135,6 +135,8 @@ export function PostDetailScreen() {
 
   const post = postQ.data ?? null;
   const isOwner = !!post && post.userId === me.id;
+  // The post owner or an admin (the teacher) may mark a solution (INTEGRATION.md #24).
+  const canSolve = isOwner || me.role === 'admin';
 
   const goBack = () => {
     if (router.canGoBack()) router.back();
@@ -349,7 +351,7 @@ export function PostDetailScreen() {
                 <ReplyRow
                   reply={reply}
                   isPostAuthor={reply.userId === post.userId}
-                  canMarkSolution={isOwner && !reply.isSolution}
+                  canMarkSolution={canSolve && !reply.isSolution}
                   marking={markSolution.isPending && markSolution.variables === reply.id}
                   onUpvote={() => onUpvoteReply(reply.id)}
                   onReply={() => setReplyTo(reply)}
@@ -372,7 +374,7 @@ export function PostDetailScreen() {
                         reply={child}
                         nested
                         isPostAuthor={child.userId === post.userId}
-                        canMarkSolution={isOwner && !child.isSolution}
+                        canMarkSolution={canSolve && !child.isSolution}
                         marking={markSolution.isPending && markSolution.variables === child.id}
                         onUpvote={() => onUpvoteReply(child.id)}
                         onReply={() => setReplyTo(reply)}
