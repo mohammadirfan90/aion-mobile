@@ -82,7 +82,8 @@ export interface ChangePasswordBody {
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type PricingType = 'free' | 'one_time' | 'subscription' | 'custom';
 export type BillingPeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-export type AccessMode = 'free' | 'paid' | 'invite_only' | 'subscription' | 'closed';
+/** Who may enroll (API §3). Price is a separate question (`lib/course.ts`). */
+export type AccessMode = 'open' | 'invite' | 'closed';
 export type CourseStatus = 'draft' | 'published' | 'archived';
 
 export interface PricingConfig {
@@ -95,8 +96,8 @@ export interface PricingConfig {
 }
 
 export interface AccessConfig {
-  mode: AccessMode;
-  inviteCode?: string;
+  accessMode?: AccessMode; // missing → open
+  // `inviteCode` is only sent to admins and the course owner, never to students.
   // API §3: when `pricingType === 'paid'`, `price` is the USD whole-unit price
   // the course is sold for outside of `pricingConfig` (e.g. invite-only
   // cohorts with their own price). Optional; many courses leave both unset.

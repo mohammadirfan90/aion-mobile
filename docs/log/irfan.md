@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-07
+- Did: `AccessConfig` is the real `{ accessMode: 'open' | 'invite' | 'closed', pricingType?, price?, maxCapacity? }` (no invite code for students; mock codes live in the enrollment fixture). `enrollAction()` in `lib/course.ts` decides S10's bottom bar: enrollment first, then the API's own order (paid → web, closed, invite, free), with tests. Enroll errors use `friendlyError`; `COURSE_CLOSED` / `PAYMENT_REQUIRED` / `CAPACITY_REACHED` refetch the course; `ALREADY_ENROLLED` returns the existing row. `focusManager` follows `AppState`, so stale queries (enrollments included) refetch on return from the web checkout.
+- Quality gates: tsc, lint, 73 tests.
+- Next: P2-08 (lesson, progress, notes, summary).
+- Blockers: none.
+
 ## 2026-10-15 — P2-01, P2-02, P2-03, P2-06
 - Did:
   - **P2-01:** `lib/supabase.ts`, a lazy supabase-js client with the session in AsyncStorage; auto refresh runs only while the app is in the foreground. The local API port fallback is 3001.

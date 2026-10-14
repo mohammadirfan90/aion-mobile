@@ -69,7 +69,8 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton';
 import { Text } from '@/components/ui/Text';
 import { useTheme, type Theme } from '@/theme';
 import { env } from '@/lib/env';
-import { formatCoursePrice, isFreeCourse, levelLabel } from '@/lib/course';
+import { enrollAction, formatCoursePrice, isFreeCourse, levelLabel } from '@/lib/course';
+import { friendlyError } from '@/lib/errors';
 import { useCourseCurriculum, useCourseEnrollment, useEnroll } from '@/features/courses/hooks';
 import type { Chapter, Course, Lesson, LessonType } from '@/api/types';
 
@@ -344,13 +345,12 @@ function ActionBar({
   enrollError: string | null;
   theme: Theme;
 }) {
-  const access = course.accessConfig;
-  const mode = access?.mode ?? 'free';
-  const isClosed = mode === 'closed';
+  const action = enrollAction(course, isEnrolled);
+  const isClosed = action === 'closed';
   const free = isFreeCourse(course);
 
   let body: React.ReactNode;
-  if (isEnrolled) {
+  if (action === 'continue') {
     body = (
       <Button
         label="Continue"
@@ -360,10 +360,10 @@ function ActionBar({
     );
   } else if (isClosed) {
     body = <Button label="Enrollment closed" disabled fullWidth />;
-  } else if (free) {
-    body = <Button label="Enroll for free" loading={enrolling} onPress={onEnrollFree} />;
-  } else if (mode === 'invite_only') {
+  } else if (action === 'invite') {
     body = <Button label="Enter invite code" onPress={onOpenInvite} />;
+  } else if (action === 'free') {
+    body = <Button label="Enroll for free" loading={enrolling} onPress={onEnrollFree} />;
   } else {
     // Paid (one_time / subscription). D-04: payments are web-only.
     body = (
@@ -401,7 +401,7 @@ function ActionBar({
           }}
         >
           <Text variant="caption" tone="muted">
-            {free ? 'Free' : mode === 'invite_only' ? 'Invite only' : 'One-time access'}
+            {action === 'invite' ? 'Invite only' : free ? 'Free' : 'One-time access'}
           </Text>
           <Text variant="heading" weight="bold">
             {formatCoursePrice(course)}
@@ -582,28 +582,41 @@ export function CourseDetailScreen() {
     [courseId],
   );
 
+  // The course's access may have changed since it loaded (API §5 error order).
+  const onEnrollFailed = useCallback(
+    (e: unknown) => {
+      const code = (e as { code?: string } | null)?.code;
+      setEnrollError(friendlyError(code));
+      if (code === 'COURSE_CLOSED' || code === 'PAYMENT_REQUIRED' || code === 'CAPACITY_REACHED') {
+        setInviteOpen(false);
+        void curriculumQ.refetch();
+      }
+    },
+    [curriculumQ],
+  );
+
   const onEnrollFree = useCallback(async () => {
     if (!courseId) return;
     setEnrollError(null);
     try {
       await enrollM.mutateAsync({ courseId });
     } catch (e) {
-      setEnrollError(e instanceof Error ? e.message : 'Could not enroll. Please try again.');
+      onEnrollFailed(e);
     }
-  }, [courseId, enrollM]);
+  }, [courseId, enrollM, onEnrollFailed]);
 
   const onInviteSubmit = useCallback(
     async (code: string) => {
       if (!courseId) return;
       setEnrollError(null);
       try {
-        await enrollM.mutateAsync({ courseId, inviteCode: code });
+        await enrollM.mutateAsync({ courseId, inviteCode: code.trim() });
         setInviteOpen(false);
       } catch (e) {
-        setEnrollError(e instanceof Error ? e.message : 'Invalid invite code.');
+        onEnrollFailed(e);
       }
     },
-    [courseId, enrollM],
+    [courseId, enrollM, onEnrollFailed],
   );
 
   const onGetOnWeb = useCallback(() => {

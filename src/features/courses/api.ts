@@ -17,7 +17,7 @@ import { enrollMock, enrollments } from '@/mocks/fixtures/enrollments';
 import { getCourseProgressRows } from '@/mocks/fixtures/progress';
 import { mockDelay } from '@/mocks/delay';
 import { env } from '@/lib/env';
-import { request } from '@/api/client';
+import { isApiError, request } from '@/api/client';
 import { getCurriculumFromApi } from '@/api/curriculum';
 import type { Curriculum, EnrollBody, Enrollment, UUID } from '@/api/types';
 
@@ -62,7 +62,15 @@ export async function postEnroll(body: EnrollBody): Promise<Enrollment> {
     return mockDelay(enrollMock(body.courseId, body.inviteCode), 250);
   }
   // Real API: POST /enrollments (API §5).
-  return request<Enrollment>('/enrollments', { method: 'POST', body });
+  try {
+    return await request<Enrollment>('/enrollments', { method: 'POST', body });
+  } catch (e) {
+    // 409 ALREADY_ENROLLED (e.g. bought on the web meanwhile) counts as success.
+    if (!isApiError(e) || e.code !== 'ALREADY_ENROLLED') throw e;
+    const row = await fetchMyEnrollmentsForCourse(body.courseId);
+    if (!row) throw e;
+    return row;
+  }
 }
 
 /**

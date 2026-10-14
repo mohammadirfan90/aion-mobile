@@ -474,7 +474,7 @@ export function getCurriculum(courseId: string): Curriculum | null {
       tags: null,
       level: 'beginner',
       pricingConfig: { type: 'free', currency: 'USD', price: 0 },
-      accessConfig: { mode: 'free' },
+      accessConfig: { accessMode: 'open' },
       instructorId: '22222222-2222-2222-2222-222222222222',
       status: 'published',
       certificateConfig: { enabled: true },

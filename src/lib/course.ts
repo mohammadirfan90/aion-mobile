@@ -43,6 +43,26 @@ export function formatCoursePrice(course: Pick<Course, 'pricingConfig' | 'access
   return 'Free';
 }
 
+/**
+ * What S10's bottom bar offers (INTEGRATION.md #6, #21). Enrollment is checked
+ * first: the API rejects a now-closed or now-paid course with `COURSE_CLOSED` /
+ * `PAYMENT_REQUIRED` before it would say `ALREADY_ENROLLED`. Then the API's own
+ * order: paid (web checkout, D-04), closed, invite code, free.
+ */
+export type EnrollAction = 'continue' | 'web' | 'closed' | 'invite' | 'free';
+
+export function enrollAction(
+  course: Pick<Course, 'pricingConfig' | 'accessConfig'>,
+  isEnrolled: boolean,
+): EnrollAction {
+  if (isEnrolled) return 'continue';
+  if (!isFreeCourse(course)) return 'web';
+  const mode = course.accessConfig?.accessMode ?? 'open';
+  if (mode === 'closed') return 'closed';
+  if (mode === 'invite') return 'invite';
+  return 'free';
+}
+
 /** Capitalize a level (`beginner` → `Beginner`) for chip labels. */
 export function levelLabel(level: Course['level']): string {
   if (!level) return 'All';

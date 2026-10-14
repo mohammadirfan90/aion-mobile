@@ -1,4 +1,5 @@
 import type { Enrollment, MyLearningRow } from '@/api/types';
+import { isFreeCourse } from '@/lib/course';
 import { courses } from './courses';
 import { getCurriculum } from './curriculum';
 
@@ -83,40 +84,36 @@ export function getMyLearning(): MyLearningRow[] {
 /**
  * In-memory enroll mutation (mock mode, P1-S10).
  *
- * Rules mirror the real API (API §5):
- *   - `ALREADY_ENROLLED` is returned as the existing row (200/201 — UI treats
- *     both as success).
- *   - For invite-only courses the invite code is checked against
- *     `accessConfig.inviteCode`. A wrong or missing code throws
- *     `INVITATION_REQUIRED` so the screen can show a field error.
+ * Rules mirror the real API (API §5), in its order:
+ *   - A paid course throws `PAYMENT_REQUIRED` (checkout is web-only, D-04).
  *   - A `closed` course throws `COURSE_CLOSED`.
+ *   - For invite courses the code is checked against `MOCK_INVITE_CODES`
+ *     (the real API never sends the code to students). A wrong or missing
+ *     code throws `INVITATION_REQUIRED` so the screen can show a field error.
+ *   - Already enrolled returns the existing row (the UI treats it as success).
  *
  * Mutates the exported `enrollments` array in place so the next
  * `useMyEnrollments()` call returns the new row without a refetch hack.
  */
+const MOCK_INVITE_CODES: Record<string, string> = {
+  'c0000003-0000-0000-0000-000000000003': 'TEAM-2026',
+};
+
+function mockError(code: string, message: string): Error {
+  return Object.assign(new Error(message), { code });
+}
+
 export function enrollMock(courseId: string, inviteCode?: string): Enrollment {
+  const course = courses.find((c) => c.id === courseId);
+  if (!course) throw mockError('COURSE_NOT_FOUND', 'Course not found');
+  if (!isFreeCourse(course)) throw mockError('PAYMENT_REQUIRED', 'This course must be purchased');
+  const mode = course.accessConfig?.accessMode ?? 'open';
+  if (mode === 'closed') throw mockError('COURSE_CLOSED', 'Enrollment is closed for this course');
+  if (mode === 'invite' && inviteCode?.trim() !== MOCK_INVITE_CODES[courseId]) {
+    throw mockError('INVITATION_REQUIRED', 'A valid invite code is required');
+  }
   const existing = enrollments.find((e) => e.courseId === courseId);
   if (existing) return existing;
-
-  const course = courses.find((c) => c.id === courseId);
-  if (!course) {
-    const err = new Error('Course not found');
-    (err as { code?: string }).code = 'COURSE_NOT_FOUND';
-    throw err;
-  }
-  const access = course.accessConfig;
-  if (access?.mode === 'closed') {
-    const err = new Error('Enrollment is closed for this course');
-    (err as { code?: string }).code = 'COURSE_CLOSED';
-    throw err;
-  }
-  if (access?.mode === 'invite_only') {
-    if (!inviteCode || inviteCode !== access.inviteCode) {
-      const err = new Error('A valid invite code is required');
-      (err as { code?: string }).code = 'INVITATION_REQUIRED';
-      throw err;
-    }
-  }
 
   const row: Enrollment = {
     id: `e-${Date.now()}`,

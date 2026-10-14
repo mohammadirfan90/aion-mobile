@@ -11,16 +11,26 @@
  *
  * SPEC §5: nothing renders until the saved session is restored
  * (`lib/auth-store.ts`). Signing out clears every cached query.
+ *
+ * Coming back to the foreground refetches stale queries, so a course bought
+ * on the web shows up as enrolled without a manual refresh (D-04, P2-07).
  */
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { AppState, Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { ServerWakeBanner } from '@/components/ServerWakeBanner';
 import { ToastHost } from '@/components/ui/Toast';
 import { initAuth, onSignedOut, useAuthSession } from '@/lib/auth-store';
 import { ThemeProvider, useTheme } from '@/theme';
+
+if (Platform.OS !== 'web') {
+  focusManager.setEventListener((setFocused) => {
+    const sub = AppState.addEventListener('change', (state) => setFocused(state === 'active'));
+    return () => sub.remove();
+  });
+}
 
 export default function RootLayout() {
   const [queryClient] = useState(
