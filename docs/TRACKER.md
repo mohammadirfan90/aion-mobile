@@ -7,9 +7,9 @@ must keep it current, so that anyone can pick up the work from where it stopped.
 
 <!-- Update this block at the end of every work session. Keep it short. -->
 
-- **Phase:** 1, Screens (in progress)
+- **Phase:** 2, Integration (ready to start)
 - **Mocks:** on (`EXPO_PUBLIC_USE_MOCKS=true`)
-- **Last update:** 2026-10-14, Maria: P1-S19–S29 done (community, support, profile, edit profile, settings, certificate, verify; checked on the Android emulator in mock mode, light and dark). Every Phase 1 screen is built. Next up: the P0-12 smoke check (logout still to check), then Phase 2 (P2-01 → P2-03, Maria P2-04 / P2-05).
+- **Last update:** 2026-10-14, Irfan: P0-12 done; Phase 0 and Phase 1 gates pass; every route renders on Android (light and dark). Fonts embedded (no clipped text), real logo everywhere, headers clear the status bar, jest-expo set up (48 tests), Expo SDK 57 patches applied (expo-doctor clean). Deployed API and Supabase both reachable. Next up: Irfan P2-01 → P2-03; Maria P2-05 once P2-02 lands. Readiness notes are in docs/log/irfan.md (2026-10-14).
 - **Open blockers:** none.
 
 ## How to use this file

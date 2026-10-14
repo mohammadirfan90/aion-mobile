@@ -2,6 +2,29 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-14 — P0-12, clean-ups, Phase 2 readiness
+- Did:
+  - **Fonts:** Geist (4 weights + italics) is embedded with the `expo-font` config plugin. `Text` no longer sends `fontWeight` (the family encodes it) and maps italic to the real italic face. Android had been measuring family + weight / synthetic italic narrower than it drew, which clipped "Log in", "Password", "Sara Student"…
+  - **Logo:** new `components/BrandLogo.tsx` (light/dark PNG, 10:3). Welcome and Login used a text "A Aion" stand-in; every header now uses the real artwork.
+  - **Safe areas:** Home, Explore, Learning, S10 and S11 drew their headers under the status bar (what made the Home logo look garbled); they use `insets.top` now. The curriculum list pads for the bottom inset.
+  - **Device-found fixes:** S12 shows a locked state for locked lessons; Maria's comments sheet keeps its composer on Android (same fix as notes/summary); the certificate name no longer drops its second line (`adjustsFontSizeToFit` removed).
+  - **Clean-ups:** removed the pre-API.md types (`Note`, `Quiz`, `Assignment`, `ForumPost`, `Ticket`, `Certificate`, …) and their re-exports; folded `lesson/player-api.ts` / `player-hooks.ts` into `lesson/api.ts` / `hooks.ts`; deleted the unused `components/placeholder.tsx`; typed `qk.forum.list` + `qk.forum.lists()` and `qk.me.profileSummary()`; friendly messages for the feature error codes in `lib/errors.ts`.
+  - **Bug:** `formatCoursePrice` divided by 100, but API §3 prices are whole units (confirmed on the live API: `"price": 49`). Fixed, and the fixtures now use whole units too.
+  - **Tests:** `jest-expo` + `@react-native/jest-preset@0.86.3` (pinned to RN 0.86), `npm test`, 48 unit tests for `lib/course`, `lib/lesson`, `lib/format`.
+  - **Expo:** SDK 57 patch updates; `npx expo-doctor` 21/21.
+  - **P0-12:** done on the Pixel_8 emulator; see the tracker row.
+- Verification: `verify.mjs check` 8/8 (now includes `npm test`), `phase 0` 25/25, `phase 1` 16/16, expo-doctor clean. All 34 routes opened by deep link with no JS errors (contact sheets checked by eye).
+- **Phase 2 readiness:**
+  - Ready: Phases 0–1 verified; the deployed API answers (`/health` 200, `/api/v1/courses` returns real courses) and Supabase auth answers; B-01 and B-08 are done; the data layer already has real-mode branches for lesson, quiz, assignment, tutor, community, support, profile and certificate; `request<T>()` sends the bearer token once P2-02 provides it; tests run.
+  - To do inside Phase 2 (no blockers to start):
+    - P2-01 `lib/supabase.ts` doesn't exist yet (first task). P2-02 must also feed the token to `lib/upload.ts` (XHR) and the tutor's `expo/fetch` stream, which don't go through the client yet.
+    - P2-06: `catalog`, `courses`, `home`, `learning` `api.ts` use raw `fetch` with no auth; move them to `request()`. Normalize the real shapes there: curriculum `activities` + chapter `isLocked`, `accessConfig.accessMode` (`open` / `invite` / `closed`), and Home's summary (API §12 `LearningSummaryData`; S25 already uses it). Details are in the P2-06 row.
+    - P2-05 (Maria): add `expo-image-manipulator` (HEIC → JPEG, resize) and the auth header in `lib/upload.ts`.
+    - The API is on Render's free tier: the first request after idle took > 30 s. Plan a longer first-request timeout or a "waking the server" state, or the app will show errors on cold starts.
+    - B-02 (email code templates) still blocks P2-16; B-04 (demo accounts) is in progress.
+- Next: P2-01.
+- Blockers: none.
+
 ## 2026-10-14 — P1-S12, P1-S13, P1-S14, P1-S15, P1-S16, P1-S17, merge to main
 - Did: built the rest of Discover & Learn on mock data and merged every open Phase 1 branch into `main`.
   - **S12 Lesson** (`features/lesson/screens/LessonScreen.tsx`): one renderer per API §4 type, picked in the new `lib/lesson.ts` (also parses `dynamic_page` blocks with the API fallback chain and walks the curriculum for Previous / Next). Native video through `expo-video` with resume, a heartbeat at most every 6 s plus on pause / leave, and Mark complete at the end; YouTube / Vimeo through a WebView iframe page. Optimistic Mark complete shares `qk.progress.course` with S11.
