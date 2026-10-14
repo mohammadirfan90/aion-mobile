@@ -8,23 +8,14 @@
  */
 
 import type {
-  Assignment,
-  Certificate,
   Chapter,
   Comment,
   CommentAuthor,
   Course,
   CourseListParams,
   Enrollment,
-  ForumPost,
-  ForumReply,
   Lesson,
   LearningSummary,
-  Note,
-  Quiz,
-  Summary,
-  Ticket,
-  TutorChat,
   UserProfile,
   UUID,
 } from './types';
@@ -125,23 +116,14 @@ export type QueryKeys = typeof qk;
 // Re-export the entity types so consumers can `import { Course, … } from '@/api/query-keys'`
 // when they only need the type. The canonical location is `./types`.
 export type {
-  Assignment,
-  Certificate,
   Chapter,
   Comment,
   CommentAuthor,
   Course,
   CourseListParams,
   Enrollment,
-  ForumPost,
-  ForumReply,
   Lesson,
   LearningSummary,
-  Note,
-  Quiz,
-  Summary,
-  Ticket,
-  TutorChat,
   UserProfile,
   UUID,
 };

@@ -29,7 +29,7 @@ import { formatDate, formatDateTime, formatMinutes, formatTime, parseDate } from
 import { liveStatus, type LessonView } from '@/lib/lesson';
 import { useTheme, type Theme } from '@/theme';
 
-import { useAssignmentIntro, useMarkdownUrl, useQuizIntro } from '../player-hooks';
+import { useAssignmentIntro, useMarkdownUrl, useQuizIntro } from '../hooks';
 import { DynamicPage } from './DynamicPage';
 import { EmbedFrame } from './EmbedFrame';
 

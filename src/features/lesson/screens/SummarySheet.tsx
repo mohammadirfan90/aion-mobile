@@ -47,7 +47,7 @@ import { formatClock } from '@/lib/format';
 import { useTheme, type Theme } from '@/theme';
 
 import { playback } from '../playback';
-import { useLesson, useLessonSummary } from '../player-hooks';
+import { useLesson, useLessonSummary } from '../hooks';
 
 type Tab = 'summary' | 'concepts' | 'flashcards';
 

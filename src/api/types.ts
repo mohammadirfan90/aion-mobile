@@ -357,17 +357,7 @@ export interface LearningSummary {
   }[];
 }
 
-// ── Notes & comments (API §6) ─────────────────────────────────────────────────
-export interface Note {
-  id: UUID;
-  lessonId: UUID;
-  userId: UUID;
-  content: string;
-  videoTimestampSeconds?: number;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
+// ── Lesson comments (API §9) ─────────────────────────────────────────────────
 export interface CommentAuthor {
   id: UUID;
   name: string;
@@ -401,162 +391,6 @@ export interface CreateCommentBody {
   timestampSeconds?: number | null;
 }
 
-// ── Quiz (API §7) ─────────────────────────────────────────────────────────────
-export type QuizQuestionType = 'single' | 'multiple' | 'truefalse';
-
-export interface QuizQuestion {
-  id: UUID;
-  type: QuizQuestionType;
-  prompt: string;
-  options: { id: string; text: string }[];
-  points: number;
-}
-
-export interface Quiz {
-  id: UUID;
-  lessonId: UUID;
-  title: string;
-  passingScore: number;
-  questions: QuizQuestion[];
-}
-
-export interface QuizSubmission {
-  answers: Record<UUID, string[]>; // questionId → selected option ids
-}
-
-export interface QuizResult {
-  score: number;
-  passed: boolean;
-  perQuestion: {
-    questionId: UUID;
-    correct: boolean;
-    pointsEarned: number;
-  }[];
-}
-
-// ── Assignment (API §8) ───────────────────────────────────────────────────────
-export interface Assignment {
-  id: UUID;
-  lessonId: UUID;
-  instructions: string;
-  dueAt: Timestamp | null;
-  maxScore: number;
-  submission: AssignmentSubmission | null;
-}
-
-export interface AssignmentSubmission {
-  id: UUID;
-  fileUrl: string | null;
-  text: string | null;
-  submittedAt: Timestamp;
-  gradedAt: Timestamp | null;
-  score: number | null;
-  feedback: string | null;
-}
-
-export interface AssignmentSubmitBody {
-  text?: string;
-  fileUrl?: string;
-}
-
-// ── Forum (API §9) ────────────────────────────────────────────────────────────
-export type ForumCategory = 'general' | 'question' | 'showcase' | 'feedback';
-export interface ForumPost {
-  id: UUID;
-  authorId: UUID;
-  authorName: string;
-  authorAvatar: string | null;
-  category: ForumCategory;
-  title: string;
-  body: string;
-  imageUrl: string | null;
-  upvotes: number;
-  upvoted: boolean;
-  replyCount: number;
-  pinned: boolean;
-  solvedReplyId: UUID | null;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-export interface ForumReply {
-  id: UUID;
-  postId: UUID;
-  authorId: UUID;
-  authorName: string;
-  authorAvatar: string | null;
-  body: string;
-  upvotes: number;
-  upvoted: boolean;
-  isSolution: boolean;
-  createdAt: Timestamp;
-}
-
-export interface CreatePostBody {
-  category: ForumCategory;
-  title: string;
-  body: string;
-  imageUrl?: string;
-}
-
-export interface CreateReplyBody {
-  body: string;
-}
-
-// ── Support tickets (API §10) ──────────────────────────────────────────────────
-export type TicketStatus = 'open' | 'pending' | 'resolved' | 'closed';
-export interface Ticket {
-  id: UUID;
-  subject: string;
-  status: TicketStatus;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  messages: TicketMessage[];
-}
-
-export interface TicketMessage {
-  id: UUID;
-  ticketId: UUID;
-  authorId: UUID;
-  authorRole: Role;
-  body: string;
-  attachments: { url: string; name: string; mime: string }[];
-  createdAt: Timestamp;
-}
-
-export interface CreateTicketBody {
-  subject: string;
-  body: string;
-  attachments?: { url: string; name: string; mime: string }[];
-}
-
-export interface ReplyTicketBody {
-  body: string;
-  attachments?: { url: string; name: string; mime: string }[];
-}
-
-// ── AI tutor & summary (API §11) ─────────────────────────────────────────────
-export interface TutorMessage {
-  id: UUID;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  createdAt: Timestamp;
-}
-
-export interface TutorChat {
-  id: UUID;
-  title: string;
-  messages: TutorMessage[];
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-export interface Summary {
-  lessonId: UUID;
-  content: string;
-  generatedAt: Timestamp;
-}
-
 // ── User (API §12) ────────────────────────────────────────────────────────────
 export interface UserProfile {
   id: UUID;
@@ -571,36 +405,8 @@ export interface UserProfile {
   createdAt: Timestamp;
 }
 
-export interface UpdateProfileBody {
-  firstName?: string;
-  lastName?: string;
-  username?: string;
-  bio?: string;
-  avatar?: string;
-}
-
-// ── Certificate (API §14) ─────────────────────────────────────────────────────
-export interface Certificate {
-  id: UUID;
-  code: string;
-  userId: UUID;
-  userName: string;
-  courseId: UUID;
-  courseTitle: string;
-  issuedAt: Timestamp;
-  certificateUrl: string | null;
-}
-
-export interface CertificateVerification {
-  valid: boolean;
-  certificate?: Certificate;
-  reason?: 'NOT_FOUND' | 'REVOKED';
-}
-
 // ── Learn: progress, notes, quizzes, assignments, AI (S12–S17) ────────────────
-// These follow API.md §4, §6–§8, §13 and §16 exactly. The older `Note`, `Quiz`,
-// `QuizSubmission`, `Assignment`, `AssignmentSubmission`, `Summary` and
-// `TutorChat` shapes above predate API.md; the lesson screens don't use them.
+// These follow API.md §4, §6–§8, §13 and §16.
 
 /** One row of `GET /progress/course/{courseId}`. No row means not started. */
 export interface LessonProgressRow {
@@ -791,10 +597,8 @@ export interface TutorStreamBody {
 }
 
 // ── Community, support, account, certificates (S19–S29) ───────────────────────
-// These follow API.md §2, §10, §11, §12 and §14 exactly. The older `ForumPost`,
-// `ForumReply`, `Ticket`, `TicketMessage`, `UserProfile`, `Certificate` and
-// `CertificateVerification` shapes above predate API.md; these screens don't
-// use them.
+// These follow API.md §2, §10, §11, §12 and §14. `UserProfile` (above) is the
+// mock auth store's user; screens read `Me`.
 
 export type ForumCategoryValue = 'question' | 'general' | 'feedback' | 'bug' | 'showcase';
 export type ForumSort = 'latest' | 'activity' | 'replies' | 'upvotes' | 'oldest';

@@ -51,7 +51,7 @@ import {
   useLessonCurriculum,
   useLessonProgress,
   useMarkComplete,
-} from '../player-hooks';
+} from '../hooks';
 
 export function LessonScreen() {
   const theme = useTheme();

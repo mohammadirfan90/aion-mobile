@@ -35,7 +35,7 @@ import { formatClock, formatDayTime } from '@/lib/format';
 import { useTheme, type Theme } from '@/theme';
 
 import { playback } from '../playback';
-import { useAddNote, useDeleteNote, useLesson, useLessonNotes } from '../player-hooks';
+import { useAddNote, useDeleteNote, useLesson, useLessonNotes } from '../hooks';
 
 const MAX_NOTE = 2000;
 /** The sheet sizes to its content (`fitToContents`), so it sets its own height. */
