@@ -1,7 +1,7 @@
 /**
  * Profile hooks (S25, S26, S27).
  *
- * The learning-summary query uses `[...qk.me.learningSummary(), 'profile']`
+ * The learning-summary query uses `qk.me.profileSummary()`
  * because Home caches a differently shaped summary under the bare key.
  * Prefix invalidation of `qk.me.learningSummary()` / `qk.me.all` still
  * reaches it.
@@ -22,7 +22,7 @@ import {
   type PickedFile,
 } from './api';
 
-const profileSummaryKey = [...qk.me.learningSummary(), 'profile'] as const;
+const profileSummaryKey = qk.me.profileSummary();
 
 export function useMe() {
   return useQuery({ queryKey: qk.me.detail(), queryFn: fetchMe, staleTime: 60_000 });

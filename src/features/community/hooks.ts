@@ -15,7 +15,6 @@ import {
   useQuery,
   useQueryClient,
   type InfiniteData,
-  type Query,
   type QueryClient,
 } from '@tanstack/react-query';
 
@@ -67,8 +66,7 @@ export interface ForumFeed {
 type FeedData = InfiniteData<ForumPostsPage, number>;
 
 /** Every cached feed (`qk.forum.list(...)`), whatever its filters. */
-const isFeed = (q: Query) => q.queryKey[1] === 'list';
-const feedFilter = { queryKey: qk.forum.all, predicate: isFeed };
+const feedFilter = { queryKey: qk.forum.lists() };
 
 function patchFeeds(qc: QueryClient, postId: UUID, patch: (p: ForumPostItem) => ForumPostItem) {
   qc.setQueriesData<FeedData>(feedFilter, (data) =>

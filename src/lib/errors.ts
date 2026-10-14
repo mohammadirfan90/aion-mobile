@@ -22,6 +22,19 @@ export type FriendlyErrorCode =
   | 'CONFLICT'
   | 'INTERNAL_ERROR'
   | 'NETWORK'
+  | 'LESSON_NOT_FOUND'
+  | 'COURSE_NOT_FOUND'
+  | 'COURSE_CLOSED'
+  | 'INVITATION_REQUIRED'
+  | 'MAX_ATTEMPTS_EXCEEDED'
+  | 'ALREADY_GRADED'
+  | 'EMPTY_SUBMISSION'
+  | 'FILE_TOO_LARGE'
+  | 'UNSUPPORTED_MEDIA_TYPE'
+  | 'UPLOAD_FAILED'
+  | 'FORUM_POST_NOT_FOUND'
+  | 'TICKET_NOT_FOUND'
+  | 'CERTIFICATE_NOT_FOUND'
   | 'UNKNOWN';
 
 const messages: Record<FriendlyErrorCode, string> = {
@@ -42,6 +55,19 @@ const messages: Record<FriendlyErrorCode, string> = {
   CONFLICT: 'This conflicts with something that already exists.',
   INTERNAL_ERROR: 'Something went wrong on our end. Please try again.',
   NETWORK: 'No connection. Check your internet and try again.',
+  LESSON_NOT_FOUND: 'We couldn’t find this lesson.',
+  COURSE_NOT_FOUND: 'We couldn’t find this course.',
+  COURSE_CLOSED: 'Enrollment for this course is closed.',
+  INVITATION_REQUIRED: 'That invite code isn’t valid.',
+  MAX_ATTEMPTS_EXCEEDED: 'You’ve used every attempt for this quiz.',
+  ALREADY_GRADED: 'This assignment has already been graded.',
+  EMPTY_SUBMISSION: 'Write an answer or attach a file.',
+  FILE_TOO_LARGE: 'That file is too large.',
+  UNSUPPORTED_MEDIA_TYPE: 'That file type isn’t supported.',
+  UPLOAD_FAILED: 'The upload failed. Please try again.',
+  FORUM_POST_NOT_FOUND: 'This post was removed or doesn’t exist.',
+  TICKET_NOT_FOUND: 'We couldn’t find this ticket.',
+  CERTIFICATE_NOT_FOUND: 'No certificate found for this code.',
   UNKNOWN: 'Something went wrong. Please try again.',
 };
 

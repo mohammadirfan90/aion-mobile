@@ -14,6 +14,7 @@ import type {
   Course,
   CourseListParams,
   Enrollment,
+  ForumPostsQuery,
   Lesson,
   LearningSummary,
   UserProfile,
@@ -27,6 +28,8 @@ export const qk = {
     all: all('me'),
     detail: () => ['me', 'detail'] as const,
     learningSummary: () => ['me', 'learningSummary'] as const,
+    /** S25's `LearningSummaryData` (API §12); Home still reads the older shape above until P2-06. */
+    profileSummary: () => ['me', 'learningSummary', 'profile'] as const,
   },
 
   courses: {
@@ -73,8 +76,9 @@ export const qk = {
 
   forum: {
     all: all('forum'),
-    list: (params: { category?: string; search?: string } = {}) =>
-      ['forum', 'list', params] as const,
+    /** Prefix of every feed page cache (invalidate after writes). */
+    lists: () => ['forum', 'list'] as const,
+    list: (params: ForumPostsQuery = {}) => ['forum', 'list', params] as const,
     detail: (id: UUID) => ['forum', 'detail', id] as const,
     replies: (id: UUID) => ['forum', 'replies', id] as const,
     stats: () => ['forum', 'stats'] as const,
