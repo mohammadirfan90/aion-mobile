@@ -1,8 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
-
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
+import { describe, expect, it } from '@jest/globals';
 
 import type { Me } from '@/api/types';
 
