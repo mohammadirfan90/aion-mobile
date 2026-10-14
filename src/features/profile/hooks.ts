@@ -10,6 +10,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { qk } from '@/api/query-keys';
 import type { Me, UpdateMeBody } from '@/api/types';
+import { setCurrentMe } from '@/lib/auth-store';
+import { env } from '@/lib/env';
 
 import {
   fetchLearningSummary,
@@ -24,8 +26,18 @@ import {
 
 const profileSummaryKey = qk.me.profileSummary();
 
+/** Keeps the auth store's profile (Home's name, `aiConsent`) in step with S25–S27. */
+function syncMe(me: Me): Me {
+  if (!env.useMocks) setCurrentMe(me);
+  return me;
+}
+
 export function useMe() {
-  return useQuery({ queryKey: qk.me.detail(), queryFn: fetchMe, staleTime: 60_000 });
+  return useQuery({
+    queryKey: qk.me.detail(),
+    queryFn: async () => syncMe(await fetchMe()),
+    staleTime: 60_000,
+  });
 }
 
 export function useProfileLearningSummary() {
@@ -36,7 +48,8 @@ export function useUpdateMe() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: UpdateMeBody) => patchMe(body),
-    onSuccess: (me) => qc.setQueryData<Me>(qk.me.detail(), me),
+    // S14 / S17 read `aiConsent` from the auth store, so syncing is enough.
+    onSuccess: (me) => qc.setQueryData<Me>(qk.me.detail(), syncMe(me)),
   });
 }
 

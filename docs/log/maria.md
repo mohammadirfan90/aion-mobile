@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-13
+- Did: S26's limits now match the server's (headline 150, bio 1,000, learning goals 1,000; name 100, username 3–20), so a bio written on the web can be saved from the app (#18). `GET` and `PATCH /users/me` write the result to the auth store (`setCurrentMe`), so Home's name and the AI-off checks in S14 / S17 follow an edit at once. Change password (`POST /auth/password`), avatar upload (P2-05) and logout (auth store) were already wired.
+- Quality gates: tsc, lint, 89 tests.
+- Next: P2-14 (certificates).
+- Blockers: none.
+
 ## 2026-10-15 — P2-12
 - Did: support was already on `request()` from Phase 1. A resolved ticket now says it stays resolved when the student replies, and makes no reopen promise (#23). "Mark as resolved" still only shows for open / in-progress tickets (students may set only `resolved` / `closed`). S24's course picker is sorted by title (the summary rows are unordered); the linked lesson is normalized like S12's.
 - Quality gates: tsc, lint.

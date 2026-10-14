@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
-/** Field limits. The OpenAPI spec doesn't set any; these follow the S26 design (bio 0 / 240). */
+/**
+ * Field limits, the same as the server's `PATCH /users/me` (API §12). Tighter
+ * ones would stop a bio written on the web from being saved (INTEGRATION.md #18).
+ */
 export const NAME_MAX = 100;
-export const HEADLINE_MAX = 120;
-export const BIO_MAX = 240;
-export const GOALS_MAX = 500;
+export const HEADLINE_MAX = 150;
+export const BIO_MAX = 1000;
+export const GOALS_MAX = 1000;
 
 /** S26 Edit profile. Text fields are kept as strings; empty optional ones are sent as `null`. */
 export const editProfileSchema = z.object({
