@@ -36,7 +36,9 @@ export async function fetchAssignmentLesson(lessonId: UUID): Promise<Lesson> {
     if (!lesson) throw codedError('LESSON_NOT_FOUND', 'Lesson not found');
     return mockDelay({ ...lesson });
   }
-  return request<Lesson>(`/lessons/${lessonId}`);
+  // Same shape as S12's `fetchLesson` (they share the cache key).
+  const lesson = await request<Omit<Lesson, 'completed'>>(`/lessons/${lessonId}`);
+  return { ...lesson, metadata: lesson.metadata ?? null, completed: false };
 }
 
 export async function fetchSubmission(lessonId: UUID): Promise<LessonAssignmentSubmission | null> {

@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-10-15 — P2-09
+- Did: quiz and assignment were already on `request()` from Phase 1. Added: `MAX_ATTEMPTS_EXCEEDED` (403) reloads the quiz so "attempts left" catches up (mapped by code, #22); `ALREADY_GRADED` (409) reloads the submission; the assignment's `GET /lessons/{id}` is normalized like S12's (shared cache key). `assignmentSettings` stay UI hints. The attachment upload goes through `lib/upload.ts`, which P2-05 (Maria) wires to the token.
+- Quality gates: tsc, lint, 75 tests.
+- Next: P2-10 (tutor stream).
+- Blockers: none.
+
 ## 2026-10-15 — P2-08
 - Did: `lib/lesson.ts` `firstUrl()` skips the editor's empty strings for poster, markdown link, document, embed and resource URLs (#10). `fetchNotes` sends the required `courseId` (#11). `useAiOff()` reads `Me.aiConsent`; S14 shows "AI features are turned off" and doesn't call the API when it's false (#14). `AI_SUMMARY_ERROR` has its own copy; `temp-` summaries render normally (#17). Heartbeats send the lesson's duration when the player has none yet. `GET /lessons/{id}` is normalized to the app's `Lesson`.
 - Quality gates: tsc, lint, 75 tests.

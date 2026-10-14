@@ -34,6 +34,12 @@ export function useSubmitAssignment(lessonId: UUID | null | undefined, courseId:
     onSuccess: (submission) => {
       if (lessonId) qc.setQueryData(qk.assignment.byLesson(lessonId), submission);
     },
+    onError: (e) => {
+      // 409 ALREADY_GRADED: graded since it loaded; show the grade instead.
+      if (lessonId && (e as { code?: string }).code === 'ALREADY_GRADED') {
+        void qc.invalidateQueries({ queryKey: qk.assignment.byLesson(lessonId) });
+      }
+    },
   });
 }
 

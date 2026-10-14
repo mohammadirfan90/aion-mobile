@@ -34,5 +34,12 @@ export function useSubmitQuiz(lessonId: UUID | null | undefined, courseId: UUID 
         void qc.invalidateQueries({ queryKey: qk.enrollments.all });
       }
     },
+    onError: (e) => {
+      // 403 MAX_ATTEMPTS_EXCEEDED (map by code: 403 isn't always NOT_ENROLLED,
+      // INTEGRATION.md #22). Reload so the attempts count catches up.
+      if (lessonId && (e as { code?: string }).code === 'MAX_ATTEMPTS_EXCEEDED') {
+        void qc.invalidateQueries({ queryKey: qk.quiz.byLesson(lessonId) });
+      }
+    },
   });
 }
