@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import type { Course } from '@/api/types';
 
 import { formatCoursePrice, isFreeCourse, levelLabel } from './course';

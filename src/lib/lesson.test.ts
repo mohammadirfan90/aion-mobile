@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import type { Chapter, Lesson } from '@/api/types';
 
 import {
