@@ -56,6 +56,7 @@ import {
   Users,
   X,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -126,10 +127,11 @@ function Hero({
   onShare: () => void;
   theme: Theme;
 }) {
+  const insets = useSafeAreaInsets();
   return (
     <View
       style={{
-        height: 220,
+        height: 220 + insets.top,
         backgroundColor: theme.colors.muted,
         position: 'relative',
       }}
@@ -145,7 +147,7 @@ function Hero({
       <View
         style={{
           position: 'absolute',
-          top: theme.spacing.twelve,
+          top: insets.top + theme.spacing.two,
           left: theme.spacing.four,
           right: theme.spacing.four,
           flexDirection: 'row',
@@ -542,6 +544,7 @@ function InviteDialog({
 
 export function CourseDetailScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const courseId = typeof id === 'string' ? id : null;
 
@@ -622,7 +625,7 @@ export function CourseDetailScreen() {
         style={{
           flex: 1,
           backgroundColor: theme.colors.background,
-          paddingTop: theme.spacing.twelve,
+          paddingTop: insets.top + theme.spacing.twelve,
         }}
       >
         <ErrorState

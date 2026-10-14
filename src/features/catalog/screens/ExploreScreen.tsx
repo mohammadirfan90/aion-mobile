@@ -25,6 +25,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View, type ListRenderItem } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { ChevronRight, Sparkles } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandLogo } from '@/components/BrandLogo';
 import { Badge } from '@/components/ui/Badge';
@@ -159,6 +160,7 @@ function CourseCard({
 
 export function ExploreScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [level, setLevel] = useState<LevelFilter>('All');
   const [price, setPrice] = useState<PriceFilter>('All');
@@ -203,7 +205,7 @@ export function ExploreScreen() {
         style={{
           flex: 1,
           backgroundColor: theme.colors.background,
-          paddingTop: theme.spacing.twelve,
+          paddingTop: insets.top + theme.spacing.twelve,
         }}
       >
         <ErrorState
@@ -233,7 +235,7 @@ export function ExploreScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingHorizontal: theme.spacing.four,
-          paddingTop: theme.spacing.three,
+          paddingTop: insets.top + theme.spacing.three,
           paddingBottom: theme.spacing.eight,
           gap: theme.spacing.four,
         }}

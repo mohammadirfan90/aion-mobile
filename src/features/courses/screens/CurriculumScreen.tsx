@@ -46,6 +46,7 @@ import {
   Trophy,
   Users,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -165,13 +166,14 @@ function HeaderBar({
   onMenu: () => void;
   theme: Theme;
 }) {
+  const insets = useSafeAreaInsets();
   return (
     <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.spacing.four,
-        paddingTop: theme.spacing.twelve,
+        paddingTop: insets.top + theme.spacing.two,
         paddingBottom: theme.spacing.three,
         gap: theme.spacing.two,
       }}
@@ -586,6 +588,7 @@ function MenuItem({
 
 export function CurriculumScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const courseId = typeof id === 'string' ? id : null;
 
@@ -639,7 +642,7 @@ export function CurriculumScreen() {
         style={{
           flex: 1,
           backgroundColor: theme.colors.background,
-          paddingTop: theme.spacing.twelve,
+          paddingTop: insets.top + theme.spacing.twelve,
         }}
       >
         <ErrorState

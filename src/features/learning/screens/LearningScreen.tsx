@@ -31,6 +31,7 @@ import { FlatList, Pressable, RefreshControl, View, type ListRenderItem } from '
 import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import { Award, CheckCircle2, ListFilter, MoreHorizontal, Search } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandLogo } from '@/components/BrandLogo';
 import { Avatar } from '@/components/ui/Avatar';
@@ -258,6 +259,7 @@ function CourseRowSkeleton({ theme }: { theme: Theme }) {
 
 export function LearningScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>('inProgress');
   const query = useMyLearning();
   const profile = mockAuth.getProfile();
@@ -310,7 +312,7 @@ export function LearningScreen() {
         style={{
           flex: 1,
           backgroundColor: theme.colors.background,
-          paddingTop: theme.spacing.twelve,
+          paddingTop: insets.top + theme.spacing.twelve,
         }}
       >
         <ErrorState
@@ -331,7 +333,7 @@ export function LearningScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingHorizontal: theme.spacing.four,
-          paddingTop: theme.spacing.four,
+          paddingTop: insets.top + theme.spacing.four,
           paddingBottom: theme.spacing.eight,
           gap: theme.spacing.four,
         }}

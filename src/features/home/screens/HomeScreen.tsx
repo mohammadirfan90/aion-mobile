@@ -27,6 +27,7 @@ import {
 } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { BookOpen, GraduationCap, Layers, Play, Search, Sparkles } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandLogo } from '@/components/BrandLogo';
 import { Avatar } from '@/components/ui/Avatar';
@@ -330,6 +331,7 @@ function HorizontalCards<T>({
 
 export function HomeScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const profile = mockAuth.getProfile();
   const firstName = profile?.firstName ?? 'there';
 
@@ -354,7 +356,7 @@ export function HomeScreen() {
         style={{
           flex: 1,
           backgroundColor: theme.colors.background,
-          paddingTop: theme.spacing.twelve,
+          paddingTop: insets.top + theme.spacing.twelve,
         }}
       >
         <ErrorState
@@ -378,7 +380,7 @@ export function HomeScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{
         paddingHorizontal: HORIZONTAL_PADDING,
-        paddingTop: theme.spacing.three,
+        paddingTop: insets.top + theme.spacing.three,
         paddingBottom: theme.spacing.eight,
         gap: theme.spacing.five,
       }}
