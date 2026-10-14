@@ -669,7 +669,7 @@ export function CurriculumScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{
           paddingHorizontal: theme.spacing.four,
-          paddingBottom: theme.spacing.eight,
+          paddingBottom: insets.bottom + theme.spacing.eight,
           gap: theme.spacing.four,
         }}
         refreshControl={
