@@ -59,7 +59,10 @@ body: { email: string; password: string /*8–200*/; firstName: string /*1–100
         username: string /*3–20, /^[a-z0-9_]+$/*/; captchaToken?: string }
 data: { user: SupabaseUser | null; session: SupabaseSession | null }
 ```
-- `session` is `null` when email confirmation is required (the normal case). Go to S04.
+- **Email demo mode (D-17, current):** "Confirm email" is off on the live project, so `session` is **present**.
+  Store it with `supabase.auth.setSession({ access_token, refresh_token })` and go straight to Home; skip S04.
+- When confirmation is turned back on (after B-02), `session` is `null`: go to S04 and confirm with
+  `POST /auth/verify-email`. Handle both: branch on whether `session` is null.
 - Errors: `USERNAME_TAKEN` (409, case-insensitive), `SIGNUP_FAILED` (400, plus `attemptsRemaining`),
   `RATE_LIMITED` (429, plus `lockedForSeconds`), `RECAPTCHA_REQUIRED` / `RECAPTCHA_FAILED` (until B-01 is done),
   `PROFILE_CREATION_FAILED` (500). With email confirmation on, an **already-registered email** can come back
@@ -79,12 +82,24 @@ permission error, skip the live check and rely on `409 USERNAME_TAKEN` from sign
 - Refresh: supabase-js does it automatically (no API endpoint exists).
 - Logout: `supabase.auth.signOut()`. Don't call the API's `/auth/logout`; it only clears web cookies.
 
-### Email codes (D-05; needs B-02)
-- Verify signup: `supabase.auth.verifyOtp({ email, token, type: 'email' })` (`'signup'` is the older,
-  deprecated name for the same type; check the supabase-js docs for the installed version); resend with
-  `supabase.auth.resend({ type: 'signup', email })`.
-- Reset: `supabase.auth.resetPasswordForEmail(email)` → `verifyOtp({ email, token, type: 'recovery' })` →
-  `supabase.auth.updateUser({ password })`.
+### Email codes through the API (D-16)
+These run on the server, so the app needs no web pages and no deep links. They only work once emails can be sent
+**and** contain the 6-digit code (B-02). In email demo mode (D-17) signup needs no code, and password reset is
+unavailable, so keep S02's "Forgot password?" link hidden in real mode.
+
+| Endpoint | Body | `data` on success | Errors |
+|---|---|---|---|
+| `POST /auth/verify-email` | `{ email: string; code: string /*exactly 6 digits*/ }` | `{ user: SupabaseUser; session: SupabaseSession }` | `INVALID_CODE` (400, plus `attemptsRemaining`), `RATE_LIMITED` (429, plus `lockedForSeconds`), `VALIDATION_ERROR` |
+| `POST /auth/resend-verification` | `{ email }` | `null`: the same answer whether or not the account exists | `RATE_LIMITED` (5 per hour per IP) |
+| `POST /auth/reset-password` | `{ email }`. Omit `redirectTo`; that's for the web. | `null` | `RESET_FAILED`, `RATE_LIMITED` (3 per hour per IP) |
+| `POST /auth/reset-password/confirm` | `{ email; code /*6 digits*/; password /*8–200*/ }` | `{ user; session }`, signed in with the new password | `INVALID_CODE`, `PASSWORD_UPDATE_FAILED` (e.g. the new password matches the old one; show the message), `RATE_LIMITED`, `VALIDATION_ERROR` |
+
+- After any success that returns a session, call `supabase.auth.setSession({ access_token, refresh_token })`, so
+  supabase-js owns refresh from then on, then go to Home.
+- Code checks are capped at 10 per 15 minutes per IP, and wrong codes count toward the same lockout as failed
+  logins (per email and IP). Show `attemptsRemaining` when it's low, and a countdown from `lockedForSeconds`.
+- These auth routes are not in `api/openapi.json` (the auth router isn't documented there). This table is their
+  reference.
 
 ### POST /auth/password (auth)
 `body: { password: string /*min 8*/ }` → `data: null`. Errors: `UPDATE_FAILED`, `UNAUTHENTICATED`. Used by Settings
