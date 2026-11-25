@@ -42,3 +42,9 @@ example
 # generated native folders
 /ios
 /android
+
+# Course presentation deck (local only)
+presentation/
+
+# Local tool settings
+.puku-cli/

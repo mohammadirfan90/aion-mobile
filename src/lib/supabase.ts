@@ -25,6 +25,8 @@ export function getSupabase(): SupabaseClient {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: false,
+      // Google sign-in returns a one-time code the app exchanges itself (D-18).
+      flowType: 'pkce',
     },
   });
   watchAppState(client);

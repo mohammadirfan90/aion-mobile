@@ -12,7 +12,8 @@ import { HeaderBackButton } from '@/components/ui/Header';
 import { Screen } from '@/components/ui/Screen';
 import { Text } from '@/components/ui/Text';
 import { TextField } from '@/components/ui/TextField';
-import { useCheckUsername, useSignup } from '@/features/auth/hooks';
+import { GoogleButton, OrDivider } from '@/features/auth/components/GoogleButton';
+import { useCheckUsername, useGoogleSignIn, useSignup } from '@/features/auth/hooks';
 import {
   calculatePasswordStrength,
   type PasswordStrength,
@@ -41,6 +42,7 @@ export function SignupScreen() {
 
   const usernameStatus = useCheckUsername(username);
   const { signUp, isLoading, serverError, clearServerError } = useSignup();
+  const google = useGoogleSignIn();
 
   const passwordStrength: PasswordStrength = calculatePasswordStrength(password);
 
@@ -129,6 +131,25 @@ export function SignupScreen() {
           <Text variant="body" tone="muted">
             It takes less than a minute
           </Text>
+        </View>
+
+        {/* Google sign-up (D-18): the account and profile are created on first sign-in */}
+        <View style={{ gap: theme.spacing.four }}>
+          {google.error ? (
+            <Text variant="caption" tone="destructive" accessibilityRole="alert">
+              {google.error}
+            </Text>
+          ) : null}
+          <GoogleButton
+            label="Sign up with Google"
+            loading={google.isLoading}
+            disabled={isLoading}
+            onPress={() => {
+              clearServerError();
+              void google.signIn();
+            }}
+          />
+          <OrDivider />
         </View>
 
         {/* Server error banner if not field-specific */}
