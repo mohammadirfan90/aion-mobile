@@ -45,3 +45,6 @@ example
 
 # Course presentation deck (local only)
 presentation/
+
+# Local tool settings
+.puku-cli/
