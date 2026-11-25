@@ -2,6 +2,12 @@
 
 Newest entries on top. Format is in [../TRACKER.md](../TRACKER.md#how-to-use-this-file).
 
+## 2026-11-24 — P2-17
+- Did: Google sign-in on S02 ("Continue with Google") and S03 ("Sign up with Google") with an "or" divider. `signInWithGoogle()` in the auth store opens Supabase's Google OAuth in an in-app browser and exchanges the returned code (PKCE, `flowType: "pkce"`). Closing the browser is silent; a failure shows a short error. `app/auth/callback.tsx` catches the return link on Android. Logo colours live in `theme/brand.ts`. Decision D-18; L-01 now covers Apple only.
+- Quality gates: verify check (lint, typecheck, tests) passes. Not yet tried on a device: needs the Supabase redirect URL (D-18).
+- Next: Irfan adds `aion://auth/callback` to Supabase redirect URLs, then test on Android.
+- Blockers: Supabase config.
+
 ## 2026-10-15 — P2-10
 - Did: `lib/sse.ts` follows API §13's parsing rules: buffered lines, `data:` only, `[DONE]` ignored, EOF ends the message, the literal backslash-n pair stripped before `JSON.parse`, dangling code fences closed (#15). The stream uses `expo/fetch` with the bearer token and the same single 401 refresh as `request()` (#3). A mid-stream error keeps the partial text; Stop still aborts. `features/tutor/limits.ts` clamps the message, titles, lesson content, notes and history to the server caps, and saved messages to 20,000 (#16). Context notes send `courseId` (#11). `useAiOff()` moved to the auth store; S17 shows the AI-off state and hides the composer (#14).
 - Quality gates: tsc, lint, 83 tests. Prettier reformatted TutorScreen.tsx (line length only).

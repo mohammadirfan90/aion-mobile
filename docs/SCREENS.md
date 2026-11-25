@@ -39,7 +39,7 @@ endpoints listed under *Data*.
   - [ ] Keyboard "next" moves from email to password; "go" submits.
   - [ ] `autoComplete` and `textContentType` let password managers work.
   - [ ] On success, the app lands on the Home tab. There is no "success" screen.
-  - [ ] No Apple or Google buttons in v1.
+  - [ ] A "Continue with Google" button above the form, with an "or" divider (D-18); S03 has "Sign up with Google". No Apple button yet (L-01).
 
 ### S03 Signup · `(auth)/signup.tsx` · M
 - **Fields:** First name, Last name, Username, Email, Password, Confirm password. Add a password strength hint

@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { Text } from '@/components/ui/Text';
 import { TextField } from '@/components/ui/TextField';
-import { useLogin } from '@/features/auth/hooks';
+import { GoogleButton, OrDivider } from '@/features/auth/components/GoogleButton';
+import { useGoogleSignIn, useLogin } from '@/features/auth/hooks';
 import { loginSchema } from '@/features/auth/schemas';
 import { env } from '@/lib/env';
 import { useTheme } from '@/theme';
@@ -24,6 +25,7 @@ export function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { login, isLoading, bannerError, clearBanner } = useLogin();
+  const google = useGoogleSignIn();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -156,6 +158,25 @@ export function LoginScreen() {
               )}
             </View>
           )}
+
+          {/* Google sign-in (D-18); success flips Stack.Protected like a password login */}
+          <View style={{ gap: theme.spacing.four }}>
+            {google.error ? (
+              <Text variant="caption" tone="destructive" accessibilityRole="alert">
+                {google.error}
+              </Text>
+            ) : null}
+            <GoogleButton
+              label="Continue with Google"
+              loading={google.isLoading}
+              disabled={isLoading}
+              onPress={() => {
+                clearBanner();
+                void google.signIn();
+              }}
+            />
+            <OrDivider />
+          </View>
 
           {/* Form Fields */}
           <View style={{ gap: theme.spacing.four }}>

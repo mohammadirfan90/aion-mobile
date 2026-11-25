@@ -16,6 +16,8 @@
  * should import the mock store for auth state.
  */
 import type { AuthError, Session } from '@supabase/supabase-js';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import { create } from 'zustand';
 
 import { ApiError, configureAuth, pingHealth, request } from '@/api/client';
@@ -153,6 +155,47 @@ export async function signInWithPassword(email: string, password: string): Promi
   const { data, error } = await getSupabase().auth.signInWithPassword({ email, password });
   if (error || !data.session) throw toApiError(error);
   await acceptSession(data.session);
+}
+
+/**
+ * Google sign-in (D-18). Opens Google in an in-app browser through Supabase,
+ * which sends the browser back to `aion://auth/callback?code=…`; the app swaps
+ * that one-time code for a session. Returns false if the user closed the
+ * browser. Throws `ApiError` (`OAUTH_FAILED`) if Google or Supabase refused.
+ */
+export async function signInWithGoogle(): Promise<boolean> {
+  if (env.useMocks) {
+    await mockAuth.signIn('student@aion.example', '');
+    return true;
+  }
+  const supabase = getSupabase();
+  const redirectTo = Linking.createURL('auth/callback');
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+      // Let people pick an account instead of silently reusing the last one.
+      queryParams: { prompt: 'select_account' },
+    },
+  });
+  if (error || !data.url) throw new ApiError('OAUTH_FAILED', 'Google sign-in could not start', 0);
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  if (result.type !== 'success') return false;
+
+  const { queryParams } = Linking.parse(result.url);
+  if (queryParams?.error) {
+    if (queryParams.error === 'access_denied') return false;
+    throw new ApiError('OAUTH_FAILED', 'Google sign-in did not complete', 0);
+  }
+  const code = typeof queryParams?.code === 'string' ? queryParams.code : null;
+  if (!code) throw new ApiError('OAUTH_FAILED', 'Google sign-in did not complete', 0);
+
+  const exchanged = await supabase.auth.exchangeCodeForSession(code);
+  if (exchanged.error || !exchanged.data.session) throw new ApiError('OAUTH_FAILED', 'Google sign-in did not complete', 0);
+  await acceptSession(exchanged.data.session);
+  return true;
 }
 
 export interface SignUpInput {

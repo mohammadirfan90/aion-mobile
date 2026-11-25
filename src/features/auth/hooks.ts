@@ -16,7 +16,7 @@
 import { useEffect, useState } from 'react';
 
 import { isApiError } from '@/api/client';
-import { signInWithPassword, signUp as signUpWithApi } from '@/lib/auth-store';
+import { signInWithGoogle, signInWithPassword, signUp as signUpWithApi } from '@/lib/auth-store';
 import { env } from '@/lib/env';
 import { friendlyError } from '@/lib/errors';
 import { getSupabase } from '@/lib/supabase';
@@ -97,6 +97,32 @@ export function useLogin() {
     bannerError,
     clearBanner,
   };
+}
+
+/** Google sign-in for S02 and S03 (D-18). Closing the browser is not an error. */
+export function useGoogleSignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const signIn = async (): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      return await signInWithGoogle();
+    } catch (err: unknown) {
+      const code = errorCode(err);
+      setError(
+        code === 'OAUTH_FAILED'
+          ? "Google sign-in didn't complete. Please try again, or use your email."
+          : friendlyError(code),
+      );
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { signIn, isLoading, error, clearError: () => setError(null) };
 }
 
 export type UsernameCheckStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';

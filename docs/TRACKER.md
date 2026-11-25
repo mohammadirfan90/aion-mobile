@@ -145,6 +145,7 @@ Done means:
 | P2-13 | Wire S25–S27: profile, edit profile with avatar upload, change password, logout. | Maria | done | P2-03, P2-05 | 2026-10-15: server limits (headline 150, bio 1000, goals 1000); `/users/me` reads and edits sync the auth store (`setCurrentMe`). |
 | P2-14 | Wire S28–S29: certificate and verification. | Maria | done | P2-03 | 2026-10-15: `VerifiedCertificate` type fixed (no `enabled`, has `isOwner`); S29 verify is anonymous; `verifyLink()` for the relative `verifyUrl` (+3 tests). |
 | P2-15 | Switch mocks off by default; do a full pass against the real API; record any missing endpoints as B-05x. | Irfan + Maria | todo | P2-04…P2-14 | |
+| P2-17 | Google sign-in on S02 and S03 (D-18): Supabase OAuth with PKCE in an in-app browser, back to `aion://auth/callback`. | Irfan | review | P2-03 | 2026-11-24: app side done. Needs the Supabase setup in D-18 before it works on a device; mock mode signs in the demo student. |
 
 ## Phase 3: Native features & polish
 
@@ -180,7 +181,7 @@ work that doesn't exist yet; others are out of scope for v1.
 
 | ID | Item | Why it's open | Needs |
 |---|---|---|---|
-| L-01 | Google / Apple sign-in | The backend has Google sign-in on the web only; Apple isn't configured at all. On iOS, Google sign-in also requires offering Apple. | Supabase native OAuth setup and a deep-link callback |
+| L-01 | Apple sign-in | Google sign-in is now in the app (P2-17, D-18). Apple isn't configured anywhere, and App Store review requires it on iOS when Google sign-in is offered. | Apple developer setup, Supabase Apple provider, an Apple button on S02/S03 |
 | L-02 | In-app purchase of paid courses | D-04: no in-app payments in v1; paid courses are bought on the web. | App Store / Play billing, plus server-side receipt checks |
 | L-03 | Push notifications | No device-token storage or notification triggers on the backend. | B-06 (same as stretch P3-S2) |
 | L-04 | Instructor mode (stats, support inbox, grading) | Stretch; the endpoints exist but their responses aren't documented. | Document API §17 first (same as P3-S1) |
